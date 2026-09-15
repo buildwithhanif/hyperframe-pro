@@ -292,6 +292,13 @@ if (gen && fs.existsSync(gen)) {
     for (const h of heroes.filter((h) => h.startsWith("counter:"))) {
       const n = h.split(":")[1].replace(",", ".");
       const w = firstWord(+n);
+      // English forms too — "twelve hundred", "one thousand two hundred", "forty-seven" (added 16 Sep 2026)
+      const EN1 = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"], EN10 = ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"], ENT = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+      const enFirst = (v) => { v = Math.round(v); if (v < 10) return EN1[v]; if (v < 20) return EN10[v - 10]; if (v < 100) return ENT[Math.floor(v / 10)]; if (v < 1000) return EN1[Math.floor(v / 100)]; return EN1[Math.floor(v / 1000)]; };
+      const enCands = new Set([enFirst(+n)]);
+      if (+n >= 1000 && +n < 10000 && +n % 100 === 0) enCands.add(enFirst(+n / 100));   // "twelve hundred"
+      if (w && spoken.some((t) => t.startsWith(w))) continue;
+      if ([...enCands].some((c) => c && spoken.some((t) => t.startsWith(c)))) continue;
       if (w && spoken.length && !spoken.some((s) => s.startsWith(w))) err(`PLAN counter ${n} — its number ("${w}…") is never spoken in the VO (a mistake this cost us once: no invented numbers)`);
     }
     const rowsTxt = plan[1].split(/\},\s*\{/);
