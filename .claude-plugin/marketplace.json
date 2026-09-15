@@ -1,0 +1,21 @@
+{
+  "name": "hyperframe-pro",
+  "description": "A production layer for HyperFrames: plan beats before code, enforce retention with a lint that fails your build, lock every cue to a voice-over word, and revise a finished video without re-recording it.",
+  "version": "1.0.0",
+  "owner": {
+    "name": "Hanif",
+    "url": "https://github.com/buildwithhanif"
+  },
+  "plugins": [
+    {
+      "name": "hyperframe-pro",
+      "source": "./plugins/hyperframe-pro",
+      "description": "Ship short-form explainer videos people actually watch. Beat planning, a retention lint, word-locked VO timing, revision surgery, and photoreal plate generation.",
+      "category": "content",
+      "keywords": ["video", "hyperframes", "shortform", "reels", "tiktok", "tts", "elevenlabs", "retention", "gsap", "ffmpeg"],
+      "license": "MIT",
+      "homepage": "https://github.com/buildwithhanif/hyperframe-pro",
+      "repository": "https://github.com/buildwithhanif/hyperframe-pro"
+    }
+  ]
+}

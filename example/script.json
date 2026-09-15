@@ -1,0 +1,12 @@
+{
+  "slug": "example",
+  "mode": "explainer",
+  "voiceId": "REPLACE_WITH_YOUR_VOICE_ID",
+  "modelId": "eleven_multilingual_v2",
+  "language": "en",
+  "seed": 42,
+  "voiceSettings": { "stability": 0.5, "similarity_boost": 0.85, "style": 0.3, "speed": 1, "use_speaker_boost": true },
+  "scenes": [
+    { "id": "vo", "text": "Your phone storage is full again. You deleted photos and it came back in a week. The problem is not your photos. It is cache, and three apps are hiding twenty three gigabytes right now. Here is where to look." }
+  ]
+}
