@@ -2,13 +2,26 @@
  "slug": "5-tahap-kreator-ai",
  "mode": "explainer",
  "language": "id",
- "note": "One voice-over, sentence by sentence. `show` is what appears on screen and what every cue in build.mjs chains to; `say` is the same line respelled for the Indonesian TTS (English words written the way they are said). `role`: char = the kreator is talking (his mouth moves), narr = the narrator. `pause` = silence after the line, seconds.",
+ "note": "One voice-over, sentence by sentence. `show` is what appears on screen and what every cue in build.mjs chains to; `el` is the line as ElevenLabs reads it (numbers, handles and slang spelled out); `say` is the respelling for the local Piper fallback. `role`: char = the kreator is talking (his mouth moves), narr = the narrator. `pause` = silence after the line, seconds.",
  "voice": {
-  "engine": "piper id_ID-news_tts-medium via sherpa-onnx",
-  "speed": 1.1,
-  "male": {
-   "f0": 0.56,
-   "formant": 0.85
+  "engine": "elevenlabs",
+  "voiceId": "TX3LPaxmHKxFdv7VOQHJ",
+  "modelId": "eleven_multilingual_v2",
+  "seed": 42,
+  "settings": {
+   "stability": 0.4,
+   "similarity_boost": 0.8,
+   "style": 0.35,
+   "use_speaker_boost": true,
+   "speed": 1.05
+  },
+  "local": {
+   "engine": "piper id_ID-news_tts-medium via sherpa-onnx",
+   "speed": 1.1,
+   "male": {
+    "f0": 0.56,
+    "formant": 0.85
+   }
   }
  },
  "lines": [
@@ -16,115 +29,134 @@
    "role": "narr",
    "show": "Lima tahap kreator nerima AI.",
    "say": "Lima tahap kreator, nerima ei ai.",
-   "pause": 0.5
+   "pause": 0.5,
+   "el": "Lima tahap kreator nerima AI."
   },
   {
    "role": "narr",
    "show": "Satu. Denial.",
    "say": "Satu. Dinaiyel.",
-   "pause": 0.35
+   "pause": 0.35,
+   "el": "Satu. Denial."
   },
   {
    "role": "char",
    "show": "Jelek banget konten bikinan AI.",
    "say": "Jelek banget konten bikinan ei ai.",
-   "pause": 0.2
+   "pause": 0.2,
+   "el": "Jelek banget konten bikinan AI."
   },
   {
    "role": "char",
    "show": "Slop.",
    "say": "Slop!",
-   "pause": 0.6
+   "pause": 0.6,
+   "el": "Slop."
   },
   {
    "role": "narr",
    "show": "Dua. Anger.",
    "say": "Dua. Engger.",
-   "pause": 0.35
+   "pause": 0.35,
+   "el": "Dua. Anger."
   },
   {
    "role": "char",
    "show": "Bangsat! Pada bikin konten pake AI, ngabis2in air aja.",
    "say": "Bangsat! Pada bikin konten pake ei ai, ngabis-ngabisin air aja!",
-   "pause": 0.6
+   "pause": 0.6,
+   "el": "Bangsat! Pada bikin konten pake AI, ngabis-ngabisin air aja!"
   },
   {
    "role": "narr",
    "show": "Tiga. Bargaining.",
    "say": "Tiga. Bargening.",
-   "pause": 0.35
+   "pause": 0.35,
+   "el": "Tiga. Bargaining."
   },
   {
    "role": "char",
    "show": "Gapapa deh pake AI buat bantu benerin grammar sama editing.",
    "say": "Gapapa deh, pake ei ai buat bantu benerin gramer sama editing.",
-   "pause": 0.3
+   "pause": 0.3,
+   "el": "Gapapa deh pake AI buat bantu benerin grammar sama editing."
   },
   {
    "role": "char",
    "show": "Tapi ide dari gue. Gue tetep nulis konten sendiri.",
    "say": "Tapi ide dari gue. Gue tetep nulis konten sendiri.",
-   "pause": 0.6
+   "pause": 0.6,
+   "el": "Tapi ide dari gue. Gue tetep nulis konten sendiri."
   },
   {
    "role": "narr",
    "show": "Empat. Depression.",
    "say": "Empat. Dipresyen.",
-   "pause": 0.35
+   "pause": 0.35,
+   "el": "Empat. Depression."
   },
   {
    "role": "char",
    "show": "Kok akun yg bikin konten full pake AI viral terus??",
    "say": "Kok akun yang bikin konten ful pake ei ai, viral terus?",
-   "pause": 0.3
+   "pause": 0.3,
+   "el": "Kok akun yang bikin konten full pake AI viral terus??"
   },
   {
    "role": "char",
    "show": "Gue bikin konten sendiri udah ngedit 4 jam malah sepi.",
    "say": "Gue bikin konten sendiri, udah ngedit empat jam, malah sepi.",
-   "pause": 0.3
+   "pause": 0.3,
+   "el": "Gue bikin konten sendiri, udah ngedit empat jam, malah sepi."
   },
   {
    "role": "char",
    "show": "Ga fair banget.",
    "say": "Ga fer banget.",
-   "pause": 0.6
+   "pause": 0.6,
+   "el": "Ga fair banget."
   },
   {
    "role": "narr",
    "show": "Lima. Acceptance.",
    "say": "Lima. Ekseptens.",
-   "pause": 0.35
+   "pause": 0.35,
+   "el": "Lima. Acceptance."
   },
   {
    "role": "narr",
    "show": "Akhirnya ikut belajar bikin konten pake AI dan jalanin system-nya.",
    "say": "Akhirnya ikut belajar bikin konten pake ei ai, dan jalanin sistemnya.",
-   "pause": 0.6
+   "pause": 0.6,
+   "el": "Akhirnya ikut belajar bikin konten pake AI, dan jalanin system-nya."
   },
   {
    "role": "narr",
    "show": "Mau langsung loncat ke tahap 5?",
    "say": "Mau langsung loncat ke tahap lima?",
-   "pause": 0.3
+   "pause": 0.3,
+   "el": "Mau langsung loncat ke tahap lima?"
   },
   {
    "role": "narr",
    "show": "Bangun system konten AI lo sendiri, 1-on-1 bareng @hanifproduktif.",
    "say": "Bangun sistem konten ei ai lo sendiri, wan on wan bareng Hanif Produktif.",
-   "pause": 0.3
+   "pause": 0.3,
+   "el": "Bangun system konten AI lo sendiri, one on one bareng Hanif Produktif."
   },
   {
    "role": "narr",
    "show": "Cek link di bio ya.",
    "say": "Cek link di biyo, ya.",
-   "pause": 0.25
+   "pause": 0.25,
+   "el": "Cek link di bio ya."
   },
   {
    "role": "narr",
    "show": "Slotnya cuma 3 orang per minggu.",
    "say": "Slotnya cuma tiga orang per minggu.",
-   "pause": 1.4
+   "pause": 1.4,
+   "el": "Slotnya cuma tiga orang per minggu."
   }
  ]
 }

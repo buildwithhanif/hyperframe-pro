@@ -22,7 +22,7 @@ import numpy as np
 
 proj = sys.argv[1] if len(sys.argv) > 1 else "."
 cfg = json.load(open(os.path.join(proj, "script.json")))
-V = cfg["voice"]
+V = cfg["voice"].get("local", cfg["voice"])
 CACHE = os.path.expanduser("~/.cache/hyperframe-pro/tts")
 MODEL = "vits-piper-id_ID-news_tts-medium"
 URL = f"https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/{MODEL}.tar.bz2"
