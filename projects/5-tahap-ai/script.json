@@ -1,0 +1,12 @@
+{
+  "slug": "5-tahap-kreator-ai",
+  "mode": "explainer",
+  "language": "id",
+  "note": "No voice-over. This is the ON-SCREEN text in reading order; clock.mjs turns it into a word table at reading pace, and every cue in build.mjs is chained to a word in it, exactly as it would be to a VO take. Each | adds 0.3 s of hold after the word it follows. Swap in a real take (tts.mjs) later and build.mjs works unchanged.",
+  "scenes": [
+    {
+      "id": "vo",
+      "text": "5 tahap kreator nerima AI. | Denial. || jelek banget konten bikinan AI. slop. ||| Anger. || bangsat pada bikin konten pake AI ngabis2in air aja. ||| Bargaining. || gapapa deh pake AI buat bantu benerin grammar sama editing. | tapi ide dari gue. gue tetep nulis konten sendiri. ||| Depression. || kok akun yg bikin konten full pake AI viral terus?? | gue bikin konten sendiri udah ngedit 4 jam | malah sepi. | ga fair banget. ||| Acceptance. || *akhirnya ikut belajar bikin konten pake AI dan jalanin system-nya. |||| Ini real story dari peserta 1-on-1 gue. | Bahkan orangnya sempet block akun gue dulu | wkwkwk. ||| Lo lagi di tahap mana? |||||"
+    }
+  ]
+}

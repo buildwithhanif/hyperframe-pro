@@ -1,0 +1,598 @@
+{
+ "voiceId": "reading-clock",
+ "modelId": "clock.mjs",
+ "scenes": [
+  {
+   "id": "vo",
+   "text": "5 tahap kreator nerima AI. Denial. jelek banget konten bikinan AI. slop. Anger. bangsat pada bikin konten pake AI ngabis2in air aja. Bargaining. gapapa deh pake AI buat bantu benerin grammar sama editing. tapi ide dari gue. gue tetep nulis konten sendiri. Depression. kok akun yg bikin konten full pake AI viral terus?? gue bikin konten sendiri udah ngedit 4 jam malah sepi. ga fair banget. Acceptance. *akhirnya ikut belajar bikin konten pake AI dan jalanin system-nya. Ini real story dari peserta 1-on-1 gue. Bahkan orangnya sempet block akun gue dulu wkwkwk. Lo lagi di tahap mana?",
+   "wav": null,
+   "duration": 53.176,
+   "speechStart": 0,
+   "speechEnd": 51.296,
+   "words": [
+    {
+     "id": "w0",
+     "text": "5",
+     "start": 0,
+     "end": 0.224
+    },
+    {
+     "id": "w1",
+     "text": "tahap",
+     "start": 0.264,
+     "end": 0.584
+    },
+    {
+     "id": "w2",
+     "text": "kreator",
+     "start": 0.624,
+     "end": 0.992
+    },
+    {
+     "id": "w3",
+     "text": "nerima",
+     "start": 1.032,
+     "end": 1.376
+    },
+    {
+     "id": "w4",
+     "text": "AI.",
+     "start": 1.416,
+     "end": 1.664
+    },
+    {
+     "id": "w5",
+     "text": "Denial.",
+     "start": 2.344,
+     "end": 2.688
+    },
+    {
+     "id": "w6",
+     "text": "jelek",
+     "start": 3.668,
+     "end": 3.988
+    },
+    {
+     "id": "w7",
+     "text": "banget",
+     "start": 4.028,
+     "end": 4.372
+    },
+    {
+     "id": "w8",
+     "text": "konten",
+     "start": 4.412,
+     "end": 4.756
+    },
+    {
+     "id": "w9",
+     "text": "bikinan",
+     "start": 4.796,
+     "end": 5.164
+    },
+    {
+     "id": "w10",
+     "text": "AI.",
+     "start": 5.204,
+     "end": 5.452
+    },
+    {
+     "id": "w11",
+     "text": "slop.",
+     "start": 5.832,
+     "end": 6.128
+    },
+    {
+     "id": "w12",
+     "text": "Anger.",
+     "start": 7.408,
+     "end": 7.728
+    },
+    {
+     "id": "w13",
+     "text": "bangsat",
+     "start": 8.708,
+     "end": 9.076
+    },
+    {
+     "id": "w14",
+     "text": "pada",
+     "start": 9.116,
+     "end": 9.412
+    },
+    {
+     "id": "w15",
+     "text": "bikin",
+     "start": 9.452,
+     "end": 9.772
+    },
+    {
+     "id": "w16",
+     "text": "konten",
+     "start": 9.812,
+     "end": 10.156
+    },
+    {
+     "id": "w17",
+     "text": "pake",
+     "start": 10.196,
+     "end": 10.492
+    },
+    {
+     "id": "w18",
+     "text": "AI",
+     "start": 10.532,
+     "end": 10.78
+    },
+    {
+     "id": "w19",
+     "text": "ngabis2in",
+     "start": 10.82,
+     "end": 11.236
+    },
+    {
+     "id": "w20",
+     "text": "air",
+     "start": 11.276,
+     "end": 11.548
+    },
+    {
+     "id": "w21",
+     "text": "aja.",
+     "start": 11.588,
+     "end": 11.86
+    },
+    {
+     "id": "w22",
+     "text": "Bargaining.",
+     "start": 13.14,
+     "end": 13.58
+    },
+    {
+     "id": "w23",
+     "text": "gapapa",
+     "start": 14.56,
+     "end": 14.904
+    },
+    {
+     "id": "w24",
+     "text": "deh",
+     "start": 14.944,
+     "end": 15.216
+    },
+    {
+     "id": "w25",
+     "text": "pake",
+     "start": 15.256,
+     "end": 15.552
+    },
+    {
+     "id": "w26",
+     "text": "AI",
+     "start": 15.592,
+     "end": 15.84
+    },
+    {
+     "id": "w27",
+     "text": "buat",
+     "start": 15.88,
+     "end": 16.176
+    },
+    {
+     "id": "w28",
+     "text": "bantu",
+     "start": 16.216,
+     "end": 16.536
+    },
+    {
+     "id": "w29",
+     "text": "benerin",
+     "start": 16.576,
+     "end": 16.944
+    },
+    {
+     "id": "w30",
+     "text": "grammar",
+     "start": 16.984,
+     "end": 17.352
+    },
+    {
+     "id": "w31",
+     "text": "sama",
+     "start": 17.392,
+     "end": 17.688
+    },
+    {
+     "id": "w32",
+     "text": "editing.",
+     "start": 17.728,
+     "end": 18.096
+    },
+    {
+     "id": "w33",
+     "text": "tapi",
+     "start": 18.776,
+     "end": 19.072
+    },
+    {
+     "id": "w34",
+     "text": "ide",
+     "start": 19.112,
+     "end": 19.384
+    },
+    {
+     "id": "w35",
+     "text": "dari",
+     "start": 19.424,
+     "end": 19.72
+    },
+    {
+     "id": "w36",
+     "text": "gue.",
+     "start": 19.76,
+     "end": 20.032
+    },
+    {
+     "id": "w37",
+     "text": "gue",
+     "start": 20.412,
+     "end": 20.684
+    },
+    {
+     "id": "w38",
+     "text": "tetep",
+     "start": 20.724,
+     "end": 21.044
+    },
+    {
+     "id": "w39",
+     "text": "nulis",
+     "start": 21.084,
+     "end": 21.404
+    },
+    {
+     "id": "w40",
+     "text": "konten",
+     "start": 21.444,
+     "end": 21.788
+    },
+    {
+     "id": "w41",
+     "text": "sendiri.",
+     "start": 21.828,
+     "end": 22.196
+    },
+    {
+     "id": "w42",
+     "text": "Depression.",
+     "start": 23.476,
+     "end": 23.916
+    },
+    {
+     "id": "w43",
+     "text": "kok",
+     "start": 24.896,
+     "end": 25.168
+    },
+    {
+     "id": "w44",
+     "text": "akun",
+     "start": 25.208,
+     "end": 25.504
+    },
+    {
+     "id": "w45",
+     "text": "yg",
+     "start": 25.544,
+     "end": 25.792
+    },
+    {
+     "id": "w46",
+     "text": "bikin",
+     "start": 25.832,
+     "end": 26.152
+    },
+    {
+     "id": "w47",
+     "text": "konten",
+     "start": 26.192,
+     "end": 26.536
+    },
+    {
+     "id": "w48",
+     "text": "full",
+     "start": 26.576,
+     "end": 26.872
+    },
+    {
+     "id": "w49",
+     "text": "pake",
+     "start": 26.912,
+     "end": 27.208
+    },
+    {
+     "id": "w50",
+     "text": "AI",
+     "start": 27.248,
+     "end": 27.496
+    },
+    {
+     "id": "w51",
+     "text": "viral",
+     "start": 27.536,
+     "end": 27.856
+    },
+    {
+     "id": "w52",
+     "text": "terus??",
+     "start": 27.896,
+     "end": 28.216
+    },
+    {
+     "id": "w53",
+     "text": "gue",
+     "start": 28.896,
+     "end": 29.168
+    },
+    {
+     "id": "w54",
+     "text": "bikin",
+     "start": 29.208,
+     "end": 29.528
+    },
+    {
+     "id": "w55",
+     "text": "konten",
+     "start": 29.568,
+     "end": 29.912
+    },
+    {
+     "id": "w56",
+     "text": "sendiri",
+     "start": 29.952,
+     "end": 30.32
+    },
+    {
+     "id": "w57",
+     "text": "udah",
+     "start": 30.36,
+     "end": 30.656
+    },
+    {
+     "id": "w58",
+     "text": "ngedit",
+     "start": 30.696,
+     "end": 31.04
+    },
+    {
+     "id": "w59",
+     "text": "4",
+     "start": 31.08,
+     "end": 31.304
+    },
+    {
+     "id": "w60",
+     "text": "jam",
+     "start": 31.344,
+     "end": 31.616
+    },
+    {
+     "id": "w61",
+     "text": "malah",
+     "start": 31.956,
+     "end": 32.276
+    },
+    {
+     "id": "w62",
+     "text": "sepi.",
+     "start": 32.316,
+     "end": 32.612
+    },
+    {
+     "id": "w63",
+     "text": "ga",
+     "start": 33.292,
+     "end": 33.54
+    },
+    {
+     "id": "w64",
+     "text": "fair",
+     "start": 33.58,
+     "end": 33.876
+    },
+    {
+     "id": "w65",
+     "text": "banget.",
+     "start": 33.916,
+     "end": 34.26
+    },
+    {
+     "id": "w66",
+     "text": "Acceptance.",
+     "start": 35.54,
+     "end": 35.98
+    },
+    {
+     "id": "w67",
+     "text": "*akhirnya",
+     "start": 36.96,
+     "end": 37.352
+    },
+    {
+     "id": "w68",
+     "text": "ikut",
+     "start": 37.392,
+     "end": 37.688
+    },
+    {
+     "id": "w69",
+     "text": "belajar",
+     "start": 37.728,
+     "end": 38.096
+    },
+    {
+     "id": "w70",
+     "text": "bikin",
+     "start": 38.136,
+     "end": 38.456
+    },
+    {
+     "id": "w71",
+     "text": "konten",
+     "start": 38.496,
+     "end": 38.84
+    },
+    {
+     "id": "w72",
+     "text": "pake",
+     "start": 38.88,
+     "end": 39.176
+    },
+    {
+     "id": "w73",
+     "text": "AI",
+     "start": 39.216,
+     "end": 39.464
+    },
+    {
+     "id": "w74",
+     "text": "dan",
+     "start": 39.504,
+     "end": 39.776
+    },
+    {
+     "id": "w75",
+     "text": "jalanin",
+     "start": 39.816,
+     "end": 40.184
+    },
+    {
+     "id": "w76",
+     "text": "system-nya.",
+     "start": 40.224,
+     "end": 40.64
+    },
+    {
+     "id": "w77",
+     "text": "Ini",
+     "start": 42.22,
+     "end": 42.492
+    },
+    {
+     "id": "w78",
+     "text": "real",
+     "start": 42.532,
+     "end": 42.828
+    },
+    {
+     "id": "w79",
+     "text": "story",
+     "start": 42.868,
+     "end": 43.188
+    },
+    {
+     "id": "w80",
+     "text": "dari",
+     "start": 43.228,
+     "end": 43.524
+    },
+    {
+     "id": "w81",
+     "text": "peserta",
+     "start": 43.564,
+     "end": 43.932
+    },
+    {
+     "id": "w82",
+     "text": "1-on-1",
+     "start": 43.972,
+     "end": 44.268
+    },
+    {
+     "id": "w83",
+     "text": "gue.",
+     "start": 44.308,
+     "end": 44.58
+    },
+    {
+     "id": "w84",
+     "text": "Bahkan",
+     "start": 45.26,
+     "end": 45.604
+    },
+    {
+     "id": "w85",
+     "text": "orangnya",
+     "start": 45.644,
+     "end": 46.036
+    },
+    {
+     "id": "w86",
+     "text": "sempet",
+     "start": 46.076,
+     "end": 46.42
+    },
+    {
+     "id": "w87",
+     "text": "block",
+     "start": 46.46,
+     "end": 46.78
+    },
+    {
+     "id": "w88",
+     "text": "akun",
+     "start": 46.82,
+     "end": 47.116
+    },
+    {
+     "id": "w89",
+     "text": "gue",
+     "start": 47.156,
+     "end": 47.428
+    },
+    {
+     "id": "w90",
+     "text": "dulu",
+     "start": 47.468,
+     "end": 47.764
+    },
+    {
+     "id": "w91",
+     "text": "wkwkwk.",
+     "start": 48.104,
+     "end": 48.448
+    },
+    {
+     "id": "w92",
+     "text": "Lo",
+     "start": 49.728,
+     "end": 49.976
+    },
+    {
+     "id": "w93",
+     "text": "lagi",
+     "start": 50.016,
+     "end": 50.312
+    },
+    {
+     "id": "w94",
+     "text": "di",
+     "start": 50.352,
+     "end": 50.6
+    },
+    {
+     "id": "w95",
+     "text": "tahap",
+     "start": 50.64,
+     "end": 50.96
+    },
+    {
+     "id": "w96",
+     "text": "mana?",
+     "start": 51,
+     "end": 51.296
+    }
+   ]
+  }
+ ]
+}

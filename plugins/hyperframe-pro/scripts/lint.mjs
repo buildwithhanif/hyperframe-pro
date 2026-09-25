@@ -73,7 +73,7 @@ for (const c of cards) {
 const ctIds = [...html.matchAll(/id="([^"]+)" class="ct[ "]/g)].map((m) => m[1]).concat([...html.matchAll(/class="ct[^"]*" id="([^"]+)"/g)].map((m) => m[1]));
 for (const id of new Set(ctIds)) {
   const childTween = new RegExp(`tl\\.(?:fromTo|to|set)\\("#${id} [.#>]`).test(html);
-  const parentShown = new RegExp(`tl\\.(?:fromTo|set|to)\\("#${id}"[^;]*autoAlpha:1`).test(html) || new RegExp(`tl\\.fromTo\\("#${id}",\\{autoAlpha:0`).test(html);
+  const parentShown = new RegExp(`tl\\.(?:fromTo|set|to)\\("#${id}"[^;]*autoAlpha"?:1`).test(html) || new RegExp(`tl\\.fromTo\\("#${id}",\\{"?autoAlpha"?:0`).test(html); // motion.mjs emits JSON keys ("autoAlpha":1)
   if (childTween && !parentShown) err(`#${id}: children are animated but the .ct parent is never set visible — the whole block stays hidden (a mistake this cost us once)`);
 }
 
