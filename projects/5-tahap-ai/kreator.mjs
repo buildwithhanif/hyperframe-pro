@@ -4,7 +4,8 @@
 //
 // One identity (hair, hoodie, face shape) across every stage so the viewer reads it as the SAME person
 // going through the stages. Only the face and the pose change. Every animatable part gets an id prefixed
-// with `prefix`, so two instances never collide:  <prefix>-eyes, -steam1..3, -tear, -fist, -palm, -head.
+// with `prefix`, so two instances never collide:  <prefix>-eyes, -steam1..3, -tear, -fist, -palm, -head,
+// and for the lip-sync: -mouth (open-mouth moods, scaled in Y) or -talk (closed-mouth moods, an oval scaled from 0).
 //
 // mood: smug (denial) | angry (anger) | unsure (bargaining) | sad (depression) | happy (acceptance)
 // crop: "full" (head + torso, 600x720) | "face" (head only, for the mini row)
@@ -28,9 +29,9 @@ function face(p, mood) {
     case "angry": return `
       <g id="${p}-eyes">${eyeWhite(245, 272, 19, 15)}${eyeWhite(355, 272, 19, 15)}${pupil(247, 274, 8)}${pupil(353, 274, 8)}</g>
       ${line("M212,222 L276,248", 13)}${line("M324,248 L388,222", 13)}
-      <path d="M246,318 Q300,300 354,318 Q350,390 300,392 Q250,390 246,318 Z" fill="#7A1F22" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
+      <g id="${p}-mouth"><path d="M246,318 Q300,300 354,318 Q350,390 300,392 Q250,390 246,318 Z" fill="#7A1F22" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
       <path d="M254,320 Q300,306 346,320 L344,334 Q300,322 256,334 Z" fill="#fff"/>
-      <ellipse cx="300" cy="372" rx="26" ry="10" fill="#E0736F"/>
+      <ellipse cx="300" cy="372" rx="26" ry="10" fill="#E0736F"/></g>
       <g stroke="${RED}" stroke-width="8" stroke-linecap="round">${line("M372,186 L384,204", 8, RED)}${line("M400,180 L388,198", 8, RED)}${line("M372,216 L384,204", 8, RED)}${line("M400,222 L388,210", 8, RED)}</g>`;
     case "unsure": return `
       <g id="${p}-eyes">${eyeWhite(245, 268)}${eyeWhite(355, 268)}<g id="${p}-pupils">${pupil(236, 270)}${pupil(346, 270)}</g></g>
@@ -45,8 +46,8 @@ function face(p, mood) {
     case "happy": return `
       <g id="${p}-eyes">${line("M224,272 Q245,248 266,272", 9)}${line("M334,272 Q355,248 376,272", 9)}</g>
       ${line("M220,222 Q245,208 270,218", 9)}${line("M330,218 Q355,208 380,222", 9)}
-      <path d="M250,318 Q300,386 350,318 Z" fill="#7A1F22" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
-      <path d="M276,352 Q300,340 324,352 Q312,366 300,366 Q288,366 276,352 Z" fill="#E0736F"/>`;
+      <g id="${p}-mouth"><path d="M250,318 Q300,386 350,318 Z" fill="#7A1F22" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M276,352 Q300,340 324,352 Q312,366 300,366 Q288,366 276,352 Z" fill="#E0736F"/></g>`;
   }
   return "";
 }
@@ -97,6 +98,7 @@ export function kreator(p, mood, { crop = "full" } = {}) {
       <ellipse cx="386" cy="318" rx="24" ry="14" fill="#F28B82" opacity="${mood === "happy" ? 0.7 : 0.4}"/>
       <path d="M152,262 Q134,96 300,92 Q470,96 450,262 Q440,176 384,156 Q342,196 262,166 Q200,176 152,262 Z" fill="${HAIR}" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
       ${face(p, mood)}
+      ${["smug", "unsure", "sad"].includes(mood) ? `<g transform="translate(${mood === "smug" ? 302 : 300},${mood === "sad" ? 346 : 340})"><g id="${p}-talk" transform="scale(0)"><ellipse cx="0" cy="0" rx="24" ry="19" fill="#7A1F22" stroke="${INK}" stroke-width="5"/><ellipse cx="0" cy="9" rx="12" ry="6" fill="#E0736F"/></g></g>` : ""}
     </g>`;
   if (crop === "face") return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="120 70 360 360" width="100%" height="100%">${head}</svg>`;
   const body = `

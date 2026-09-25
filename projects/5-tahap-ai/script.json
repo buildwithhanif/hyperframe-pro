@@ -1,12 +1,130 @@
 {
-  "slug": "5-tahap-kreator-ai",
-  "mode": "explainer",
-  "language": "id",
-  "note": "No voice-over. This is the ON-SCREEN text in reading order; clock.mjs turns it into a word table at reading pace, and every cue in build.mjs is chained to a word in it, exactly as it would be to a VO take. Each | adds 0.3 s of hold after the word it follows. Swap in a real take (tts.mjs) later and build.mjs works unchanged.",
-  "scenes": [
-    {
-      "id": "vo",
-      "text": "5 tahap kreator nerima AI. | Denial. || jelek banget konten bikinan AI. slop. ||| Anger. || bangsat pada bikin konten pake AI ngabis2in air aja. ||| Bargaining. || gapapa deh pake AI buat bantu benerin grammar sama editing. | tapi ide dari gue. gue tetep nulis konten sendiri. ||| Depression. || kok akun yg bikin konten full pake AI viral terus?? | gue bikin konten sendiri udah ngedit 4 jam | malah sepi. | ga fair banget. ||| Acceptance. || *akhirnya ikut belajar bikin konten pake AI dan jalanin system-nya. |||| Ini real story dari peserta 1-on-1 gue. | Bahkan orangnya sempet block akun gue dulu | wkwkwk. ||| Lo lagi di tahap mana? |||||"
-    }
-  ]
+ "slug": "5-tahap-kreator-ai",
+ "mode": "explainer",
+ "language": "id",
+ "note": "One voice-over, sentence by sentence. `show` is what appears on screen and what every cue in build.mjs chains to; `say` is the same line respelled for the Indonesian TTS (English words written the way they are said). `role`: char = the kreator is talking (his mouth moves), narr = the narrator. `pause` = silence after the line, seconds.",
+ "voice": {
+  "engine": "piper id_ID-news_tts-medium via sherpa-onnx",
+  "speed": 1.1,
+  "male": {
+   "f0": 0.56,
+   "formant": 0.85
+  }
+ },
+ "lines": [
+  {
+   "role": "narr",
+   "show": "Lima tahap kreator nerima AI.",
+   "say": "Lima tahap kreator, nerima ei ai.",
+   "pause": 0.5
+  },
+  {
+   "role": "narr",
+   "show": "Satu. Denial.",
+   "say": "Satu. Dinaiyel.",
+   "pause": 0.35
+  },
+  {
+   "role": "char",
+   "show": "Jelek banget konten bikinan AI.",
+   "say": "Jelek banget konten bikinan ei ai.",
+   "pause": 0.2
+  },
+  {
+   "role": "char",
+   "show": "Slop.",
+   "say": "Slop!",
+   "pause": 0.6
+  },
+  {
+   "role": "narr",
+   "show": "Dua. Anger.",
+   "say": "Dua. Engger.",
+   "pause": 0.35
+  },
+  {
+   "role": "char",
+   "show": "Bangsat! Pada bikin konten pake AI, ngabis2in air aja.",
+   "say": "Bangsat! Pada bikin konten pake ei ai, ngabis-ngabisin air aja!",
+   "pause": 0.6
+  },
+  {
+   "role": "narr",
+   "show": "Tiga. Bargaining.",
+   "say": "Tiga. Bargening.",
+   "pause": 0.35
+  },
+  {
+   "role": "char",
+   "show": "Gapapa deh pake AI buat bantu benerin grammar sama editing.",
+   "say": "Gapapa deh, pake ei ai buat bantu benerin gramer sama editing.",
+   "pause": 0.3
+  },
+  {
+   "role": "char",
+   "show": "Tapi ide dari gue. Gue tetep nulis konten sendiri.",
+   "say": "Tapi ide dari gue. Gue tetep nulis konten sendiri.",
+   "pause": 0.6
+  },
+  {
+   "role": "narr",
+   "show": "Empat. Depression.",
+   "say": "Empat. Dipresyen.",
+   "pause": 0.35
+  },
+  {
+   "role": "char",
+   "show": "Kok akun yg bikin konten full pake AI viral terus??",
+   "say": "Kok akun yang bikin konten ful pake ei ai, viral terus?",
+   "pause": 0.3
+  },
+  {
+   "role": "char",
+   "show": "Gue bikin konten sendiri udah ngedit 4 jam malah sepi.",
+   "say": "Gue bikin konten sendiri, udah ngedit empat jam, malah sepi.",
+   "pause": 0.3
+  },
+  {
+   "role": "char",
+   "show": "Ga fair banget.",
+   "say": "Ga fer banget.",
+   "pause": 0.6
+  },
+  {
+   "role": "narr",
+   "show": "Lima. Acceptance.",
+   "say": "Lima. Ekseptens.",
+   "pause": 0.35
+  },
+  {
+   "role": "narr",
+   "show": "Akhirnya ikut belajar bikin konten pake AI dan jalanin system-nya.",
+   "say": "Akhirnya ikut belajar bikin konten pake ei ai, dan jalanin sistemnya.",
+   "pause": 0.6
+  },
+  {
+   "role": "narr",
+   "show": "Mau langsung loncat ke tahap 5?",
+   "say": "Mau langsung loncat ke tahap lima?",
+   "pause": 0.3
+  },
+  {
+   "role": "narr",
+   "show": "Bangun system konten AI lo sendiri, 1-on-1 bareng @hanifproduktif.",
+   "say": "Bangun sistem konten ei ai lo sendiri, wan on wan bareng Hanif Produktif.",
+   "pause": 0.3
+  },
+  {
+   "role": "narr",
+   "show": "Cek link di bio ya.",
+   "say": "Cek link di biyo, ya.",
+   "pause": 0.25
+  },
+  {
+   "role": "narr",
+   "show": "Slotnya cuma 3 orang per minggu.",
+   "say": "Slotnya cuma tiga orang per minggu.",
+   "pause": 1.4
+  }
+ ]
 }

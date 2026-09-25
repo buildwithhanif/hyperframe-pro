@@ -1,16 +1,18 @@
 5-tahap-kreator-ai: provenance of everything on screen and on the soundtrack
 
-Script: the five stage lines and the real-story lines are the requester's own words, verbatim.
-Added on-screen copy (hook, labels, closing question) written for this build.
+Script: the five stage lines are the requester's own words, verbatim on screen.
+Added copy (hook, stage call-outs, labels, CTA wording) written for this build from the requester's brief:
+"belajar bikin system konten pake 1-on-1 bareng @hanifproduktif / cek link di bio / limited 3 participants/week".
+
+Voice-over: synthesized locally. Piper voice id_ID-news_tts-medium (sherpa-onnx release "tts-models",
+github.com/k2-fsa/sherpa-onnx), pitch/formant lowered with pyworld. Not a real person's voice.
+Intelligibility checked line by line with Whisper small (sherpa-onnx release "asr-models").
 
 Visuals: all drawn in code (kreator.mjs, build.mjs). No screenshots, no generated images, no footage.
 The "posts" are abstract drawn cards and do not imitate any real app.
-The participant is represented by the drawn character only; no name, handle or photo.
 
-Fonts (SIL Open Font License, via npm @fontsource 5.3.0):
-  assets/fonts/bricolage-grotesque-latin-800-normal.woff2  (Bricolage Grotesque)
-  assets/fonts/plus-jakarta-sans-latin-{600,800}-normal.woff2  (Plus Jakarta Sans)
-  assets/fonts/caveat-latin-700-normal.woff2  (Caveat)
+Fonts (SIL Open Font License, via npm @fontsource 5.3.0), licences in assets/fonts/OFL-*.txt:
+  Bricolage Grotesque 800 (also as outlines in assets/glyphs.json), Plus Jakarta Sans 600/800, Caveat 700.
 GSAP 3.14.2 (npm gsap): assets/vendor/gsap.min.js, vendored because the render browser has no CDN access.
 
-Audio: music and every SFX synthesized from scratch by audio.py (numpy). No samples.
+Music and SFX: synthesized from scratch by audio.py (numpy). No samples.

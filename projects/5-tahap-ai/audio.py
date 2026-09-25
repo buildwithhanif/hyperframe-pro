@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""audio.py: the whole soundtrack, synthesized. No samples, no licences, no API.
+"""audio.py: music + SFX synthesized (no samples, no licences, no API), mixed with the voice-over.
 
     python3 audio.py .
 
 Reads assets/audio/cues.json (written by build.mjs): one music SECTION per stage, cut on the stage's cue
-word, plus every SFX at its cue time. Writes assets/audio/mix.wav at -14 LUFS.
+word, plus every SFX at its cue time. Mixes assets/vo/vo.wav on top with the music ducked under it. Writes assets/audio/mix.wav at -14 LUFS.
 
 The music follows the arc: playful (denial), hard and fast (anger), hesitant (bargaining), no drums and
 rain (depression), bright (acceptance). Everything sits on one 100 BPM grid from t=0, so a section change
@@ -79,8 +79,7 @@ STYLE = {
     "bargaining": dict(prog=[F, C, G, Am], kick=[0], hat=4, pluck="off", bass=True, g=0.8),
     "depression": dict(prog=[Am, F, C, G], padg=0.5, piano=True, g=0.8),
     "acceptance": dict(prog=[C, G, Am, F], kick=[0, 2], clap=[1, 3], hat=8, pluck="arp16", bass=True, padg=0.25, g=0.9),
-    "story":      dict(prog=[C, G, Am, F], hat=8, pluck="arp8", bass=True, clap=[1, 3], g=0.8),
-    "end":        dict(prog=[C, G, Am, F], kick=[0, 2], clap=[1, 3], hat=8, pluck="arp16", bass=True, padg=0.25, g=0.9),
+    "cta":        dict(prog=[F, G, C, Am], kick=[0, 2], clap=[1, 3], hat=8, pluck="arp16", bass=True, padg=0.25, g=0.9),
 }
 
 def render_section(st, a, b):
@@ -184,7 +183,21 @@ fx = np.zeros(N)
 for e in cues["sfx"]:
     add(fx, SFX[e["name"]](), e["t"], e["vol"])
 
-mix = 0.34 * music + 0.62 * fx
+# the voice-over, and the music ducking under it (~-9 dB while he talks, back up in the gaps)
+vo = np.zeros(N)
+vp = os.path.join(proj, cues.get("vo", ""))
+if cues.get("vo") and os.path.exists(vp):
+    with wave.open(vp) as w:
+        v = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float64) / 32768
+        if w.getnchannels() == 2: v = v.reshape(-1, 2).mean(1)
+    add(vo, v, cues.get("voStart", 0.35))
+    hop = SR // 100; e = np.sqrt(np.convolve(vo ** 2, np.ones(hop) / hop, "same"))
+    talk = (e > 0.02).astype(float)
+    k = int(0.25 * SR); talk = np.convolve(talk, np.ones(k) / k, "same")      # 250 ms attack/release
+    duck = 1 - 0.65 * np.clip(talk * 1.5, 0, 1)
+else:
+    duck = np.ones(N)
+mix = 0.34 * music * duck + 0.5 * fx * (1 - 0.3 * (1 - duck)) + 0.95 * vo
 mix = np.tanh(1.2 * mix) / np.tanh(1.2)
 mix = mix[: int(TOTAL * SR)]
 raw = os.path.join(proj, "assets/audio/_raw.wav")
