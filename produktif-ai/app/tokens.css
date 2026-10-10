@@ -3,32 +3,34 @@
 
 html:has(.pai) {
   color-scheme: only light;
-  background: var(--pai-bg, #f5f2eb);
+  background: var(--pai-bg, #ffffff);
 }
 body:has(.pai) {
   margin: 0;
-  background: var(--pai-bg, #f5f2eb);
+  background: var(--pai-bg, #ffffff);
 }
 
 .pai {
-  /* color: paper, ink and one red (the record dot) */
-  --paper: #f5f2eb;
-  --paper-hi: #fbfaf6;
-  --paper-lo: #ede9df;
-  --ink: #15140f;
-  --ink-2: #3a372f;
-  --muted: #6a665c;
-  --field: #857f73;
-  --line: #ddd7ca;
-  --line-2: #cbc4b5;
-  --rec: #cc1f24;
+  /* color: white paper, true black ink, one caption-yellow accent (DESIGN.md) */
+  --paper: #ffffff;
+  --paper-hi: #ffffff;
+  --paper-lo: #f3f4f5;
+  --ink: #000000;
+  --ink-2: #26282c;
+  --muted: #55585e;
+  --field: #8a8d93;
+  --line: #e4e5e7;
+  --line-2: #cfd1d4;
+  --yellow: #ffd60a;
+  --yellow-2: #f2c800;
+  /* errors only */
+  --rec: #c81d25;
   --on-rec: #ffffff;
-  --rec-inverse: #ff5245;
-  --video: #0c0b09;
-  --cap-box: #cc1f24;
-  --night: #12110e;
-  --on-night: #f2eee5;
-  --on-night-2: #aba597;
+  --rec-inverse: #ffd60a;
+  --video: #000000;
+  --night: #000000;
+  --on-night: #ffffff;
+  --on-night-2: #b8bbc0;
   /* older names, still used across the CSS */
   --pai-bg: var(--paper);
   --bg: var(--paper);
@@ -38,19 +40,19 @@ body:has(.pai) {
   --fg-2: var(--ink-2);
   --accent: var(--rec);
   --accent-ink: var(--on-rec);
-  /* type: Newsreader speaks for the creator, Geist does the work, Geist Mono prints machine data */
-  --display: var(--font-newsreader), ui-serif, Georgia, "Times New Roman", serif;
-  --sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* type: one family, Archivo; condensed heavy for display */
+  --display: var(--font-archivo), "Arial Narrow", Arial, sans-serif;
+  --sans: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
   /* radius and elevation */
-  --r-xs: 6px;
-  --r-sm: 12px;
-  --r-md: 16px;
-  --r-lg: 22px;
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
   --r-pill: 999px;
-  --e1: 0 1px 2px rgba(21, 20, 15, 0.06);
-  --e2: 0 1px 0 rgba(255, 255, 255, 0.07) inset, 0 40px 70px -40px rgba(21, 20, 15, 0.55), 0 14px 28px -16px rgba(21, 20, 15, 0.25);
-  --e3: 0 40px 80px -20px rgba(21, 20, 15, 0.35);
+  --e1: none;
+  --e2: 0 30px 60px -30px rgba(0, 0, 0, 0.45);
+  --e3: 0 30px 60px -30px rgba(0, 0, 0, 0.35);
   /* motion */
   --ease-arrive: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
@@ -96,13 +98,23 @@ body:has(.pai) {
   color: inherit;
 }
 .pai ::selection {
-  background: var(--fg);
-  color: var(--bg);
+  background: var(--yellow);
+  color: var(--ink);
 }
 .pai :focus-visible {
   outline: 2px solid var(--fg);
   outline-offset: 3px;
   border-radius: 6px;
+}
+/* the wordmark, set in the site face */
+.pai .wm {
+  font-family: var(--sans);
+  font-weight: 850;
+  font-stretch: 72%;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  color: var(--ink);
+  white-space: nowrap;
 }
 .pai .sr {
   position: absolute;

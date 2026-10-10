@@ -60,25 +60,17 @@ const DOMAIN_FIXES: Record<string, string> = {
   "icloud.co": "icloud.com",
 };
 function emailSuggestion(email: string): string | null {
-  const m = email.trim().toLowerCase().match(/^([^@\s]+)@([^@\s]+)$/);
+  const m = email
+    .trim()
+    .toLowerCase()
+    .match(/^([^@\s]+)@([^@\s]+)$/);
   if (!m || !DOMAIN_FIXES[m[2]]) return null;
   return `${m[1]}@${DOMAIN_FIXES[m[2]]}`;
 }
 
 const NICHE_IDEAS = ["Personal finance", "Tech and AI", "Health and fitness", "Beauty", "Food", "Parenting", "Business tips", "Education"];
 
-type StepId =
-  | "name"
-  | "email"
-  | "whatsapp"
-  | "niche"
-  | "platform"
-  | "followers"
-  | "posting"
-  | "goal"
-  | "language"
-  | "start"
-  | "budget";
+type StepId = "name" | "email" | "whatsapp" | "niche" | "platform" | "followers" | "posting" | "goal" | "language" | "start" | "budget";
 
 const PHASE1 = 3;
 const STEPS: StepId[] = ["name", "email", "whatsapp", "niche", "platform", "followers", "posting", "goal", "language", "start", "budget"];
@@ -173,7 +165,7 @@ export default function Onboarding() {
     setSession(s);
     setWelcomeBack(!!stored.answers.name && !s);
     try {
-      setInvite(new URLSearchParams(window.location.search).get("utm_campaign") === "invite");
+      setInvite(readUtm().utm_campaign === "invite");
     } catch {}
     if (s) setIndex(STEPS.indexOf("niche"));
     setReady(true);
@@ -189,10 +181,13 @@ export default function Onboarding() {
   // Move focus to the new question so keyboard and screen-reader users land on it.
   useEffect(() => {
     if (!ready) return;
-    const t = window.setTimeout(() => {
-      const el = stage.current?.querySelector<HTMLElement>("[data-autofocus]") ?? stage.current?.querySelector<HTMLElement>("h1");
-      el?.focus({ preventScroll: true });
-    }, reduce ? 0 : 260);
+    const t = window.setTimeout(
+      () => {
+        const el = stage.current?.querySelector<HTMLElement>("[data-autofocus]") ?? stage.current?.querySelector<HTMLElement>("h1");
+        el?.focus({ preventScroll: true });
+      },
+      reduce ? 0 : 260,
+    );
     return () => window.clearTimeout(t);
   }, [index, ready, done, reduce]);
 
@@ -201,18 +196,28 @@ export default function Onboarding() {
     setError((e) => (e?.field && FIELD_STEP[e.field] === FIELD_STEP[key as string] ? null : e));
   }, []);
 
-  const go = useCallback((next: number) => {
-    setDir(next > index ? 1 : -1);
-    setError(null);
-    setIndex(Math.max(0, Math.min(STEPS.length - 1, next)));
-  }, [index]);
+  // iOS closes the keyboard unless focus moves straight from one input to
+  // another inside the tap. This input stays mounted to hold focus while the
+  // next question animates in; the focus effect then moves it on.
+  const kbKeep = useRef<HTMLInputElement>(null);
+  const refocus = () => stage.current?.querySelector<HTMLElement>("[data-autofocus]")?.focus({ preventScroll: true });
+
+  const go = useCallback(
+    (next: number) => {
+      setDir(next > index ? 1 : -1);
+      setError(null);
+      setIndex(Math.max(0, Math.min(STEPS.length - 1, next)));
+      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    },
+    [index],
+  );
 
   const localCheck = (id: StepId, a: Answers): string | null => {
     switch (id) {
       case "name":
         return a.name.trim().length < 2 ? "Please enter your name." : null;
       case "email":
-        return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(a.email.trim()) ? null : "That email doesn't look right. Check for typos.";
+        return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(a.email.trim()) ? null : "That email doesn’t look right. Check for typos.";
       case "whatsapp":
         return a.consent ? null : "Please tick the box so we can contact you.";
       case "niche":
@@ -240,7 +245,7 @@ export default function Onboarding() {
     if (!res.ok) {
       const field = res.data.field;
       if (field && FIELD_STEP[field] && FIELD_STEP[field] !== step) go(STEPS.indexOf(FIELD_STEP[field]));
-      setError({ field, message: res.data.error || "We couldn't save that. Please try again." });
+      setError({ field, message: res.data.error || "We couldn’t save that. Please try again." });
       return false;
     }
     setSession({ lead_id: res.data.lead_id ?? "", token: res.data.token ?? "", emailed: res.data.emailed === true });
@@ -279,7 +284,7 @@ export default function Onboarding() {
       }
       const field = res.data.field;
       if (field && FIELD_STEP[field]) go(STEPS.indexOf(FIELD_STEP[field]));
-      setError({ field, message: res.data.error || "We couldn't save that. Please try again." });
+      setError({ field, message: res.data.error || "We couldn’t save that. Please try again." });
       return false;
     }
     return true;
@@ -293,19 +298,25 @@ export default function Onboarding() {
     if (problem) {
       // The WhatsApp screen only blocks on the consent box.
       setError({ field: step === "whatsapp" ? "consent" : step, message: problem });
+      if (step === "whatsapp") {
+        (document.activeElement as HTMLElement | null)?.blur();
+        requestAnimationFrame(() =>
+          document.querySelector(".ob-consent")?.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" }),
+        );
+      } else refocus();
       return;
     }
     if (step === "whatsapp" && !session) {
       setBusy(true);
       const ok = await submitSignup();
       setBusy(false);
-      if (!ok) return;
+      if (!ok) return refocus();
     }
     if (index === total - 1) {
       setBusy(true);
       const ok = await submitProfile(merged);
       setBusy(false);
-      if (!ok) return;
+      if (!ok) return refocus();
       clearStore();
       setDone(true);
       return;
@@ -324,9 +335,13 @@ export default function Onboarding() {
 
   const variants = useMemo(
     () => ({
-      enter: (d: number) => ({ opacity: 0, y: reduce ? 0 : d * 28, filter: reduce ? "none" : "blur(6px)" }),
-      center: { opacity: 1, y: 0, filter: "blur(0px)" },
-      exit: (d: number) => ({ opacity: 0, y: reduce ? 0 : d * -20, filter: reduce ? "none" : "blur(4px)" }),
+      enter: (d: number) => ({ opacity: 0, x: reduce ? 0 : d * 16 }),
+      center: { opacity: 1, x: 0, transition: { duration: reduce ? 0 : 0.24, ease: EASE } },
+      exit: (d: number) => ({
+        opacity: 0,
+        x: reduce ? 0 : d * -16,
+        transition: { duration: reduce ? 0 : 0.17, ease: [0.5, 0, 0.75, 0] as const },
+      }),
     }),
     [reduce],
   );
@@ -345,7 +360,8 @@ export default function Onboarding() {
               "About you"
             ) : (
               <>
-                Your channel<span className="ob-count-more"> · about 1 minute</span>
+                Your channel
+                <span className="ob-count-more">, about a minute</span>
               </>
             )}
             <span className="sr">
@@ -372,11 +388,21 @@ export default function Onboarding() {
         </div>
       </header>
 
+      <input ref={kbKeep} className="ob-kb" aria-hidden="true" tabIndex={-1} readOnly />
       <main className="ob-main">
         <div className="ob-stage" ref={stage}>
           <AnimatePresence mode="wait" custom={dir} initial={false}>
             {done ? (
-              <m.section key="done" className="ob-step ob-done" variants={variants} custom={1} initial="enter" animate="center" exit="exit" transition={{ duration: reduce ? 0 : 0.45, ease: EASE }}>
+              <m.section
+                key="done"
+                className="ob-step ob-done"
+                variants={variants}
+                custom={1}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: reduce ? 0 : 0.45, ease: EASE }}
+              >
                 <Done
                   name={answers.name}
                   email={answers.email}
@@ -394,9 +420,10 @@ export default function Onboarding() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: reduce ? 0 : 0.42, ease: EASE }}
                 onSubmit={(e) => {
                   e.preventDefault();
+                  const after = STEPS[index + 1];
+                  if (after && !isChoice(after) && !localCheck(step, answers)) kbKeep.current?.focus({ preventScroll: true });
                   next();
                 }}
                 noValidate
@@ -417,7 +444,15 @@ export default function Onboarding() {
                 />
                 <div className="ob-hp" aria-hidden="true">
                   <label htmlFor={`${uid}-hp`}>Leave this empty</label>
-                  <input id={`${uid}-hp`} ref={honeypot} name="hp_ref" tabIndex={-1} autoComplete="off" data-1p-ignore data-lpignore="true" />
+                  <input
+                    id={`${uid}-hp`}
+                    ref={honeypot}
+                    name="hp_ref"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    data-1p-ignore
+                    data-lpignore="true"
+                  />
                 </div>
                 {error && !error.field && (
                   <p className="ob-error ob-error--form" role="alert">
@@ -427,9 +462,6 @@ export default function Onboarding() {
                 <div className="ob-actions">
                   {canGoBack ? (
                     <button type="button" className="ob-back" onClick={back}>
-                      <svg viewBox="0 0 16 16" aria-hidden="true">
-                        <path d="M13 8H3M7 4L3 8l4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
                       Back
                     </button>
                   ) : (
@@ -437,13 +469,7 @@ export default function Onboarding() {
                   )}
                   {!isChoice(step) || step === "platform" ? (
                     <button type="submit" className="ob-next" aria-disabled={busy}>
-                      <i className="ob-dot" aria-hidden="true" />
                       {busy ? "Saving…" : index === total - 1 ? "Send my profile" : step === "whatsapp" ? "Join the waitlist" : "Continue"}
-                      {!busy && (
-                        <svg viewBox="0 0 16 16" aria-hidden="true">
-                          <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
                     </button>
                   ) : (
                     <span className="ob-keyhint" aria-hidden="true">
@@ -613,7 +639,7 @@ function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: B
     case "niche":
       return (
         <>
-          <Kicker>{`You're on the list${first ? `, ${first}` : ""}. A few taps so Hanif can see if you're a fit.`}</Kicker>
+          <Kicker>{`You’re on the list${first ? `, ${first}` : ""}. A few taps so Hanif can see if you’re a fit.`}</Kicker>
           <h1 tabIndex={-1}>
             <label htmlFor={`${uid}-niche`}>What are your videos about?</label>
           </h1>
@@ -660,6 +686,7 @@ function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: B
             Where do you post most?
           </h1>
           <Choices
+            compact
             name={`${uid}-platform`}
             labelledBy={`${uid}-platform-q`}
             options={[...PLATFORMS]}
@@ -667,7 +694,7 @@ function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: B
             onPick={(v) => set("platform", v)}
           />
           <label className="ob-sub" htmlFor={`${uid}-handle`}>
-            Your handle <span>(optional)</span>
+            Your @handle there <span>(optional)</span>
           </label>
           <input
             id={`${uid}-handle`}
@@ -683,38 +710,79 @@ function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: B
             aria-describedby={error?.field === "handle" ? errId : `${uid}-handle-help`}
           />
           <p id={`${uid}-handle-help`} className="ob-help">
-            Pasting your profile link works too. It&rsquo;s the best way for Hanif to judge fit.
+            Paste your profile link if that&rsquo;s easier. It&rsquo;s how Hanif checks fit.
           </p>
           <FieldError show={!!err("platform")} id={errId} message={err("platform")} />
         </>
       );
     case "followers":
       return (
-        <ChoiceStep uid={uid} kicker="Any size can apply." q="How many followers do you have there?" options={[...FOLLOWERS]} value={answers.followers} onPick={(v) => pick("followers", v)} error={err("followers")} />
+        <ChoiceStep
+          uid={uid}
+          kicker="Any size can apply."
+          q="How many followers do you have there?"
+          options={[...FOLLOWERS]}
+          value={answers.followers}
+          onPick={(v) => pick("followers", v)}
+          error={err("followers")}
+        />
       );
     case "posting":
       return (
-        <ChoiceStep uid={uid} kicker="No judgment. That's why you're here." q="How often do you post right now?" options={[...POSTING]} value={answers.posting} onPick={(v) => pick("posting", v)} error={err("posting")} />
+        <ChoiceStep
+          uid={uid}
+          kicker="No judgment. That’s why you’re here."
+          q="How often do you post right now?"
+          options={[...POSTING]}
+          value={answers.posting}
+          onPick={(v) => pick("posting", v)}
+          error={err("posting")}
+        />
       );
     case "goal":
       return (
-        <ChoiceStep uid={uid} kicker="Pick the one that matters most." q="What do you want most from this?" options={[...GOALS]} value={answers.goal} onPick={(v) => pick("goal", v)} error={err("goal")} />
+        <ChoiceStep
+          uid={uid}
+          kicker="Pick the one that matters most."
+          q="What do you want most from this?"
+          options={[...GOALS]}
+          value={answers.goal}
+          onPick={(v) => pick("goal", v)}
+          error={err("goal")}
+        />
       );
     case "language":
       return (
-        <ChoiceStep uid={uid} kicker="You can switch every month." q="Which language should your videos speak?" options={[...LANGUAGES]} value={answers.language} onPick={(v) => pick("language", v)} error={err("language")} />
+        <ChoiceStep
+          uid={uid}
+          kicker="You can switch every month."
+          q="Which language should your videos speak?"
+          options={[...LANGUAGES]}
+          value={answers.language}
+          onPick={(v) => pick("language", v)}
+          error={err("language")}
+        />
       );
     case "start":
       return (
-        <ChoiceStep uid={uid} kicker="The first cohort is 2 to 3 creators. More open after it." q="When would you like to start?" options={[...STARTS]} value={answers.start} onPick={(v) => pick("start", v)} error={err("start")} />
+        <ChoiceStep
+          uid={uid}
+          kicker="The first cohort is 2 to 3 creators. After it, a new cohort opens every month."
+          q="When would you like to start?"
+          options={[...STARTS]}
+          value={answers.start}
+          onPick={(v) => pick("start", v)}
+          error={err("start")}
+        />
       );
     case "budget":
       return (
         <ChoiceStep
           uid={uid}
-          kicker="Last one. Rp 4,000,000 a month for 60 finished videos, about Rp 66,700 each. Month to month, no tool subscriptions."
-          q="Does the founding rate work for you?"
-          note={answers.budget === "not-yet" ? "That's fine. We'll email you when later cohorts open." : undefined}
+          kicker="Last one."
+          q="Does Rp 4,000,000 a month work for you?"
+          lead="That’s the founding rate: 60 finished videos, about Rp 66,700 each. Month to month, no tool subscriptions."
+          note={answers.budget === "not-yet" ? "That’s fine. We’ll email you when later cohorts open." : undefined}
           options={[...BUDGETS]}
           value={answers.budget}
           onPick={(v) => pick("budget", v)}
@@ -728,7 +796,17 @@ function Kicker({ children }: { children: React.ReactNode }) {
   return <p className="ob-kicker">{children}</p>;
 }
 
-function ChoiceStep(props: { uid: string; kicker: string; q: string; options: Option[]; value: string; onPick: (v: string) => void; error?: string; note?: string }) {
+function ChoiceStep(props: {
+  uid: string;
+  kicker: string;
+  q: string;
+  lead?: string;
+  options: Option[];
+  value: string;
+  onPick: (v: string) => void;
+  error?: string;
+  note?: string;
+}) {
   const qid = `${props.uid}-q`;
   const { options, onPick } = props;
   // A, B, C… pick an answer, like the letters on the cards.
@@ -750,6 +828,7 @@ function ChoiceStep(props: { uid: string; kicker: string; q: string; options: Op
       <h1 tabIndex={-1} id={qid}>
         {props.q}
       </h1>
+      {props.lead && <p className="ob-lead">{props.lead}</p>}
       <Choices name={`${props.uid}-choice`} labelledBy={qid} options={props.options} value={props.value} onPick={props.onPick} autoFocus />
       {props.note && <p className="ob-help">{props.note}</p>}
       <FieldError show={!!props.error} id={`${props.uid}-err`} message={props.error} />
@@ -757,9 +836,17 @@ function ChoiceStep(props: { uid: string; kicker: string; q: string; options: Op
   );
 }
 
-function Choices(props: { name: string; labelledBy: string; options: Option[]; value: string; onPick: (v: string) => void; autoFocus?: boolean }) {
+function Choices(props: {
+  name: string;
+  labelledBy: string;
+  options: Option[];
+  value: string;
+  onPick: (v: string) => void;
+  autoFocus?: boolean;
+  compact?: boolean;
+}) {
   return (
-    <div className="ob-choices" role="radiogroup" aria-labelledby={props.labelledBy}>
+    <div className={`ob-choices${props.compact ? " ob-choices--2col" : ""}`} role="radiogroup" aria-labelledby={props.labelledBy}>
       {props.options.map((o, i) => {
         const checked = props.value === o.value;
         return (
@@ -789,33 +876,39 @@ function Choices(props: { name: string; labelledBy: string; options: Option[]; v
 
 function Done({ name, email, warm, hasWa, emailed }: { name: string; email: string; warm: boolean; hasWa: boolean; emailed: boolean }) {
   const first = name.trim().split(/\s+/)[0];
-  const by = formatReplyBy(replyBy(new Date()));
+  const by = <span className="ob-nowrap">{formatReplyBy(replyBy(new Date()))}</span>;
   const wa = process.env.NEXT_PUBLIC_WA_NUMBER;
   return (
     <div className="ob-done-inner" role="status">
-      <div className="ob-done-badge" aria-hidden="true">
-        <svg viewBox="0 0 16 16">
-          <path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-      <h1 tabIndex={-1} className="ob-pop" aria-label={first ? `You're on the list, ${first}.` : "You're on the list."}>
-        {(first ? ["You're", "on", "the", "list,", `${first}.`] : ["You're", "on", "the", "list."]).map((w, i, all) => (
-          <span key={i} aria-hidden="true" className={first && i === all.length - 1 ? "w box" : "w"} style={{ animationDelay: `${0.15 + i * 0.24}s` }}>
+      <h1 tabIndex={-1} className="ob-pop" aria-label={first ? `You’re on the list, ${first}.` : "You’re on the list."}>
+        {(first ? ["You’re", "on", "the", "list,", `${first}.`] : ["You’re", "on", "the", "list."]).map((w, i, all) => (
+          <span
+            key={i}
+            aria-hidden="true"
+            className={first && i === all.length - 1 ? "w box" : "w"}
+            style={{ animationDelay: `${0.15 + i * 0.24}s` }}
+          >
             {w}
           </span>
         ))}
       </h1>
       <p className="ob-done-lead">
-        {warm
-          ? `Hanif reads every profile himself. You'll hear from us by ${by}.`
-          : `Thanks for being straight with us. You'll still hear from us by ${by}, and after that one short email a month when cohorts open. No pressure.`}
+        {warm ? (
+          <>Hanif reads every profile himself. You&rsquo;ll hear from us by {by}.</>
+        ) : (
+          <>
+            Thanks for the honest answer. You&rsquo;ll still hear from us by {by}, and after that one short email a month when cohorts open.
+            No pressure.
+          </>
+        )}
       </p>
       <ol className="ob-next-steps">
         <li>
           <span>
             {emailed ? (
               <>
-                <b>Check your inbox.</b> Your confirmation went to {email || "your email"}. Not there in 5 minutes? Look in Promotions or Spam.
+                <b>Check your inbox.</b> Your confirmation went to {email || "your email"}. Not there in 5 minutes? Look in Promotions or
+                Spam.
               </>
             ) : (
               <>
@@ -830,6 +923,13 @@ function Done({ name, email, warm, hasWa, emailed }: { name: string; email: stri
               <b>Save our number.</b> If it&rsquo;s a fit, we&rsquo;ll message you on WhatsApp from {wa}. It&rsquo;s the only number we use.
             </span>
           </li>
+        ) : hasWa ? (
+          <li>
+            <span>
+              <b>Watch your WhatsApp too.</b> If it&rsquo;s a fit, Hanif messages you there himself. We only ask for money after
+              you&rsquo;re picked, always with a PDF invoice.
+            </span>
+          </li>
         ) : emailed ? (
           <li>
             <span>
@@ -841,19 +941,31 @@ function Done({ name, email, warm, hasWa, emailed }: { name: string; email: stri
           <>
             <li>
               <span>
-                <b>Then it moves fast.</b> An optional 15-minute call, then a refundable Rp 1,000,000 deposit holds your slot. It comes off your
-                first month.
+                <b>Then it moves fast.</b> An optional 15-minute call, then a refundable Rp 1,000,000 deposit holds your slot. It comes off
+                your first month.
               </span>
             </li>
             <li>
               <span>
-                <b>Your test clip within 7 days of the deposit,</b> in the real format. Don&rsquo;t like it? We redo it once. Still not right, and the
-                deposit comes back.
+                <b>Your test clip within 7 days of the deposit,</b> in the real format. Don&rsquo;t like it? We redo it once. Still not
+                right after the redo? The deposit comes back.
               </span>
             </li>
           </>
         )}
       </ol>
+      {warm && (
+        <p className="ob-favor">
+          {emailed ? (
+            <>One favor: reply to your confirmation email with a link to the video you&rsquo;re proudest of. Hanif reads every reply.</>
+          ) : (
+            <>
+              One favor: email <a href="mailto:hello@produktif.ai">hello@produktif.ai</a> a link to the video you&rsquo;re proudest of.
+              Hanif reads every reply.
+            </>
+          )}
+        </p>
+      )}
       <Link href="/" className="ob-next ob-next--ghost">
         Back to produktif.ai
       </Link>

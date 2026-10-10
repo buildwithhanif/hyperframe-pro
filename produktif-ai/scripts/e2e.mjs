@@ -85,34 +85,54 @@ try {
         const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
         assert.ok(over <= 0, `page is ${over}px wider than the viewport`);
         if (route === "/" && vp.width > 640) {
-          // On desktop each headline line ("Post every day." / "We make the" / "videos.") holds on one line.
-          const lines = await page.evaluate(() =>
-            // Words are mid-animation (translated) right after load, so measure the
-            // line box instead of the word rects.
-            [...document.querySelectorAll(".hero-h .k-line")].map((el) => {
-              const fs = parseFloat(getComputedStyle(el).fontSize);
-              const fits = el.scrollWidth <= el.parentElement.clientWidth + 1;
-              return el.getBoundingClientRect().height < fs * 1.5 && fits ? 1 : 2;
-            }),
-          );
-          assert.deepEqual(lines, [1, 1, 1], `headline lines: ${lines}`);
+          // On desktop "Post every day." holds on one line.
+          const oneLine = await page.evaluate(() => {
+            const el = document.querySelector(".hero-h span");
+            return el.getBoundingClientRect().height < parseFloat(getComputedStyle(el).fontSize) * 1.5;
+          });
+          assert.ok(oneLine, "the first headline line wraps");
         }
         await page.close();
       });
     }
   }
 
-  await check("home: kicker, headline, button and price line sit above the fold on a 360x740 phone", async () => {
+  await check("home: on a 360x740 phone the headline, the nav button and most of the persona clip show before any scroll", async () => {
     const page = await browser.newPage({ viewport: { width: 360, height: 740 } });
     await page.goto("http://localhost:3101/");
-    const bottoms = await page.evaluate(() =>
-      [".hero-kicker", ".hero-h", "#hero-cta .btn", ".hero-micro b"].map((sel) => {
-        const el = document.querySelector(sel);
-        return el ? Math.round(el.getBoundingClientRect().bottom) : 9999;
+    const r = await page.evaluate(() => {
+      const box = (sel) => document.querySelector(sel)?.getBoundingClientRect();
+      return {
+        h: box(".hero-h")?.bottom,
+        nav: box(".nav-in > .btn")?.bottom,
+        clipTop: box(".hero-clip")?.top,
+        clipBottom: box(".hero-clip")?.bottom,
+      };
+    });
+    assert.ok(r.h <= 740 && r.nav <= 740, `headline ${r.h}, nav button ${r.nav}`);
+    assert.ok(740 - r.clipTop >= 0.6 * (r.clipBottom - r.clipTop), `clip shows ${740 - r.clipTop}px of ${r.clipBottom - r.clipTop}`);
+    assert.equal(await page.getByRole("heading", { level: 1, name: "Post every day. We make the videos." }).count(), 1);
+    await page.close();
+  });
+
+  await check("home: every sample video carries the AI persona label", async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    await page.goto("http://localhost:3101/");
+    const r = await page.evaluate(() =>
+      [...document.querySelectorAll("video")].map((v) => {
+        const label = v.closest(".clip")?.querySelector(".clip-label")?.textContent;
+        return { src: v.getAttribute("src"), label, muted: v.muted, playsInline: v.playsInline };
       }),
     );
-    assert.ok(Math.max(...bottoms) <= 740, `hero bottoms: ${bottoms}`);
-    assert.equal(await page.getByRole("heading", { level: 1 }).getAttribute("aria-label"), "Post every day. We make the videos.");
+    assert.ok(r.length >= 7, `only ${r.length} videos`);
+    for (const v of r) {
+      assert.equal(v.label, "AI persona", `${v.src} has no AI persona label`);
+      assert.ok(v.muted && v.playsInline, `${v.src} must start muted and inline`);
+    }
+    for (const v of r.slice(0, 2)) {
+      const res = await fetch(`http://localhost:3101${v.src}`, { method: "HEAD" });
+      assert.equal(res.status, 200, `${v.src} answered ${res.status}`);
+    }
     await page.close();
   });
 
@@ -121,8 +141,17 @@ try {
     const errors = [];
     page.on("pageerror", (e) => errors.push(String(e)));
     await page.goto("http://localhost:3101/start");
+    // fill() and click() work on invisible elements, so check that each new
+    // question actually becomes visible (a missing motion provider once hid them).
+    const visible = async (sel) => {
+      await page.waitForTimeout(500);
+      const op = await page.$eval(sel, (el) => getComputedStyle(el).opacity);
+      assert.equal(op, "1", `${sel} is not visible (opacity ${op})`);
+    };
+    await visible(".ob-step");
     await page.getByLabel("First, what should we call you?").fill("Ani Wijaya");
     await page.keyboard.press("Enter");
+    await visible(".ob-step");
     await page.getByLabel("What’s your best email?").fill("ani@example.com");
     await page.keyboard.press("Enter");
     await page.getByLabel("Your WhatsApp number?").fill("0812 3456 7890");
@@ -133,13 +162,14 @@ try {
     await page.getByLabel("What are your videos about?").fill("Money tips for first jobbers");
     await page.keyboard.press("Enter");
     await page.getByRole("radio", { name: "TikTok" }).check();
-    await page.getByLabel(/Your handle/).fill("tiktok.com/@ani_w");
+    await page.getByLabel(/Your @handle/).fill("tiktok.com/@ani_w");
     await page.getByRole("button", { name: "Continue" }).click();
     for (const answer of ["50K to 250K", "1 to 2 a week", "Get my time back", "Both", "This month", "Yes, that works"]) {
       // Choice screens move on as soon as an answer is picked.
       await page.getByRole("radio", { name: answer }).click();
     }
-    await page.getByRole("heading", { name: "You're on the list, Ani." }).waitFor({ timeout: 10000 });
+    await page.getByRole("heading", { name: "You’re on the list, Ani." }).waitFor({ timeout: 10000 });
+    await visible(".ob-done");
     await page.screenshot({ path: `${OUT}/onboarding-done-mobile.png` });
     const stored = await page.evaluate(() => localStorage.getItem("pai-apply-v1"));
     assert.equal(stored, null, "finished applications clear saved progress");
@@ -154,7 +184,7 @@ try {
     await page.keyboard.press("Enter");
     await page.getByLabel("What’s your best email?").fill("budi@example");
     await page.keyboard.press("Enter");
-    await page.getByText("That email doesn't look right").waitFor();
+    await page.getByText("That email doesn’t look right").waitFor();
     assert.equal(await page.getByLabel("What’s your best email?").getAttribute("aria-invalid"), "true");
     await page.reload();
     assert.equal(await page.getByLabel("First, what should we call you?").inputValue(), "Budi");
@@ -182,10 +212,12 @@ try {
 
   await check("no slide text overflows its 1080x1350 frame", async () => {
     const overflow = await page.$$eval(".slide", (els) =>
-      els.map((el, i) => {
-        const main = el.querySelector(".slide__main");
-        return { i: i + 1, main: main.scrollHeight - main.clientHeight, slide: el.scrollHeight - el.clientHeight };
-      }).filter((o) => o.main > 0 || o.slide > 0),
+      els
+        .map((el, i) => {
+          const main = el.querySelector(".slide__main");
+          return { i: i + 1, main: main.scrollHeight - main.clientHeight, slide: el.scrollHeight - el.clientHeight };
+        })
+        .filter((o) => o.main > 0 || o.slide > 0),
     );
     assert.deepEqual(overflow, []);
   });
@@ -223,7 +255,10 @@ try {
   });
 
   await check("ZIP export has 8 PNGs at 1080x1350 plus caption.txt", async () => {
-    const [download] = await Promise.all([page.waitForEvent("download", { timeout: 60000 }), page.getByRole("button", { name: /Download 8 slide/ }).click()]);
+    const [download] = await Promise.all([
+      page.waitForEvent("download", { timeout: 60000 }),
+      page.getByRole("button", { name: /Download 8 slide/ }).click(),
+    ]);
     const file = `${OUT}/${download.suggestedFilename()}`;
     await download.saveAs(file);
     const zip = await JSZip.loadAsync(fs.readFileSync(file));
@@ -341,24 +376,27 @@ try {
     assert.equal("token" in prow, false);
   });
 
-  await check("apply API: bad email 400 with field, missing consent, forged token 403, honeypot swallowed, webhook failure 502", async () => {
-    const r1 = await apply("", { name: "Ani", email: "ani@", consent: true });
-    assert.equal(r1.status, 400);
-    assert.equal((await r1.json()).field, "email");
-    const r2 = await apply("", { name: "Ani", email: "ani@example.com" });
-    assert.equal(r2.status, 400);
-    assert.equal((await r2.json()).field, "consent");
-    const forged = await apply("/profile", { lead_id: "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b", token: "a".repeat(64), ...PROFILE });
-    assert.equal(forged.status, 403);
-    const before = hooks.length;
-    const r3 = await apply("", { name: "Bot", email: "bot@example.com", consent: true, company: "PT Bot" });
-    assert.equal(r3.status, 200);
-    assert.equal(hooks.length, before, "honeypot signup must not reach the webhook");
-    hookStatus = 500;
-    const r4 = await apply("", { name: "Ani", email: "ani@example.com", consent: true }, { "x-real-ip": "7.7.7.7" });
-    assert.equal(r4.status, 502);
-    hookStatus = 200;
-  });
+  await check(
+    "apply API: bad email 400 with field, missing consent, forged token 403, honeypot swallowed, webhook failure 502",
+    async () => {
+      const r1 = await apply("", { name: "Ani", email: "ani@", consent: true });
+      assert.equal(r1.status, 400);
+      assert.equal((await r1.json()).field, "email");
+      const r2 = await apply("", { name: "Ani", email: "ani@example.com" });
+      assert.equal(r2.status, 400);
+      assert.equal((await r2.json()).field, "consent");
+      const forged = await apply("/profile", { lead_id: "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b", token: "a".repeat(64), ...PROFILE });
+      assert.equal(forged.status, 403);
+      const before = hooks.length;
+      const r3 = await apply("", { name: "Bot", email: "bot@example.com", consent: true, company: "PT Bot" });
+      assert.equal(r3.status, 200);
+      assert.equal(hooks.length, before, "honeypot signup must not reach the webhook");
+      hookStatus = 500;
+      const r4 = await apply("", { name: "Ani", email: "ani@example.com", consent: true }, { "x-real-ip": "7.7.7.7" });
+      assert.equal(r4.status, 502);
+      hookStatus = 200;
+    },
+  );
 
   await check("apply API: a 200 that says 'forbidden' is a failed save, not a signup", async () => {
     hookBody = '{"ok":false,"error":"forbidden"}';

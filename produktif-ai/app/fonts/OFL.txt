@@ -1,7 +1,6 @@
-Newsreader (newsreader.woff2): Copyright 2020 The Newsreader Project Authors (https://github.com/productiontype/Newsreader)
-Geist and Geist Mono (geist.woff2, geist-mono.woff2): Copyright (c) 2023 Vercel, in collaboration with basement.studio
+Archivo (archivo.woff2): Copyright 2020 The Archivo Project Authors (https://github.com/Omnibus-Type/Archivo)
 
-All three files are subset to Latin by produktif.ai. They are licensed under the SIL Open Font License, Version 1.1:
+The file is subset to Latin by produktif.ai. It is licensed under the SIL Open Font License, Version 1.1:
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

@@ -6,7 +6,7 @@ import { Wordmark } from "@/components/site/Brand";
 export type LegalSection = { id: string; heading: string; body: ReactNode };
 
 // Shared layout for /privacy, /terms and /consent.
-export default function LegalPage(props: { kicker: string; title: string; updated: string; intro: ReactNode; sections: LegalSection[] }) {
+export default function LegalPage(props: { title: string; updated: string; intro: ReactNode; sections: LegalSection[] }) {
   return (
     <div className={`pai lg ${fontVars}`}>
       <header className="lg-top">
@@ -14,12 +14,10 @@ export default function LegalPage(props: { kicker: string; title: string; update
           <Wordmark title={null} className="lg-wm" />
         </Link>
         <Link href="/start" className="lg-cta">
-          <i className="lg-dot" aria-hidden="true" />
           Get started
         </Link>
       </header>
       <main className="lg-main">
-        <p className="lg-kicker">{props.kicker}</p>
         <h1>{props.title}</h1>
         <p className="lg-updated">Last updated {props.updated}</p>
         <div className="lg-intro">{props.intro}</div>
@@ -38,9 +36,15 @@ export default function LegalPage(props: { kicker: string; title: string; update
             <div className="lg-body">{s.body}</div>
           </section>
         ))}
+        <div className="lg-end">
+          <p>Questions answered? Applying takes about 2 minutes, and you pay nothing until you&rsquo;re picked.</p>
+          <Link href="/start" className="lg-cta">
+            Get started
+          </Link>
+        </div>
       </main>
       <footer className="lg-foot">
-        <p>© 2026 produktif.ai · Yogyakarta, Indonesia</p>
+        <p>© 2026 produktif.ai, Yogyakarta, Indonesia</p>
         <nav aria-label="Legal">
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>

@@ -27,11 +27,10 @@
   justify-self: start;
   min-height: 44px;
   color: var(--ink);
+  text-decoration: none;
 }
 .pai .ob-wm {
-  display: block;
-  width: auto;
-  height: 19px;
+  font-size: 23px;
 }
 .pai .ob-count {
   font-weight: 500;
@@ -40,6 +39,7 @@
   color: var(--muted);
 }
 .pai .ob-close {
+  grid-column: 3;
   justify-self: end;
   white-space: nowrap;
   font-size: 14px;
@@ -93,10 +93,12 @@
 }
 .pai .ob h1 {
   font-family: var(--display);
-  font-weight: 500;
-  font-size: clamp(32px, 2.6vw + 20px, 54px);
-  line-height: 1.04;
-  letter-spacing: -0.03em;
+  font-weight: 800;
+  font-stretch: 74%;
+  font-size: clamp(34px, 2.6vw + 22px, 58px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
   text-wrap: balance;
 }
 .pai .ob h1:focus {
@@ -119,7 +121,7 @@
   transition: border-color 0.2s var(--ease-out);
 }
 .pai .ob-input::placeholder {
-  color: #a19c90;
+  color: var(--field);
 }
 .pai .ob-input:hover {
   border-color: var(--field);
@@ -156,14 +158,20 @@
   font-size: 15px;
   color: var(--fg-2);
 }
+.pai .ob-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
 .pai .ob-suggest button {
-  margin-left: 4px;
-  padding: 0;
-  border: 0;
-  background: none;
-  font-weight: 560;
-  color: var(--fg);
-  text-decoration: underline;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1.5px solid var(--line-2);
+  border-radius: 10px;
+  background: var(--paper-hi);
+  font-weight: 600;
+  color: var(--ink);
   cursor: pointer;
 }
 .pai .ob-ideas {
@@ -173,12 +181,13 @@
   margin-top: 20px;
 }
 .pai .ob-idea {
-  height: 34px;
+  height: 40px;
   padding: 0 14px;
-  border: 1px solid var(--line-2);
-  border-radius: 999px;
+  border: 1.5px solid var(--line-2);
+  border-radius: 10px;
   background: var(--bg-hi);
-  font-size: 14px;
+  font-weight: 600;
+  font-size: 14.5px;
   cursor: pointer;
   transition:
     border-color 0.15s,
@@ -200,13 +209,16 @@
   align-items: start;
   margin-top: 28px;
   padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--bg-hi);
+  border: 0;
+  border-radius: 10px;
+  background: var(--paper-lo);
   font-size: 15px;
   line-height: 1.45;
   color: var(--fg-2);
   cursor: pointer;
+}
+.pai .ob-consent:has(input[aria-invalid="true"]) {
+  box-shadow: inset 0 0 0 2px var(--rec);
 }
 .pai .ob-consent input {
   width: 20px;
@@ -229,8 +241,8 @@
   gap: 14px;
   min-height: 60px;
   padding: 0 18px;
-  border: 1px solid var(--line-2);
-  border-radius: 14px;
+  border: 1.5px solid var(--line-2);
+  border-radius: 10px;
   background: var(--bg-hi);
   cursor: pointer;
   transition:
@@ -262,16 +274,16 @@
   place-items: center;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--line-2);
-  border-radius: 7px;
-  font-family: var(--mono);
+  border: 1.5px solid var(--line-2);
+  border-radius: 6px;
+  font-weight: 700;
   font-size: 12px;
   color: var(--muted);
   background: var(--bg);
 }
 .pai .ob-label {
+  font-weight: 550;
   font-size: 18px;
-  letter-spacing: -0.015em;
 }
 .pai .ob-tick {
   width: 18px;
@@ -297,6 +309,45 @@
   transform: none;
 }
 
+.pai .ob-lead {
+  margin-top: 14px;
+  max-width: 34rem;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.pai .ob-favor {
+  margin-top: 24px;
+  padding: 14px 16px;
+  border-radius: var(--r-sm);
+  background: var(--paper-lo);
+  font-size: 15px;
+  color: var(--ink-2);
+}
+.pai .ob-nowrap {
+  white-space: nowrap;
+}
+/* holds iOS keyboard focus between text questions; never visible */
+.pai .ob-kb {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  font-size: 16px;
+  pointer-events: none;
+}
+@media (hover: none) {
+  .pai .ob-key {
+    display: none;
+  }
+  .pai .ob-choice {
+    grid-template-columns: 1fr 18px;
+  }
+}
 .pai .ob-error {
   margin-top: 12px;
   font-size: 15px;
@@ -324,65 +375,44 @@
 .pai .ob-back {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
   height: 48px;
-  padding: 0 6px;
+  padding: 0 4px;
   border: 0;
   background: none;
-  font-size: 15px;
-  color: var(--fg-2);
+  font-weight: 650;
+  font-size: 15.5px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
   cursor: pointer;
-}
-.pai .ob-back svg,
-.pai .ob-next svg {
-  width: 16px;
-  height: 16px;
 }
 .pai .ob-next {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  height: 52px;
-  padding: 0 24px 0 26px;
+  height: 54px;
+  padding: 0 28px;
   border: 0;
-  border-radius: 999px;
-  background: var(--fg);
-  color: var(--bg);
-  font-size: 16px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  border-radius: 10px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 750;
+  font-stretch: 92%;
   text-decoration: none;
   cursor: pointer;
   transition:
-    background 0.2s,
-    transform 0.2s var(--ease-out);
-}
-.pai .ob-dot {
-  flex: none;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--rec-inverse);
+    background 0.16s,
+    transform 0.12s var(--ease-out);
 }
 @media (hover: hover) and (pointer: fine) {
   .pai .ob-next:hover {
-    background: #2a2823;
+    background: var(--yellow-2);
   }
 }
 .pai .ob-next:active {
-  transform: scale(0.97);
-}
-.pai .ob-next:active .ob-dot {
-  animation: ob-blink 300ms steps(1) 1;
-}
-@keyframes ob-blink {
-  20% {
-    opacity: 0;
-  }
-  60% {
-    opacity: 1;
-  }
+  transform: scale(0.98);
 }
 .pai .ob-next[aria-disabled="true"] {
   opacity: 0.7;
@@ -393,10 +423,12 @@
   margin-top: 36px;
   background: transparent;
   color: var(--fg);
-  border: 1px solid var(--line-2);
+  box-shadow: inset 0 0 0 1.5px var(--line-2);
 }
-.pai .ob-next--ghost:hover {
-  background: var(--bg-hi);
+@media (hover: hover) and (pointer: fine) {
+  .pai .ob-next--ghost:hover {
+    background: var(--paper-lo);
+  }
 }
 .pai .ob-keyhint {
   font-size: 14px;
@@ -419,21 +451,8 @@
   display: flex;
   flex-direction: column;
 }
-.pai .ob-done-badge {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  margin-bottom: 28px;
-  border-radius: 50%;
-  background: var(--fg);
-  color: var(--bg);
-}
-.pai .ob-done-badge svg {
-  width: 24px;
-  height: 24px;
-}
-/* the confirmation headline lands like a caption, the name in the red box */
+/* the confirmation headline lands like a video caption, word by word, with
+   the name on a yellow caption box */
 .pai .ob-pop {
   display: flex;
   flex-wrap: wrap;
@@ -446,9 +465,9 @@
 .pai .ob-pop .w.box {
   padding: 0 0.12em;
   margin: 0 -0.04em;
-  border-radius: 0.14em;
-  background: var(--rec);
-  color: var(--on-rec);
+  border-radius: 0.1em;
+  background: var(--yellow);
+  color: var(--ink);
 }
 @keyframes ob-word {
   0% {
@@ -485,11 +504,13 @@
   color: var(--fg-2);
 }
 .pai .ob-next-steps li::before {
-  content: "0" counter(s);
-  font-family: var(--mono);
-  font-size: 12px;
-  padding-top: 4px;
-  color: var(--muted);
+  content: counter(s);
+  font-family: var(--display);
+  font-weight: 900;
+  font-stretch: 62%;
+  font-size: 22px;
+  line-height: 1.1;
+  color: var(--ink);
 }
 .pai .ob-next-steps b {
   color: var(--fg);
@@ -515,7 +536,24 @@
     padding-bottom: 0;
   }
   .pai .ob-step {
-    min-height: calc(100dvh - 56px - 32px);
+    min-height: calc(100dvh - 56px - clamp(32px, 9vh, 120px));
+  }
+  .pai .ob-choices--2col {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+    margin-top: 24px;
+  }
+  .pai .ob-choices--2col .ob-choice {
+    min-height: 50px;
+    padding: 0 12px;
+    gap: 10px;
+  }
+  .pai .ob-idea {
+    height: 44px;
+    padding: 0 16px;
+  }
+  .pai .ob-suggest button {
+    min-height: 44px;
   }
   .pai .ob-actions {
     position: sticky;

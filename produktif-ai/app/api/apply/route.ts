@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return fail(400, "That request wasn't valid. Please refresh and try again.");
+    return fail(400, "That request wasn’t valid. Please refresh and try again.");
   }
 
   const parsed = SignupSchema.safeParse(body);
@@ -51,11 +51,11 @@ export async function POST(request: Request) {
   if (result === "not-configured") {
     console.error("WAITLIST_WEBHOOK_URL is not set; signup dropped");
     unhit(key);
-    return fail(503, "Applications aren't open yet. Please try again later.");
+    return fail(503, "Applications aren’t open yet. Please try again later.");
   }
   if (result === "failed") {
     unhit(key);
-    return fail(502, "We couldn't save that. Please try again.");
+    return fail(502, "We couldn’t save that. Please try again.");
   }
 
   const resumeUrl = `${siteUrl()}/start?lead=${leadId}&t=${token}`;

@@ -11,7 +11,7 @@ export const PLATFORMS = [
   { value: "youtube", label: "YouTube" },
   { value: "x", label: "X" },
   { value: "threads", label: "Threads" },
-  { value: "other", label: "Somewhere else" },
+  { value: "other", label: "Other" },
 ] as const;
 
 export const FOLLOWERS = [
@@ -90,7 +90,7 @@ export const SignupSchema = z.object({
     .trim()
     .toLowerCase()
     .max(254, "That email is too long.")
-    .pipe(z.email("That email doesn't look right. Check for typos.")),
+    .pipe(z.email("That email doesn’t look right. Check for typos.")),
   whatsapp: z
     .string()
     .trim()
@@ -120,7 +120,7 @@ export const ProfileSchema = z.object({
   posting: oneOf(POSTING, "Pick how often you post."),
   goal: oneOf(GOALS, "Pick what you want most."),
   language: oneOf(LANGUAGES, "Pick a language."),
-  start: oneOf(STARTS, "Pick when you'd like to start."),
+  start: oneOf(STARTS, "Pick when you’d like to start."),
   budget: oneOf(BUDGETS, "Let us know if the price works."),
   company: z.string().max(200).default(""),
 });

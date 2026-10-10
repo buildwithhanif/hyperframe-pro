@@ -40,7 +40,6 @@ export default function Nav() {
           </ul>
         </nav>
         <Link href="/start" className="btn btn--sm">
-          <i className="btn-dot" aria-hidden="true" />
           Get started
         </Link>
       </div>

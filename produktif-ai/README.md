@@ -4,12 +4,12 @@ The site for produktif.ai, a done-for-you short video service: 60 videos a month
 
 | Route | What it is |
 |---|---|
-| `/` | The homepage. English, with scroll motion built on `motion`. |
+| `/` | The homepage, in English. It leads with Hanif's own videos, made with his AI persona and labeled on every frame. |
 | `/start` | Get started: a one-question-per-screen application that ends on the waitlist. |
 | `/privacy`, `/terms`, `/consent` | Legal pages. Drafts: have a lawyer read them before you take money. |
 | `/carousel` | Hanif's carousel tool, in Indonesian. Hidden from search. Off unless `ANTHROPIC_API_KEY` is set. |
 
-Fonts (Geist and Geist Mono) ship with the `geist` package, so pages make no third-party requests.
+The site uses one font, Archivo (OFL), subset and self-hosted from `app/fonts`, so pages make no third-party requests. The design rules are in [DESIGN.md](DESIGN.md).
 
 ## Deploy to produktif.ai (about 15 minutes)
 
@@ -138,7 +138,7 @@ npm run build
 npm run e2e       # needs a build; drives Chromium through the site and the APIs
 ```
 
-`npm run e2e` starts several production servers. It checks the homepage at phone and desktop widths (no sideways scroll, the headline holds its lines), walks the whole application on a 390×844 phone including a reload halfway through, and calls the APIs directly: the exact rows sent to the sheet, a forged profile token, the honeypot, a sheet that fails or answers `forbidden`, and a missing webhook. The carousel checks run against demo mode and a fake model server. Screenshots land in `e2e-output/`. Set `CHROME_PATH` if Chromium isn't at `/opt/pw-browsers/chromium`.
+`npm run e2e` starts several production servers. It checks the homepage at phone and desktop widths (no sideways scroll, the first headline line holds, the persona clip shows on a phone before any scroll, every video carries its "AI persona" label), walks the whole application on a 390×844 phone including a reload halfway through, and calls the APIs directly: the exact rows sent to the sheet, a forged profile token, the honeypot, a sheet that fails or answers `forbidden`, and a missing webhook. The carousel checks run against demo mode and a fake model server. Screenshots land in `e2e-output/`. Set `CHROME_PATH` if Chromium isn't at `/opt/pw-browsers/chromium`.
 
 ## Layout
 
@@ -149,7 +149,8 @@ app/privacy, terms, consent  legal pages (shared styles in app/legal.css)
 app/api/apply/route.ts       part one: validate, rate-limit, save the lead, send the email
 app/api/apply/profile/       part two: check the token, save the profile with its fit score
 app/carousel/, app/api/generate/   the carousel tool
-components/home/             homepage sections: Nav, PhoneReel, ChaosToCalm, Steps, MonthGrid, motion helpers
+components/home/             Nav, Clip (a labeled persona video), MonthWall (the month of stills)
+public/samples/              the sample clips, their stills and 60 frames for the month wall
 components/onboarding/       the application flow
 components/site/             legal page frame, UTM keeper
 lib/waitlist.ts              schemas, option lists, phone and handle parsing, fit score, webhook rows
@@ -158,6 +159,16 @@ lib/email.ts                 confirmation email
 lib/dates.ts                 reply-by date in Jakarta time, skipping weekends
 lib/ratelimit.ts             in-memory per-IP limiter
 ```
+
+## Sample videos
+
+Every video on the homepage is one of Hanif's own posts, made with his AI persona (face and voice). `scripts/cut-samples.sh` cuts the 10 to 12 second loops, the stills and the month-wall frames from the source MP4s:
+
+```bash
+./scripts/cut-samples.sh /path/to/source-mp4s   # writes public/samples/
+```
+
+To pull fresh sources, list the post video URLs in `samples/sources.txt` and push. The `fetch-samples` workflow downloads them and commits the files to the `samples-raw` branch. Any new clip must keep the "AI persona" label (the `Clip` component adds it, and the e2e run checks it).
 
 ## Before you promote it widely
 

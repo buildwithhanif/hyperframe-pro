@@ -4,7 +4,7 @@ import "../tokens.css";
 import "../legal.css";
 
 export const metadata: Metadata = {
-  title: "Terms · produktif.ai",
+  title: "Terms | produktif.ai",
   description:
     "The rules for using produktif.ai and joining the waitlist, plus a plain summary of the service terms for clients: price, billing, canceling, refunds, approvals, AI labels and content rules.",
   alternates: { canonical: "/terms" },
@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPage
-      kicker="Terms"
       title="Terms of use and service"
       updated="11 October 2026"
       intro={
@@ -22,9 +21,7 @@ export default function TermsPage() {
             This page has two parts. Part one covers using this website and joining the waitlist. Part two is a short summary of how the
             service works once you become a client.
           </p>
-          <p>
-            This is a plain-language draft. An Indonesian lawyer will review it. For clients, the signed service agreement governs.
-          </p>
+          <p>This is a plain-language draft. An Indonesian lawyer will review it. For clients, the signed service agreement governs.</p>
         </>
       }
       sections={[
@@ -59,12 +56,12 @@ export default function TermsPage() {
                 <li>Don&rsquo;t attack or scrape the site or its forms. We limit how often a form can be sent to keep spam out.</li>
               </ul>
               <p>
-                View and follower numbers on this site come from the founder&rsquo;s own accounts. They are his results. Yours may be
-                higher or lower, and nobody can guarantee views.
+                View and follower numbers on this site come from the founder&rsquo;s own accounts. They are his results. Yours may be higher
+                or lower, and nobody can guarantee views.
               </p>
               <p>
-                The text, design, videos and brand on this site are ours or used with permission. Please don&rsquo;t copy them or pass
-                them off as your own.
+                The text, design, videos and brand on this site are ours or used with permission. Please don&rsquo;t copy them or pass them
+                off as your own.
               </p>
             </>
           ),
@@ -83,15 +80,11 @@ export default function TermsPage() {
                   answers so we can judge fit fairly.
                 </li>
                 <li>Clients must be 18 or older. Please apply only if you are.</li>
+                <li>Slots are limited, and we pick clients by fit with the service. We reply within 2 working days of your application.</li>
+                <li>While you wait for a slot, we send a short monthly email update. Reply to any of them to stop them.</li>
                 <li>
-                  Slots are limited, and we pick clients by fit with the service. We reply within 2 working days of your application.
-                </li>
-                <li>
-                  While you wait for a slot, we send a short monthly email update. Reply to any of them to stop them.
-                </li>
-                <li>
-                  You can leave the waitlist at any time. Email{" "}
-                  <a href="mailto:privacy@produktif.ai">privacy@produktif.ai</a> and we will remove your details.
+                  You can leave the waitlist at any time. Email <a href="mailto:privacy@produktif.ai">privacy@produktif.ai</a> and we will
+                  remove your details.
                 </li>
               </ul>
               <p>
@@ -107,12 +100,12 @@ export default function TermsPage() {
           body: (
             <>
               <p>
-                Our <a href="/privacy">privacy policy</a> explains what we collect when you apply and how to ask for a copy or deletion.
-                The site has no ad trackers or tracking cookies.
+                Our <a href="/privacy">privacy policy</a> explains what we collect when you apply and how to ask for a copy or deletion. The
+                site has no ad trackers or tracking cookies.
               </p>
               <p>
-                Clients share more: photos, a voice recording and an ID check. Our <a href="/consent">face and voice page</a> covers how
-                we handle them. Part two below has the short version.
+                Clients share more: photos, a voice recording and an ID check. Our <a href="/consent">face and voice page</a> covers how we
+                handle them. Part two below has the short version.
               </p>
             </>
           ),
@@ -160,23 +153,23 @@ export default function TermsPage() {
           body: (
             <>
               <p>
-                Indonesia&rsquo;s Personal Data Protection Law (UU PDP, Law 27 of 2022) treats biometric data, such as your face and
-                voice, as specific personal data. Using it needs your explicit consent. You give it twice: by e-signing a consent form,
-                and by saying a consent line at the end of your voice recording.
+                Indonesia&rsquo;s Personal Data Protection Law (UU PDP, Law 27 of 2022) treats biometric data, such as your face and voice,
+                as specific personal data. Using it needs your explicit consent. You give it twice: by e-signing a consent form, and by
+                saying a consent line at the end of your voice recording.
               </p>
               <p>
-                The AI providers that build and run your persona are located outside Indonesia, in the United States or the European
-                Union. Your consent form names each provider and its country, and asks you to agree to your data being sent there. You
-                see that list before you sign.
+                The AI providers that build and run your persona are located outside Indonesia, in the United States or the European Union.
+                Your consent form names each provider and its country, and asks you to agree to your data being sent there. You see that
+                list before you sign.
               </p>
               <p>
-                To confirm you are the person in the videos and that you are 18 or older, we match your KTP or passport to a live selfie.
-                We delete the ID image right after the match and keep only a record that the check passed.
+                To confirm you are the person in the videos and that you are 18 or older, we match your KTP or passport to a live selfie. We
+                delete the ID image right after the match and keep only a record that the check passed.
               </p>
               <p>
                 You can ask to see, correct or delete your data, or withdraw your consent, at{" "}
-                <a href="mailto:privacy@produktif.ai">privacy@produktif.ai</a>. We can&rsquo;t make your videos without your face and
-                voice, so withdrawing consent also ends the service. Payments already made follow your service agreement.
+                <a href="mailto:privacy@produktif.ai">privacy@produktif.ai</a>. We can&rsquo;t make your videos without your face and voice,
+                so withdrawing consent also ends the service. Payments already made follow your service agreement.
               </p>
             </>
           ),
@@ -214,9 +207,7 @@ export default function TermsPage() {
                   </tr>
                 </tbody>
               </table>
-              <p>
-                Prices are in Indonesian rupiah. The founding price is for our first cohort of clients. Later cohorts may pay more.
-              </p>
+              <p>Prices are in Indonesian rupiah. The founding price is for our first cohort of clients. Later cohorts may pay more.</p>
               <p>
                 <b>Late payments.</b> A payment more than 3 days late pauses production until it arrives.
               </p>
@@ -234,10 +225,11 @@ export default function TermsPage() {
               </p>
               <ul>
                 <li>Approve the test clip, and the deposit is credited to your first month.</li>
-                <li>Reject it, and we refund the deposit in full and delete your files.</li>
+                <li>Not right? We redo it once. You can also skip the redo.</li>
+                <li>Still not right after the redo, or you skipped it? We refund the deposit in full and delete your files.</li>
               </ul>
               <p>
-                We aim to start delivery within 7 days of your deposit. That timing depends on your photos and recording reaching us
+                We aim to send your test clip within 7 days of your deposit. That timing depends on your photos and recording reaching us
                 quickly.
               </p>
             </>
@@ -273,8 +265,8 @@ export default function TermsPage() {
               <ul>
                 <li>A missed video is caught up within 7 days.</li>
                 <li>
-                  A video still missing at the end of the month is credited on your next invoice at one sixtieth of your monthly fee.
-                  At the founding price that is about <b>Rp 66,700 per video</b>.
+                  A video still missing at the end of the month is credited on your next invoice at one sixtieth of your monthly fee. At the
+                  founding price that is about <b>Rp 66,700 per video</b>.
                 </li>
               </ul>
             </>
@@ -286,15 +278,11 @@ export default function TermsPage() {
           body: (
             <>
               <ul>
-                <li>
-                  Scripts come once a week, in one message. No reply within 24 hours means we go ahead with them.
-                </li>
+                <li>Scripts come once a week, in one message. No reply within 24 hours means we go ahead with them.</li>
                 <li>Videos arrive in weekly batches of 14, a week before they are due to go out.</li>
                 <li>You have 48 hours to review each batch. Reply OK, or send notes.</li>
                 <li>Text fixes are free, any time. You also get one full redo per video.</li>
-                <li>
-                  A video counts toward your 60 once you approve it, or once the 48-hour window passes without notes.
-                </li>
+                <li>A video counts toward your 60 once you approve it, or once the 48-hour window passes without notes.</li>
               </ul>
               <p>We never post anything for you. You decide what goes out and when.</p>
             </>
@@ -333,8 +321,8 @@ export default function TermsPage() {
                 <li>personal medical, legal or investment advice.</li>
               </ul>
               <p>
-                We don&rsquo;t take on clients in gambling, trading or shady finance, MLM or get-rich-quick schemes. Personal stories in your
-                videos come only from real stories you gave us during onboarding.
+                We don&rsquo;t take on clients in gambling, trading or shady finance, MLM or get-rich-quick schemes. Personal stories in
+                your videos come only from real stories you gave us during onboarding.
               </p>
             </>
           ),
@@ -369,9 +357,7 @@ export default function TermsPage() {
                 <b>You own your videos and your likeness.</b> We get a license to use your face, voice and materials only to make your
                 videos for you, and only while you are a client.
               </p>
-              <p>
-                Public samples of your videos need your separate opt-in. Saying no doesn&rsquo;t change your service at all.
-              </p>
+              <p>Public samples of your videos need your separate opt-in. Saying no doesn&rsquo;t change your service at all.</p>
               <p>Our production methods and templates stay ours.</p>
             </>
           ),
@@ -385,8 +371,8 @@ export default function TermsPage() {
                 For anything that goes wrong on our side, our total liability to you is capped at <b>one month&rsquo;s fee</b>.
               </p>
               <p>
-                We don&rsquo;t control social platforms. We aren&rsquo;t responsible for their algorithms, reach, policy changes or decisions
-                about your account.
+                We don&rsquo;t control social platforms. We aren&rsquo;t responsible for their algorithms, reach, policy changes or
+                decisions about your account.
               </p>
               <p>Nothing in these terms takes away rights you have under Indonesian law that cannot be limited by contract.</p>
             </>
@@ -399,8 +385,8 @@ export default function TermsPage() {
             <>
               <p>
                 We may update this page as the service grows and after legal review. When we do, we change the date at the top. Price
-                changes for clients are announced at least 30 days ahead. Any other change to a client&rsquo;s service follows the process in
-                their signed agreement.
+                changes for clients are announced at least 30 days ahead. Any other change to a client&rsquo;s service follows the process
+                in their signed agreement.
               </p>
             </>
           ),

@@ -22,31 +22,29 @@
   align-items: center;
   min-height: 44px;
   color: var(--ink);
+  text-decoration: none;
 }
 .pai .lg-wm {
-  display: block;
-  width: auto;
-  height: 19px;
-}
-.pai .lg-dot {
-  flex: none;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--rec-inverse);
+  font-size: 23px;
 }
 .pai .lg-cta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 999px;
-  background: var(--fg);
-  color: var(--bg);
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 10px;
+  background: var(--yellow);
+  color: var(--ink);
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 750;
+  font-stretch: 92%;
+  transition: background-color var(--d-hover);
+}
+@media (hover: hover) and (pointer: fine) {
+  .pai .lg-cta:hover {
+    background: var(--yellow-2);
+  }
 }
 .pai .lg-main {
   width: 100%;
@@ -54,18 +52,14 @@
   margin: 0 auto;
   padding: clamp(48px, 9vh, 96px) clamp(20px, 5vw, 40px) 96px;
 }
-.pai .lg-kicker {
-  font-weight: 500;
-  font-size: 14px;
-  color: var(--muted);
-}
 .pai .lg-main h1 {
-  margin-top: 14px;
   font-family: var(--display);
-  font-weight: 500;
-  font-size: clamp(38px, 3vw + 24px, 64px);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
+  font-weight: 900;
+  font-stretch: 62%;
+  text-transform: uppercase;
+  font-size: clamp(48px, 4vw + 26px, 88px);
+  line-height: 0.88;
+  color: var(--ink);
   text-wrap: balance;
 }
 .pai .lg-updated {
@@ -84,10 +78,8 @@
 }
 .pai .lg-toc {
   margin-top: 40px;
-  padding: 20px 24px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--bg-hi);
+  padding-top: 16px;
+  border-top: 3px solid var(--ink);
 }
 .pai .lg-toc ol {
   margin: 0;
@@ -111,10 +103,12 @@
 }
 .pai .lg-sec h2 {
   font-family: var(--display);
-  font-weight: 500;
-  font-size: clamp(26px, 1vw + 20px, 32px);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-weight: 800;
+  font-stretch: 74%;
+  font-size: clamp(26px, 1vw + 20px, 34px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--ink);
   text-wrap: balance;
 }
 .pai .lg-body {
@@ -138,7 +132,7 @@
 .pai .lg-body b,
 .pai .lg-body strong {
   color: var(--fg);
-  font-weight: 560;
+  font-weight: 650;
 }
 .pai .lg-body table {
   width: 100%;
@@ -154,7 +148,7 @@
 }
 .pai .lg-body th {
   color: var(--fg);
-  font-weight: 560;
+  font-weight: 650;
 }
 .pai .lg-foot {
   display: flex;
@@ -183,5 +177,62 @@
   }
   .pai .lg-body table {
     font-size: 14px;
+  }
+}
+
+.pai .lg-end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 20px;
+  margin-top: 64px;
+  padding: 28px;
+  border-radius: 12px;
+  background: var(--yellow);
+}
+.pai .lg-end .lg-cta {
+  height: 50px;
+  padding: 0 24px;
+  background: var(--ink);
+  color: #fff;
+}
+.pai .lg-end p {
+  max-width: 30rem;
+  font-weight: 550;
+  font-size: 16.5px;
+  color: var(--ink);
+}
+@media (min-width: 1100px) {
+  .pai .lg-main {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 680px);
+    column-gap: 72px;
+    max-width: 1060px;
+  }
+  .pai .lg-main > :not(.lg-toc) {
+    grid-column: 2;
+  }
+  .pai .lg-toc {
+    grid-column: 1;
+    grid-row: 1 / span 60;
+    position: sticky;
+    top: 96px;
+    align-self: start;
+    margin-top: 0;
+  }
+  .pai .lg-toc ol {
+    columns: 1;
+    font-size: 14px;
+  }
+}
+@media (max-width: 640px) {
+  .pai .lg-cta {
+    height: 44px;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .pai .lg-end .lg-cta:hover {
+    background: var(--ink-2);
   }
 }
