@@ -7,15 +7,15 @@ import PhoneReel from "./PhoneReel";
 // The pile of tabs, trials and renewals a creator juggles today. Generic on
 // purpose: no real product names or logos.
 const MESS = [
-  { title: "prompt_v14_FINAL(2).txt", body: "make it sound more like me but not cringe…", x: -38, y: -30, r: -6 },
-  { title: "Free trial ended", body: "Upgrade to keep your projects.", x: 30, y: -34, r: 5, tone: "warn" },
-  { title: "Subscription renewed", body: "US$29.00 charged to •••• 4471", x: -6, y: -40, r: -2 },
-  { title: "Render failed", body: "Export 3 of 7 stopped. Try again?", x: 40, y: 2, r: 8, tone: "warn" },
-  { title: "Voice settings", body: "Stability 0.42 · Clarity 0.77 · Style 0.13", x: -42, y: 8, r: 4 },
-  { title: "Tutorial · 2h 14m", body: "The ONLY AI video workflow you need", x: 26, y: 30, r: -7 },
-  { title: "Captions app", body: "Watermark removed on Pro plan", x: -28, y: 36, r: -4 },
-  { title: "New AI tool just dropped", body: "Is this the one? (thread, 41 replies)", x: 4, y: 40, r: 3 },
-  { title: "Script ideas.docx", body: "1. ??? 2. post consistently 3. ???", x: -10, y: -8, r: 2 },
+  { title: "1:07 AM", body: "Prompting until 1 a.m.", x: -38, y: -30, r: -6 },
+  { title: "Billing", body: "Paying for five AI tools in dollars", x: 30, y: -34, r: 5, tone: "warn" },
+  { title: "Credits", body: "Credits that reset before you used them", x: -6, y: -40, r: -2 },
+  { title: "Render 6 of 6", body: "Re-rendering the same clip six times", x: 40, y: 2, r: 8, tone: "warn" },
+  { title: "captions_fix.srt", body: "Fixing auto-captions by hand", x: -42, y: 8, r: 4 },
+  { title: "Tutorial · 2h 14m", body: "Another 'best AI video tool' tutorial", x: 26, y: 30, r: -7 },
+  { title: "prompt_v14_FINAL(2).txt", body: "make it sound more like me but not cringe", x: -28, y: 36, r: -4 },
+  { title: "Drafts · 23 clips", body: "A folder of clips you never posted", x: 4, y: 40, r: 3 },
+  { title: "Free trial ended", body: "Upgrade to keep your projects", x: -10, y: -8, r: 2, tone: "warn" },
   { title: "Calendar", body: "Film this week: Mon? Wed? Sat?", x: 18, y: -14, r: -5 },
 ] as const;
 
@@ -28,6 +28,8 @@ function Card({ i, progress, item }: { i: number; progress: MotionValue<number>;
   const rotate = useTransform(progress, [0, s, e], [item.r, item.r, 0]);
   const scale = useTransform(progress, [0, s, e], [1, 1, 0.2]);
   const opacity = useTransform(progress, [0, s, e - 0.06, e], [1, 1, 0.9, 0]);
+  // Each line gets struck through just before it is pulled away.
+  const strike = useTransform(progress, [Math.max(0, s - 0.07), s], [0, 1]);
   return (
     <motion.div className={`cc-card${"tone" in item ? " is-warn" : ""}`} style={{ x, y, rotate, scale, opacity }} aria-hidden="true">
       <div className="cc-card-bar">
@@ -36,7 +38,12 @@ function Card({ i, progress, item }: { i: number; progress: MotionValue<number>;
         <i />
         <span>{item.title}</span>
       </div>
-      <p>{item.body}</p>
+      <p>
+        <span>
+          {item.body}
+          <motion.i className="cc-strike" style={{ scaleX: strike }} />
+        </span>
+      </p>
     </motion.div>
   );
 }
@@ -78,15 +85,16 @@ export default function ChaosToCalm() {
       <section className="cc cc--static" aria-labelledby="cc-h">
         <div className="cc-static">
           <div>
-            <p className="cc-eyebrow">Today</p>
-            <h2 id="cc-h">Tabs, trials, renewals, failed renders. Still no video.</h2>
+            <p className="cc-eyebrow">The tool grind</p>
+            <h2 id="cc-h">AI was supposed to save you time.</h2>
           </div>
           <div className="cc-static-phone">
             <PhoneReel />
           </div>
           <div>
             <p className="cc-eyebrow">With produktif.ai</p>
-            <p className="cc-after-h">Your videos, ready to post. Every day.</p>
+            <p className="cc-after-h">Send three photos and a 2-minute voice read. Once.</p>
+            <p className="cc-after-sub">We do the making from there: scripts, your persona, motion graphics, captions and the post copy.</p>
           </div>
         </div>
       </section>
@@ -97,8 +105,8 @@ export default function ChaosToCalm() {
     <section ref={ref} className="cc" aria-labelledby="cc-h">
       <div className="cc-sticky">
         <motion.div className="cc-copy cc-before" style={{ opacity: beforeOpacity, y: beforeY }}>
-          <p className="cc-eyebrow">Today</p>
-          <h2 id="cc-h">Tabs, trials, renewals, failed renders. Still no video.</h2>
+          <p className="cc-eyebrow">The tool grind</p>
+          <h2 id="cc-h">AI was supposed to save you time.</h2>
         </motion.div>
         <div className="cc-field">
           {MESS.map((item, i) => (
@@ -110,7 +118,8 @@ export default function ChaosToCalm() {
         </div>
         <motion.div className="cc-copy cc-after" style={{ opacity: afterOpacity, y: afterY }}>
           <p className="cc-eyebrow">With produktif.ai</p>
-          <p className="cc-after-h">Your videos, ready to post. Every day.</p>
+          <p className="cc-after-h">Send three photos and a 2-minute voice read. Once.</p>
+          <p className="cc-after-sub">We do the making from there: scripts, your persona, motion graphics, captions and the post copy.</p>
         </motion.div>
       </div>
     </section>

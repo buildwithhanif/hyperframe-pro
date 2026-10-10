@@ -185,7 +185,7 @@ html:has(.home) {
 }
 .pai .hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
   align-items: center;
   gap: clamp(24px, 4vw, 64px);
 }
@@ -231,9 +231,9 @@ html:has(.home) {
 .pai .hero-h {
   margin-top: 28px;
   font-weight: 600;
-  /* "Stop prompting." is about 6.8em wide in Geist 600; sized to stay on one
-     line in its column on desktop. */
-  font-size: clamp(48px, 6.2vw, 92px);
+  /* "We make the videos." is about 8.7em wide in Geist 600; sized so each
+     line stays on one line in its column on desktop. */
+  font-size: clamp(46px, 5.4vw, 80px);
   line-height: 0.92;
   letter-spacing: -0.058em;
 }
@@ -287,6 +287,7 @@ html:has(.home) {
 }
 .pai .hero-micro {
   margin-top: 20px;
+  text-wrap: balance;
   font-size: 14.5px;
   color: var(--muted);
 }
@@ -323,6 +324,7 @@ html:has(.home) {
   display: grid;
   place-items: center;
   min-height: 600px;
+  margin-bottom: 40px;
 }
 .pai .hero-phone {
   width: min(320px, 78vw);
@@ -366,13 +368,13 @@ html:has(.home) {
   background: var(--accent);
 }
 .pai .chip-1 {
-  top: 14%;
-  left: -2%;
+  top: 63%;
+  left: -6%;
   animation-delay: 0.9s;
 }
 .pai .chip-2 {
-  top: 31%;
-  right: -4%;
+  top: 15%;
+  right: -8%;
   animation-delay: 1.1s;
 }
 .pai .chip-3 {
@@ -1142,7 +1144,7 @@ html:has(.home) {
 }
 .pai .anatomy-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
   align-items: center;
   gap: clamp(32px, 6vw, 96px);
 }
@@ -1490,7 +1492,7 @@ html:has(.home) {
 }
 .pai .plan-amt b {
   font-weight: 600;
-  font-size: clamp(52px, 6.4vw, 88px);
+  font-size: clamp(48px, 5.2vw, 76px);
   line-height: 1;
   letter-spacing: -0.055em;
 }
@@ -1732,6 +1734,360 @@ html:has(.home) {
   display: none;
 }
 
+
+/* ---------- strategy pass additions ---------- */
+.pai .only-narrow {
+  display: none;
+}
+.pai .hero-stack {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.pai .hero-stack span {
+  position: absolute;
+  width: min(250px, 60vw);
+  aspect-ratio: 9 / 16;
+  border-radius: 30px;
+  border: 1px solid var(--line-2);
+  background:
+    radial-gradient(70% 40% at 50% 28%, rgba(122, 100, 80, 0.35), transparent 70%),
+    linear-gradient(160deg, var(--bg-hi), var(--bg-lo));
+  box-shadow: 0 30px 60px -40px rgba(40, 30, 10, 0.5);
+  animation: fan 1.2s var(--ease-out) both;
+}
+.pai .hero-stack span:nth-child(1) {
+  --r: -14deg;
+  --x: -42%;
+  animation-delay: 0.5s;
+}
+.pai .hero-stack span:nth-child(2) {
+  --r: 12deg;
+  --x: 40%;
+  animation-delay: 0.6s;
+}
+.pai .hero-stack span:nth-child(3) {
+  --r: -4deg;
+  --x: -18%;
+  animation-delay: 0.7s;
+  opacity: 0.7;
+}
+@keyframes fan {
+  from {
+    opacity: 0;
+    transform: translateX(0) rotate(0deg) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(var(--x)) rotate(var(--r)) scale(1);
+  }
+}
+.pai .hero-stack span {
+  transform: translateX(var(--x)) rotate(var(--r));
+}
+.pai .hero-phone {
+  position: relative;
+  z-index: 1;
+}
+.pai .chip {
+  z-index: 2;
+}
+.pai .chip b {
+  font-weight: 650;
+}
+.pai .chip-label {
+  top: auto;
+  bottom: -30px;
+  left: 50%;
+  translate: -50% 0;
+  color: var(--fg);
+  text-decoration: none;
+  animation-delay: 1.6s;
+}
+.pai .chip-label:hover {
+  border-color: var(--fg);
+}
+
+.pai .cc-after-sub {
+  max-width: 36rem;
+  margin: 14px auto 0;
+  font-size: clamp(16px, 1.5vw, 19px);
+  color: var(--fg-2);
+  text-wrap: balance;
+}
+.pai .cc-card p {
+  position: relative;
+}
+.pai .cc-card p span {
+  position: relative;
+  display: inline-block;
+}
+.pai .cc-strike {
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 52%;
+  height: 2px;
+  background: var(--accent);
+  transform-origin: left center;
+}
+
+.pai .nos-band {
+  padding: 8px 0 0;
+}
+.pai .nos-in {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px 32px;
+  padding-top: 28px;
+  padding-bottom: 28px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.pai .nos-in .nos {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  justify-content: flex-start;
+  gap: 12px 32px;
+}
+
+.pai .tl-seg em {
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  opacity: 0.7;
+}
+.pai .anatomy-notes {
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.pai .anatomy-notes li {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  font-size: 16px;
+  color: var(--fg-2);
+}
+.pai .anatomy-notes svg {
+  width: 17px;
+  height: 17px;
+  margin-top: 3px;
+  color: var(--fg);
+}
+.pai .anatomy-why {
+  margin-top: 18px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.pai .get-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(32px, 6vw, 96px);
+  margin-top: 0;
+}
+.pai .get-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 24px;
+  margin: 36px 0 0;
+}
+.pai .get-stat {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+.pai .get-stat dt {
+  font-weight: 600;
+  font-size: clamp(40px, 4.4vw, 60px);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+.pai .get-stat dd {
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--fg-2);
+}
+
+.pai p.plan-terms {
+  margin: 24px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 14.5px;
+  color: var(--fg-2);
+}
+.pai .plan-terms a {
+  color: var(--fg);
+}
+.pai .plan-cohort {
+  margin-top: 12px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--fg);
+}
+.pai .plan-note {
+  margin: 16px 0 28px;
+}
+.pai .compare {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(24px, 5vw, 72px);
+  margin-top: clamp(56px, 9vh, 96px);
+}
+.pai .compare-h {
+  font-weight: 600;
+  font-size: clamp(28px, 3vw, 40px);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+.pai .compare-sub {
+  margin-top: 14px;
+  font-size: 16px;
+  color: var(--fg-2);
+}
+.pai .compare-table {
+  border-top: 1px solid var(--fg);
+}
+.pai .compare-row {
+  display: grid;
+  grid-template-columns: 0.9fr 1.2fr 0.9fr;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 15.5px;
+  color: var(--fg-2);
+}
+.pai .compare-row span:first-child {
+  color: var(--muted);
+}
+.pai .compare-row span:last-child {
+  color: var(--fg);
+  font-weight: 560;
+}
+.pai .compare-head span {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pai .compare-head span:last-child {
+  color: var(--fg);
+  font-weight: 450;
+}
+.pai .compare-src {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.pai .proof-lead {
+  color: var(--on-night-2);
+}
+.pai .proof-quote {
+  padding: 24px;
+  border: 1px solid rgba(242, 238, 229, 0.16);
+  border-radius: 20px;
+}
+.pai .proof-quote p {
+  font-size: clamp(19px, 1.8vw, 23px);
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  color: var(--on-night);
+}
+.pai .proof-quote span {
+  display: block;
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--on-night-2);
+}
+.pai p.proof-note {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(242, 238, 229, 0.14);
+  max-width: 48rem;
+  font-size: 15.5px;
+  color: var(--on-night);
+}
+.pai .stat-tag {
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.pai .trust-grid-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: start;
+}
+.pai .trust-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--fg);
+}
+.pai .trust-li {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: clamp(16px, 1.4vw, 18.5px);
+  letter-spacing: -0.01em;
+}
+.pai .trust-li svg {
+  width: 18px;
+  height: 18px;
+  margin-top: 4px;
+}
+
+.pai .fit {
+  border-top: 1px solid var(--line);
+}
+.pai .fit-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(24px, 6vw, 96px);
+  align-items: end;
+}
+.pai .fit-copy .lead {
+  margin-top: 0;
+}
+.pai .fit-not {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--bg-lo);
+  font-size: 15px;
+  color: var(--fg-2);
+}
+.pai .fit-not b {
+  color: var(--fg);
+}
+.pai .final-fine {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--on-night-2);
+}
+.pai .foot-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pai .foot-tag {
+  font-size: 14px;
+  color: var(--muted);
+}
+
 /* ---------- responsive ---------- */
 @media (min-width: 641px) {
   .pai .hero-h .k-line {
@@ -1743,7 +2099,7 @@ html:has(.home) {
     grid-template-columns: 1fr;
   }
   .pai .hero-h {
-    font-size: clamp(48px, 9vw, 96px);
+    font-size: clamp(46px, 8vw, 92px);
   }
   .pai .hero-stage {
     min-height: 560px;
@@ -1756,6 +2112,12 @@ html:has(.home) {
   }
 }
 @media (max-width: 860px) {
+  .pai .compare,
+  .pai .trust-grid-wrap,
+  .pai .fit-grid,
+  .pai .get-grid {
+    grid-template-columns: 1fr;
+  }
   .pai .nav-links {
     display: none;
   }
@@ -1815,11 +2177,38 @@ html:has(.home) {
   .pai {
     font-size: 16px;
   }
+  .pai .only-wide {
+    display: none;
+  }
+  .pai .only-narrow {
+    display: inline;
+  }
+  .pai .compare-row {
+    grid-template-columns: 1fr 1fr;
+    font-size: 14.5px;
+  }
+  .pai .compare-row span:first-child {
+    grid-column: 1 / -1;
+    margin-bottom: -8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .pai .compare-head span:first-child {
+    display: none;
+  }
+  .pai .nos-in .btn {
+    width: 100%;
+  }
+  .pai .hero-stack span {
+    width: min(210px, 52vw);
+  }
   .pai .nav-in {
     height: 60px;
   }
   .pai .hero-h {
-    font-size: clamp(44px, 14.5vw, 64px);
+    font-size: calc((100vw - 40px) / 7.1);
   }
   .pai .hero-eyebrow {
     font-size: 11px;
@@ -1845,11 +2234,11 @@ html:has(.home) {
   }
   .pai .chip-1 {
     left: 0;
-    top: 10%;
+    top: 62%;
   }
   .pai .chip-2 {
     right: 0;
-    top: 28%;
+    top: 14%;
   }
   .pai .chip-3 {
     left: 0;

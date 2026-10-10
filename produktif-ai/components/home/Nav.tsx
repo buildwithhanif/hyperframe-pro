@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 
 const LINKS = [
   { href: "#how", label: "How it works" },
-  { href: "#get", label: "What you get" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -81,7 +80,7 @@ export function MobileCta() {
   return (
     <div className={`mcta${show ? " is-on" : ""}`} aria-hidden={!show}>
       <span>
-        <b>Rp 4jt/month</b> · 60 videos
+        <b>Rp 4,000,000</b> / month · 60 videos
       </span>
       <Link href="/start" className="btn" tabIndex={show ? 0 : -1}>
         Get started
