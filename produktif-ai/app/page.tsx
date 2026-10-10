@@ -11,8 +11,8 @@ export const viewport: Viewport = {
 
 const RECEIPT_LINES: [string, string][] = [
   ["Video talking head", "60"],
-  ["Shooting", "0"],
-  ["Rekaman suara", "0"],
+  ["Shooting abis setup", "0"],
+  ["Rekaman abis setup", "0"],
   ["Nyari topik", "0"],
 ];
 
@@ -29,12 +29,6 @@ const REELS = [
     kind: "Reel",
     result: "4,4 jt views di IG, 8,7 jt di FB",
     href: "https://www.instagram.com/reel/Dd8O73qSouU/",
-  },
-  {
-    title: "Dua Kuali × Mbok Geni",
-    kind: "Iklan, full AI",
-    result: "6,6 jt views",
-    href: "https://www.instagram.com/reel/DdbZHMBSVE8/",
   },
 ];
 
@@ -67,12 +61,12 @@ const FAQ = [
     a: "Rp 4 juta per bulan buat 60 video, dua per hari. Anggap aja lo gaji satu orang yang kerjanya cuma bikin konten buat lo.",
   },
   {
-    q: "Beneran ga perlu rekaman sama sekali?",
+    q: "Rekamannya beneran cuma sekali?",
     a: "Cuma sekali di awal, buat bikin persona dan suara AI lo. Abis itu ga perlu lagi.",
   },
   {
     q: "Views-nya dijamin?",
-    a: "Ga. Ga ada yang bisa jamin views, dan gue ga mau janji yang ga bisa gue pegang. Yang lo dapet: 60 video sebulan dengan format yang sama kayak Reels gue.",
+    a: "Ga. Ga ada yang bisa jamin views, dan gue ga mau janji yang ga bisa gue pegang. Yang pasti lo dapet: 60 video talking head sebulan pake persona AI lo, dengan gaya naskah kayak Reels gue.",
   },
   {
     q: "Bisa clone wajah atau suara orang lain?",
@@ -80,7 +74,7 @@ const FAQ = [
   },
   {
     q: "Videonya dikasih label AI?",
-    a: "Iya. Instagram dan TikTok minta konten AI yang realistis dikasih label, dan gue ikutin aturan itu.",
+    a: "Iya, harus. Instagram sama TikTok minta konten AI yang realistis dikasih label. Pas upload, lo tinggal nyalain label AI-nya, nanti gue kasih tau caranya.",
   },
 ];
 
@@ -97,21 +91,22 @@ export default function Home() {
       </header>
 
       <main>
-        <section className="lp-hero lp-wrap" id="daftar" aria-labelledby="hero-title">
+        <section className="lp-hero lp-wrap" aria-labelledby="hero-title">
           <div className="lp-hero__copy">
             <p className="lp-tag">Done for you · waitlist batch pertama</p>
             <h1 id="hero-title">
-              2 video talking head tiap hari. <span className="lp-red">Lo ga perlu rekaman.</span>
+              2 video talking head tiap hari. <span className="lp-red">Rekamannya cukup sekali.</span>
             </h1>
             <p className="lp-lead">
               Gue bikin persona AI dari wajah dan suara lo. Abis itu tiap hari lo dapet 2 video Reels yang siap posting, lengkap sama naskah dan
-              subtitle. Formatnya sama kayak Reels di akun gue.
+              subtitle, Rp 4 juta sebulan. Gaya naskahnya ngikutin Reels di akun gue.
             </p>
-            <WaitlistForm source="hero" />
-            <p className="lp-fine">Daftar dulu, belum bayar apa-apa. Gue hubungin lewat WhatsApp.</p>
+            <div id="daftar" className="lp-anchor">
+              <WaitlistForm source="hero" />
+            </div>
           </div>
 
-          <figure className="lp-order" aria-label="Isi paket per bulan, ditulis kayak struk: 60 video talking head, nol shooting, nol rekaman suara, nol nyari topik, total Rp 4.000.000">
+          <figure className="lp-order" aria-label="Isi paket per bulan, ditulis kayak struk: 60 video talking head, nol shooting dan nol rekaman abis setup, nol nyari topik, total Rp 4.000.000">
             <div className="receipt receipt--order">
               <p className="receipt__head">
                 <strong>PRODUKTIF.AI</strong>
@@ -133,9 +128,9 @@ export default function Home() {
                   <span>Rp 4.000.000</span>
                 </li>
                 <li>
-                  <span>PAID IN</span>
+                  <span>KEMBALIAN</span>
                   <i aria-hidden="true" />
-                  <span>WAKTU LO BALIK</span>
+                  <span>WAKTU LO</span>
                 </li>
               </ul>
               <p className="receipt__foot">2 video sehari · 9:16 · siap posting</p>
@@ -147,10 +142,11 @@ export default function Home() {
           <div className="lp-wrap">
             <p className="lp-tag lp-tag--dark">Buktinya</p>
             <h2 id="proof-title" className="lp-h2">
-              Formatnya udah jalan di akun gue.
+              Gaya naskahnya udah jalan di akun gue.
             </h2>
             <p className="lp-ink__lead">
-              Hook-nya dibuka pake STOP dan durasinya 60 sampai 120 detik. Voice-over di banyak Reels gue juga pake suara clone gue sendiri.
+              Yang di depan kamera di Reels ini emang gue sendiri, bukan persona AI. Naskah video lo gue tulis pake cara yang sama: dibuka pake
+              hook STOP, durasinya 60 sampai 120 detik. Voice-over di banyak Reels gue juga udah pake suara clone gue sendiri.
             </p>
             <ul className="lp-reels">
               {REELS.map((r) => (
@@ -168,7 +164,8 @@ export default function Home() {
               Median 30 Reels terakhir: <strong>297{" "}rb views</strong>.
             </p>
             <p className="lp-disclaimer">
-              Ini angka akun gue, @hanifmuh_, yang follower-nya 298{" "}rb. Akun lo mulai dari titik yang beda, dan ga ada yang bisa jamin views.
+              Ini angka akun gue: IG @hanifmuh_ yang follower-nya 298 rb, plus Facebook gue. Akun lo mulai dari titik yang beda, dan ga ada yang
+              bisa jamin views.
             </p>
           </div>
         </section>

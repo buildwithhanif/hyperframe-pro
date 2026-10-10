@@ -4,7 +4,10 @@ import { useEffect, useId, useRef, useState } from "react";
 import { ROLES, STARTS } from "@/lib/waitlist";
 
 type Props = { source: "hero" | "footer"; tone?: "paper" | "ink" };
-type FieldError = { field: "name" | "whatsapp" | "handle" | ""; message: string };
+type Field = "name" | "whatsapp" | "handle";
+type Saved = { name: string; whatsapp: string };
+
+const DONE_EVENT = "wl:done";
 
 export default function WaitlistForm({ source, tone = "paper" }: Props) {
   const id = useId();
@@ -13,45 +16,72 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
   const [handle, setHandle] = useState("");
   const [role, setRole] = useState("");
   const [start, setStart] = useState("");
-  const [saved, setSaved] = useState({ name: "", whatsapp: "" });
+  const [saved, setSaved] = useState<Saved>({ name: "", whatsapp: "" });
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
-  const [error, setError] = useState<FieldError>({ field: "", message: "" });
-  const companyRef = useRef<HTMLInputElement>(null);
+  const [fieldError, setFieldError] = useState<{ field: Field; message: string } | null>(null);
+  const [formError, setFormError] = useState("");
+  const hpRef = useRef<HTMLInputElement>(null);
   const doneRef = useRef<HTMLDivElement>(null);
+  const submittedHere = useRef(false);
+  const inputs = { name: useRef<HTMLInputElement>(null), whatsapp: useRef<HTMLInputElement>(null), handle: useRef<HTMLInputElement>(null) };
 
-  // The form (and the focused button) disappears on success; move focus to the
-  // receipt so keyboard and screen-reader users land on the confirmation.
+  // Both forms on the page show the receipt once either one succeeds.
   useEffect(() => {
-    if (state === "done") doneRef.current?.focus();
-  }, [state]);
+    function onDone(e: Event) {
+      setSaved((e as CustomEvent<Saved>).detail);
+      setState("done");
+    }
+    window.addEventListener(DONE_EVENT, onDone);
+    return () => window.removeEventListener(DONE_EVENT, onDone);
+  }, []);
+
+  // Move focus to the receipt (only in the form that was submitted) or to the
+  // field that needs fixing.
+  useEffect(() => {
+    if (state === "done" && submittedHere.current) doneRef.current?.focus();
+    if (state === "error" && fieldError) inputs[fieldError.field].current?.focus();
+  }, [state, fieldError]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function edit(field: Field, setter: (v: string) => void) {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.value);
+      if (fieldError?.field === field) setFieldError(null);
+    };
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (state === "sending") return;
     const sending = { name: name.trim(), whatsapp: whatsapp.trim() };
     setState("sending");
-    setError({ field: "", message: "" });
+    setFieldError(null);
+    setFormError("");
 
     let res: Response;
     try {
       res = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, whatsapp, handle, role, start, source, company: companyRef.current?.value ?? "" }),
+        body: JSON.stringify({ name, whatsapp, handle, role, start, source, company: hpRef.current?.value ?? "" }),
       });
     } catch {
-      setError({ field: "", message: "Koneksinya putus. Cek internet lo, terus coba lagi." });
+      setFormError("Koneksinya putus. Cek internet lo, terus coba lagi.");
       setState("error");
       return;
     }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError({ field: res.status === 400 ? (data.field ?? "") : "", message: data.error || "Gagal nyimpen. Coba sekali lagi." });
+      const message = data.error || "Gagal nyimpen. Coba sekali lagi.";
+      if (res.status === 400 && ["name", "whatsapp", "handle"].includes(data.field)) {
+        setFieldError({ field: data.field, message });
+      } else {
+        setFormError(message);
+      }
       setState("error");
       return;
     }
-    setSaved(sending);
-    setState("done");
+    submittedHere.current = true;
+    window.dispatchEvent(new CustomEvent<Saved>(DONE_EVENT, { detail: sending }));
   }
 
   if (state === "done") {
@@ -73,7 +103,7 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
           </div>
         </dl>
         <p className="wl-done__note">
-          Sambil nunggu, contoh formatnya ada di{" "}
+          Sambil nunggu, gaya naskahnya bisa lo liat di{" "}
           <a href="https://www.instagram.com/hanifmuh_/" target="_blank" rel="noopener noreferrer">
             @hanifmuh_
           </a>
@@ -83,31 +113,34 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
     );
   }
 
-  const err = (field: FieldError["field"]) => (state === "error" && error.field === field ? true : undefined);
   const busy = state === "sending";
+  const errorFor = (field: Field) => (fieldError?.field === field ? fieldError.message : "");
+  const fieldProps = (field: Field) => ({
+    id: `${id}-${field}`,
+    ref: inputs[field],
+    readOnly: busy,
+    "aria-invalid": errorFor(field) ? true : undefined,
+    "aria-describedby": errorFor(field) ? `${id}-${field}-err` : undefined,
+  });
+  const errorLine = (field: Field) =>
+    errorFor(field) ? (
+      <p id={`${id}-${field}-err`} className="wl-error">
+        {errorFor(field)}
+      </p>
+    ) : null;
 
   return (
     <form className={`wl wl--${tone}`} onSubmit={submit}>
       <div className="wl-fields">
         <div className="wl-input">
           <label htmlFor={`${id}-name`}>Nama</label>
-          <input
-            id={`${id}-name`}
-            name="name"
-            autoComplete="name"
-            required
-            maxLength={80}
-            value={name}
-            readOnly={busy}
-            aria-invalid={err("name")}
-            aria-describedby={`${id}-err`}
-            onChange={(e) => setName(e.target.value)}
-          />
+          <input {...fieldProps("name")} name="name" autoComplete="name" required maxLength={80} value={name} onChange={edit("name", setName)} />
+          {errorLine("name")}
         </div>
         <div className="wl-input">
-          <label htmlFor={`${id}-wa`}>WhatsApp</label>
+          <label htmlFor={`${id}-whatsapp`}>WhatsApp</label>
           <input
-            id={`${id}-wa`}
+            {...fieldProps("whatsapp")}
             name="whatsapp"
             type="tel"
             inputMode="tel"
@@ -116,28 +149,24 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
             required
             maxLength={24}
             value={whatsapp}
-            readOnly={busy}
-            aria-invalid={err("whatsapp")}
-            aria-describedby={`${id}-err`}
-            onChange={(e) => setWhatsapp(e.target.value)}
+            onChange={edit("whatsapp", setWhatsapp)}
           />
+          {errorLine("whatsapp")}
         </div>
         <div className="wl-input wl-input--wide">
           <label htmlFor={`${id}-handle`}>
-            Akun IG atau TikTok <em>kalau ada</em>
+            Akun IG atau TikTok <em>kalo ada</em>
           </label>
           <input
-            id={`${id}-handle`}
+            {...fieldProps("handle")}
             name="handle"
             autoComplete="off"
             placeholder="@akunlo"
-            maxLength={31}
+            maxLength={120}
             value={handle}
-            readOnly={busy}
-            aria-invalid={err("handle")}
-            aria-describedby={`${id}-err`}
-            onChange={(e) => setHandle(e.target.value)}
+            onChange={edit("handle", setHandle)}
           />
+          {errorLine("handle")}
         </div>
       </div>
 
@@ -166,17 +195,18 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
       </fieldset>
 
       <div className="wl-hp" aria-hidden="true">
-        <label htmlFor={`${id}-company`}>Perusahaan</label>
-        <input id={`${id}-company`} ref={companyRef} type="text" name="company" tabIndex={-1} autoComplete="off" />
+        <label htmlFor={`${id}-hp`}>Kosongin</label>
+        <input id={`${id}-hp`} ref={hpRef} type="text" name="hp_ref" tabIndex={-1} autoComplete="off" data-1p-ignore data-bwignore data-lpignore="true" />
       </div>
 
       <div className="wl-submitrow">
         <button className="wl-submit wl-submit--block" type="submit" aria-disabled={busy}>
           {busy ? "Nyimpen..." : "Daftar waitlist"}
         </button>
-        <p id={`${id}-err`} className="wl-error" role="alert">
-          {state === "error" ? error.message : ""}
+        <p className="wl-error" role="alert">
+          {formError}
         </p>
+        <p className="lp-fine">Belum bayar apa-apa. Nomor lo cuma gue pake buat ngabarin batch pertama lewat WhatsApp.</p>
       </div>
     </form>
   );

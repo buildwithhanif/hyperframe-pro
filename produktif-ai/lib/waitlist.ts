@@ -17,12 +17,22 @@ export const STARTS = [
 type RoleValue = (typeof ROLES)[number]["value"];
 type StartValue = (typeof STARTS)[number]["value"];
 
-// Indonesian mobile numbers: 08…, 628… or +628…, 10 to 14 digits in total.
+// Indonesian mobile numbers as people actually type or paste them: 08…, 8…,
+// 628…, +62 8…, even "+62 0812…", with spaces, dashes, dots or the invisible
+// direction marks WhatsApp adds when copying a contact.
 // Returns the number as 628… (the format wa.me links want), or null.
 export function normalizeWhatsapp(raw: string): string | null {
-  const digits = raw.replace(/[\s\-().]/g, "");
-  const m = digits.match(/^(?:\+?62|0)(8\d{7,11})$/);
+  const digits = raw.normalize("NFKC").replace(/[\s\p{Pd}\p{Cf}().\/]/gu, "");
+  const m = digits.match(/^(?:\+?620?|0)?(8\d{7,11})$/);
   return m ? `62${m[1]}` : null;
+}
+
+// Accept a pasted profile link and keep just the handle.
+export function handleFromInput(raw: string): string {
+  return raw
+    .trim()
+    .replace(/^(?:https?:\/\/)?(?:www\.|m\.)?(?:instagram|tiktok)\.com\/@?/i, "@")
+    .replace(/[/?#].*$/, "");
 }
 
 export const WaitlistSchema = z.object({
@@ -34,9 +44,9 @@ export const WaitlistSchema = z.object({
     .refine((v) => normalizeWhatsapp(v) !== null, "Nomor WhatsApp-nya kayaknya salah. Contoh: 0812 3456 7890."),
   handle: z
     .string()
-    .trim()
-    .max(31, "Handle-nya kepanjangan.")
-    .regex(/^(@?[A-Za-z0-9._]{1,30})?$/, "Handle cuma boleh huruf, angka, titik dan underscore.")
+    .max(120, "Handle-nya kepanjangan.")
+    .transform(handleFromInput)
+    .pipe(z.string().regex(/^(@?[A-Za-z0-9._]{1,30})?$/, "Handle cuma boleh huruf, angka, titik dan underscore."))
     .default(""),
   role: z.enum(["", ...ROLES.map((r) => r.value)] as ["", ...RoleValue[]]).default(""),
   start: z.enum(["", ...STARTS.map((s) => s.value)] as ["", ...StartValue[]]).default(""),

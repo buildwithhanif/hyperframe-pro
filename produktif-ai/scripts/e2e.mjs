@@ -106,6 +106,7 @@ try {
     assert.match(receipt, /Ani Wijaya/);
     assert.match(receipt, /0812 3456 7890/);
     assert.equal(await page.evaluate(() => document.activeElement?.classList.contains("wl-done")), true, "focus moves to the receipt");
+    assert.equal(await page.locator(".lp-close .wl-done").count(), 1, "the closing form also switches to the receipt");
     await page.screenshot({ path: `${OUT}/waitlist-done-mobile.png`, fullPage: false });
     assert.deepEqual(errors, []);
     await page.close();
@@ -121,6 +122,9 @@ try {
     await page.waitForFunction(() => document.querySelector(".lp-hero .wl-error")?.textContent?.includes("WhatsApp"));
     assert.equal(await hero.getByLabel("WhatsApp").getAttribute("aria-invalid"), "true");
     assert.equal(await hero.getByLabel("Nama").getAttribute("aria-invalid"), null);
+    assert.equal(await page.evaluate(() => document.activeElement?.getAttribute("name")), "whatsapp", "focus moves to the bad field");
+    await hero.getByLabel("WhatsApp").fill("0812 3456 7890");
+    assert.equal(await hero.getByLabel("WhatsApp").getAttribute("aria-invalid"), null, "error clears while fixing");
     await page.close();
   });
 

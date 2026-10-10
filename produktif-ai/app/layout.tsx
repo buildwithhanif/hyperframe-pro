@@ -6,12 +6,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://produktif.ai"),
-  title: "produktif.ai: 2 video talking head tiap hari, tanpa rekaman",
+  title: "produktif.ai: 2 video talking head tiap hari, rekaman cukup sekali",
   description:
     "Done for you dari Hanif Produktif: persona AI dari wajah dan suara lo, 60 video Reels sebulan, Rp 4 juta per bulan. Daftar waitlist batch pertama.",
   openGraph: {
     title: "produktif.ai",
-    description: "2 video talking head tiap hari. Lo ga perlu rekaman. Daftar waitlist batch pertama.",
+    description: "2 video talking head tiap hari. Rekamannya cukup sekali. Daftar waitlist batch pertama.",
     url: "https://produktif.ai",
     siteName: "produktif.ai",
     locale: "id_ID",

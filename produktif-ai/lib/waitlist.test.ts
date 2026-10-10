@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isBot, normalizeWhatsapp, WaitlistSchema, webhookPayload, webhookSaved } from "./waitlist.ts";
+import { handleFromInput, isBot, normalizeWhatsapp, WaitlistSchema, webhookPayload, webhookSaved } from "./waitlist.ts";
 
 test("WhatsApp numbers normalise to 628…", () => {
   assert.equal(normalizeWhatsapp("0812 3456 7890"), "6281234567890");
@@ -11,6 +11,18 @@ test("WhatsApp numbers normalise to 628…", () => {
   assert.equal(normalizeWhatsapp("0812"), null);
   assert.equal(normalizeWhatsapp("08123456789012345"), null);
   assert.equal(normalizeWhatsapp("+1 415 555 0100"), null);
+  assert.equal(normalizeWhatsapp("+62 0812 3456 7890"), "6281234567890");
+  assert.equal(normalizeWhatsapp("812 3456 7890"), "6281234567890");
+  assert.equal(normalizeWhatsapp("\u202a+62 812\u20113456\u20117890\u202c"), "6281234567890", "copied from WhatsApp contacts");
+  assert.equal(normalizeWhatsapp("0811 234 567"), "62811234567");
+});
+
+test("pasted profile links become handles", () => {
+  assert.equal(handleFromInput("https://www.instagram.com/ani.coach/?hl=id"), "@ani.coach");
+  assert.equal(handleFromInput("tiktok.com/@ani_wijaya"), "@ani_wijaya");
+  assert.equal(handleFromInput(" @ani "), "@ani");
+  const v = WaitlistSchema.parse({ name: "Ani", whatsapp: "081234567890", handle: "https://instagram.com/ani.coach" });
+  assert.equal(v.handle, "@ani.coach");
 });
 
 test("accepts a plain signup and fills defaults", () => {
