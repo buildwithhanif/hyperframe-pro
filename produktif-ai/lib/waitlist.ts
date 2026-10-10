@@ -60,7 +60,7 @@ const oneOf = <T extends readonly { value: string }[]>(list: T, message: string)
 // The consent sentence shown next to the checkbox. Stored with each signup so
 // the sheet records exactly what the person agreed to.
 export const CONSENT_TEXT =
-  "I agree to the privacy policy and to be contacted about produktif.ai by email or WhatsApp.";
+  "I agree to the privacy policy, and to produktif.ai contacting me about my application by email, or by WhatsApp if I added a number. I can opt out anytime.";
 
 // WhatsApp numbers as people actually type or paste them. Indonesian numbers
 // (08…, 8…, 628…, +62 8…, even "+62 0812…") become 628…; other countries need

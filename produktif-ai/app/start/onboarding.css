@@ -166,6 +166,21 @@
   color: var(--muted);
 }
 
+.pai .ob-suggest {
+  margin-top: 12px;
+  font-size: 15px;
+  color: var(--fg-2);
+}
+.pai .ob-suggest button {
+  margin-left: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-weight: 560;
+  color: var(--fg);
+  text-decoration: underline;
+  cursor: pointer;
+}
 .pai .ob-ideas {
   display: flex;
   flex-wrap: wrap;

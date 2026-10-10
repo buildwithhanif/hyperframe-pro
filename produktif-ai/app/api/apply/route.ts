@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
+import { formatReplyBy, replyBy } from "@/lib/dates";
 import { sendConfirmation, siteUrl } from "@/lib/email";
 import { forwardRow, signingSecret } from "@/lib/forward";
 import { clientKey, rateLimit, unhit } from "@/lib/ratelimit";
@@ -58,6 +59,6 @@ export async function POST(request: Request) {
   }
 
   const resumeUrl = `${siteUrl()}/start?lead=${leadId}&t=${token}`;
-  if (result === "saved") await sendConfirmation(input.email, input.name, resumeUrl);
+  if (result === "saved") await sendConfirmation(input.email, input.name, resumeUrl, formatReplyBy(replyBy(new Date())));
   return NextResponse.json({ ok: true, lead_id: leadId, token, ...(result === "demo" ? { demo: true } : {}) });
 }

@@ -134,6 +134,7 @@ test("confirmation email greets by first name, escapes HTML and links to the pro
   assert.match(confirmationEmail("Ani Wijaya", "https://produktif.ai/start").text, /^Hi Ani,/);
   const m = confirmationEmail("<b>Ani</b> Wijaya", "https://produktif.ai/start?lead=x&t=y");
   assert.match(m.text, /within 2 working days/);
+  assert.match(confirmationEmail("Ani", "x", "Tuesday, 13 October").text, /by Tuesday, 13 October/);
   assert.doesNotMatch(m.html, /<b>Ani/);
   assert.match(m.html, /&lt;b&gt;Ani/);
   assert.match(m.html, /lead=x&amp;t=y/);

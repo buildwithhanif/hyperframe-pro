@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { formatReplyBy, replyBy } from "@/lib/dates";
 import { BUDGETS, FOLLOWERS, GOALS, LANGUAGES, PLATFORMS, POSTING, STARTS } from "@/lib/waitlist";
 
 type Answers = {
@@ -40,6 +41,29 @@ const EMPTY: Answers = {
 };
 
 const STORE = "pai-apply-v1";
+// Catches the usual domain slips: gmial.com, gmail.co, yahoo.co.id typos and so on.
+const DOMAIN_FIXES: Record<string, string> = {
+  "gmial.com": "gmail.com",
+  "gmai.com": "gmail.com",
+  "gmal.com": "gmail.com",
+  "gmail.co": "gmail.com",
+  "gmail.con": "gmail.com",
+  "gamil.com": "gmail.com",
+  "gnail.com": "gmail.com",
+  "yaho.com": "yahoo.com",
+  "yahoo.con": "yahoo.com",
+  "yahoo.co": "yahoo.com",
+  "hotmal.com": "hotmail.com",
+  "hotmail.co": "hotmail.com",
+  "outlok.com": "outlook.com",
+  "icloud.co": "icloud.com",
+};
+function emailSuggestion(email: string): string | null {
+  const m = email.trim().toLowerCase().match(/^([^@\s]+)@([^@\s]+)$/);
+  if (!m || !DOMAIN_FIXES[m[2]]) return null;
+  return `${m[1]}@${DOMAIN_FIXES[m[2]]}`;
+}
+
 const NICHE_IDEAS = ["Personal finance", "Tech and AI", "Health and fitness", "Beauty", "Food", "Parenting", "Business tips", "Education"];
 
 type StepId =
@@ -55,6 +79,7 @@ type StepId =
   | "start"
   | "budget";
 
+const PHASE1 = 3;
 const STEPS: StepId[] = ["name", "email", "whatsapp", "niche", "platform", "followers", "posting", "goal", "language", "start", "budget"];
 const FIELD_STEP: Record<string, StepId> = {
   name: "name",
@@ -126,6 +151,8 @@ export default function Onboarding() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ field?: string; message: string } | null>(null);
   const [done, setDone] = useState(false);
+  const [welcomeBack, setWelcomeBack] = useState(false);
+  const [invite, setInvite] = useState(false);
   const honeypot = useRef<HTMLInputElement>(null);
   const stage = useRef<HTMLDivElement>(null);
 
@@ -141,6 +168,10 @@ export default function Onboarding() {
     } catch {}
     setAnswers(stored.answers);
     setSession(s);
+    setWelcomeBack(!!stored.answers.name && !s);
+    try {
+      setInvite(new URLSearchParams(window.location.search).get("utm_campaign") === "invite");
+    } catch {}
     if (s) setIndex(STEPS.indexOf("niche"));
     setReady(true);
   }, []);
@@ -200,7 +231,7 @@ export default function Onboarding() {
       ...readUtm(),
     }).catch(() => null);
     if (!res) {
-      setError({ message: "Connection lost. Check your internet and try again." });
+      setError({ message: "Connection lost. Your answers are saved on this device. Try again." });
       return false;
     }
     if (!res.ok) {
@@ -232,7 +263,7 @@ export default function Onboarding() {
       company: honeypot.current?.value ?? "",
     }).catch(() => null);
     if (!res) {
-      setError({ message: "Connection lost. Check your internet and try again." });
+      setError({ message: "Connection lost. Your answers are saved on this device. Try again." });
       return false;
     }
     if (!res.ok) {
@@ -309,16 +340,21 @@ export default function Onboarding() {
         </Link>
         {!done && (
           <p className="ob-count" aria-live="polite">
-            <span className="sr">Question </span>
-            {index + 1} <span aria-hidden="true">/</span>
-            <span className="sr"> of</span> {total}
+            {index < PHASE1 ? "About you" : "Your channel · about 1 minute"}
+            <span className="sr">
+              , question {index + 1} of {total}
+            </span>
           </p>
         )}
         <Link href="/" className="ob-close">
-          {done ? "Back to site" : "Save and exit"}
+          {done ? "Back to site" : "Save and finish later"}
         </Link>
         <div className="ob-progress" aria-hidden="true">
-          <motion.i initial={false} animate={{ scaleX: done ? 1 : (index + 1) / total }} transition={{ duration: reduce ? 0 : 0.5, ease: EASE }} />
+          <motion.i
+            initial={false}
+            animate={{ scaleX: done ? 1 : index < PHASE1 ? (index + 1) / PHASE1 : (index - PHASE1 + 1) / (total - PHASE1) }}
+            transition={{ duration: reduce ? 0 : 0.5, ease: EASE }}
+          />
         </div>
       </header>
 
@@ -327,7 +363,12 @@ export default function Onboarding() {
           <AnimatePresence mode="wait" custom={dir} initial={false}>
             {done ? (
               <motion.section key="done" className="ob-step ob-done" variants={variants} custom={1} initial="enter" animate="center" exit="exit" transition={{ duration: reduce ? 0 : 0.45, ease: EASE }}>
-                <Done name={answers.name} email={answers.email} />
+                <Done
+                  name={answers.name}
+                  email={answers.email}
+                  warm={answers.budget === "yes" && answers.start !== "looking"}
+                  hasWa={!!answers.whatsapp.trim()}
+                />
               </motion.section>
             ) : (
               <motion.form
@@ -346,11 +387,17 @@ export default function Onboarding() {
                 noValidate
               >
                 <StepBody
+                  welcomeBack={welcomeBack}
+                  invite={invite}
                   id={step}
                   uid={uid}
                   answers={answers}
                   set={set}
-                  pick={(key, value) => next({ [key]: value } as Partial<Answers>)}
+                  pick={(key, value) => {
+                    // Let the chosen answer light up before moving on.
+                    set(key, value as never);
+                    window.setTimeout(() => next({ [key]: value } as Partial<Answers>), reduce ? 0 : 220);
+                  }}
                   error={error}
                 />
                 <div className="ob-hp" aria-hidden="true">
@@ -375,7 +422,7 @@ export default function Onboarding() {
                   )}
                   {!isChoice(step) || step === "platform" ? (
                     <button type="submit" className="ob-next" aria-disabled={busy}>
-                      {busy ? "Saving…" : index === total - 1 ? "Submit" : step === "whatsapp" ? "Join the list" : "Continue"}
+                      {busy ? "Saving…" : index === total - 1 ? "Send my profile" : step === "whatsapp" ? "Join the waitlist" : "Continue"}
                       {!busy && (
                         <svg viewBox="0 0 16 16" aria-hidden="true">
                           <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -409,6 +456,8 @@ function isChoice(id: StepId) {
 }
 
 type BodyProps = {
+  welcomeBack: boolean;
+  invite: boolean;
   id: StepId;
   uid: string;
   answers: Answers;
@@ -426,7 +475,7 @@ function FieldError({ show, id, message }: { show: boolean; id: string; message?
   );
 }
 
-function StepBody({ id, uid, answers, set, pick, error }: BodyProps) {
+function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: BodyProps) {
   const err = (f: string) => (error?.field && (error.field === f || FIELD_STEP[error.field] === id) ? error.message : undefined);
   const errId = `${uid}-${id}-err`;
   const first = answers.name.trim().split(/\s+/)[0];
@@ -435,7 +484,13 @@ function StepBody({ id, uid, answers, set, pick, error }: BodyProps) {
     case "name":
       return (
         <>
-          <Kicker>Takes about 2 minutes. Nothing to pay.</Kicker>
+          <Kicker>
+            {invite
+              ? "Private invite from Hanif. Invited applicants are reviewed first."
+              : welcomeBack && first
+                ? `Welcome back, ${first}. Your answers are saved.`
+                : "Takes about 2 minutes. Nothing to pay now."}
+          </Kicker>
           <h1 tabIndex={-1}>
             <label htmlFor={`${uid}-name`}>First, what should we call you?</label>
           </h1>
@@ -460,7 +515,7 @@ function StepBody({ id, uid, answers, set, pick, error }: BodyProps) {
         <>
           <Kicker>{first ? `Nice to meet you, ${first}.` : "Nice to meet you."}</Kicker>
           <h1 tabIndex={-1}>
-            <label htmlFor={`${uid}-email`}>Where should we send your spot?</label>
+            <label htmlFor={`${uid}-email`}>What&rsquo;s your best email?</label>
           </h1>
           <input
             id={`${uid}-email`}
@@ -473,19 +528,30 @@ function StepBody({ id, uid, answers, set, pick, error }: BodyProps) {
             spellCheck={false}
             enterKeyHint="next"
             maxLength={254}
-            placeholder="you@example.com"
+            placeholder="you@email.com"
             value={answers.email}
             onChange={(e) => set("email", e.target.value)}
             aria-invalid={err("email") ? true : undefined}
-            aria-describedby={err("email") ? errId : undefined}
+            aria-describedby={err("email") ? errId : `${uid}-email-help`}
           />
+          <p id={`${uid}-email-help`} className="ob-help">
+            Your confirmation goes here. We only email you about your application and new cohorts.
+          </p>
+          {emailSuggestion(answers.email) && (
+            <p className="ob-suggest" role="status">
+              Did you mean <b>{emailSuggestion(answers.email)}</b>?{" "}
+              <button type="button" onClick={() => set("email", emailSuggestion(answers.email)!)}>
+                Yes, fix it
+              </button>
+            </p>
+          )}
           <FieldError show={!!err("email")} id={errId} message={err("email")} />
         </>
       );
     case "whatsapp":
       return (
         <>
-          <Kicker>Optional, but it's the fastest way we reply.</Kicker>
+          <Kicker>Optional, but it&rsquo;s the fastest way to hear back.</Kicker>
           <h1 tabIndex={-1}>
             <label htmlFor={`${uid}-wa`}>Your WhatsApp number?</label>
           </h1>
@@ -498,14 +564,14 @@ function StepBody({ id, uid, answers, set, pick, error }: BodyProps) {
             autoComplete="tel"
             enterKeyHint="done"
             maxLength={24}
-            placeholder="+62 812 3456 7890"
+            placeholder="0812 3456 7890"
             value={answers.whatsapp}
             onChange={(e) => set("whatsapp", e.target.value)}
             aria-invalid={error?.field === "whatsapp" ? true : undefined}
             aria-describedby={error?.field === "whatsapp" ? errId : `${uid}-wa-help`}
           />
           <p id={`${uid}-wa-help`} className="ob-help">
-            Outside Indonesia? Start with your country code.
+            Only for your application. No broadcasts. Outside Indonesia? Start with your country code.
           </p>
           <FieldError show={error?.field === "whatsapp"} id={errId} message={error?.message} />
           <label className="ob-consent">
@@ -521,8 +587,8 @@ function StepBody({ id, uid, answers, set, pick, error }: BodyProps) {
               I agree to the{" "}
               <Link href="/privacy" target="_blank">
                 privacy policy
-              </Link>{" "}
-              and to be contacted about produktif.ai by email or WhatsApp.
+              </Link>
+              , and to produktif.ai contacting me about my application by email, or by WhatsApp if I added a number. I can opt out anytime.
             </span>
           </label>
           <FieldError show={error?.field === "consent"} id={`${uid}-consent-err`} message={error?.message} />
@@ -531,9 +597,9 @@ function StepBody({ id, uid, answers, set, pick, error }: BodyProps) {
     case "niche":
       return (
         <>
-          <Kicker>You're on the list. Now the fun part.</Kicker>
+          <Kicker>{`You're on the list${first ? `, ${first}` : ""}. A few taps so Hanif can see if you're a fit.`}</Kicker>
           <h1 tabIndex={-1}>
-            <label htmlFor={`${uid}-niche`}>What do your videos teach or talk about?</label>
+            <label htmlFor={`${uid}-niche`}>What are your videos about?</label>
           </h1>
           <input
             id={`${uid}-niche`}
@@ -545,8 +611,11 @@ function StepBody({ id, uid, answers, set, pick, error }: BodyProps) {
             value={answers.niche}
             onChange={(e) => set("niche", e.target.value)}
             aria-invalid={err("niche") ? true : undefined}
-            aria-describedby={err("niche") ? errId : undefined}
+            aria-describedby={err("niche") ? errId : `${uid}-niche-help`}
           />
+          <p id={`${uid}-niche-help`} className="ob-help">
+            One line is enough.
+          </p>
           <div className="ob-ideas" aria-label="Ideas">
             {NICHE_IDEAS.map((n) => (
               <button
@@ -570,7 +639,7 @@ function StepBody({ id, uid, answers, set, pick, error }: BodyProps) {
     case "platform":
       return (
         <>
-          <Kicker>We'll study your best posts before writing anything.</Kicker>
+          <Kicker>We study your best posts before we write anything.</Kicker>
           <h1 tabIndex={-1} id={`${uid}-platform-q`}>
             Where do you post most?
           </h1>
@@ -595,14 +664,17 @@ function StepBody({ id, uid, answers, set, pick, error }: BodyProps) {
             value={answers.handle}
             onChange={(e) => set("handle", e.target.value)}
             aria-invalid={error?.field === "handle" ? true : undefined}
-            aria-describedby={error?.field === "handle" ? errId : undefined}
+            aria-describedby={error?.field === "handle" ? errId : `${uid}-handle-help`}
           />
+          <p id={`${uid}-handle-help`} className="ob-help">
+            Pasting your profile link works too. It&rsquo;s the best way for Hanif to judge fit.
+          </p>
           <FieldError show={!!err("platform")} id={errId} message={err("platform")} />
         </>
       );
     case "followers":
       return (
-        <ChoiceStep uid={uid} kicker="Any size works. It helps us plan your topics." q="How big is your audience there?" options={[...FOLLOWERS]} value={answers.followers} onPick={(v) => pick("followers", v)} error={err("followers")} />
+        <ChoiceStep uid={uid} kicker="Any size can apply." q="How many followers do you have there?" options={[...FOLLOWERS]} value={answers.followers} onPick={(v) => pick("followers", v)} error={err("followers")} />
       );
     case "posting":
       return (
@@ -610,22 +682,23 @@ function StepBody({ id, uid, answers, set, pick, error }: BodyProps) {
       );
     case "goal":
       return (
-        <ChoiceStep uid={uid} kicker="Pick the one that matters most." q="What do you want from this?" options={[...GOALS]} value={answers.goal} onPick={(v) => pick("goal", v)} error={err("goal")} />
+        <ChoiceStep uid={uid} kicker="Pick the one that matters most." q="What do you want most from this?" options={[...GOALS]} value={answers.goal} onPick={(v) => pick("goal", v)} error={err("goal")} />
       );
     case "language":
       return (
-        <ChoiceStep uid={uid} kicker="You can change this every month." q="Which language should your videos speak?" options={[...LANGUAGES]} value={answers.language} onPick={(v) => pick("language", v)} error={err("language")} />
+        <ChoiceStep uid={uid} kicker="You can switch every month." q="Which language should your videos speak?" options={[...LANGUAGES]} value={answers.language} onPick={(v) => pick("language", v)} error={err("language")} />
       );
     case "start":
       return (
-        <ChoiceStep uid={uid} kicker="The first cohort is small." q="When would you like to start?" options={[...STARTS]} value={answers.start} onPick={(v) => pick("start", v)} error={err("start")} />
+        <ChoiceStep uid={uid} kicker="The first cohort is 2 to 3 creators. More open after it." q="When would you like to start?" options={[...STARTS]} value={answers.start} onPick={(v) => pick("start", v)} error={err("start")} />
       );
     case "budget":
       return (
         <ChoiceStep
           uid={uid}
-          kicker="Rp 4,000,000 a month for 60 videos. Month to month."
-          q="Does the founding price work for you?"
+          kicker="Last one. Rp 4,000,000 a month for 60 finished videos, about Rp 66,700 each. Month to month, no tool subscriptions."
+          q="Does the founding rate work for you?"
+          note={answers.budget === "not-yet" ? "That's fine. We'll email you when later cohorts open." : undefined}
           options={[...BUDGETS]}
           value={answers.budget}
           onPick={(v) => pick("budget", v)}
@@ -639,7 +712,7 @@ function Kicker({ children }: { children: React.ReactNode }) {
   return <p className="ob-kicker">{children}</p>;
 }
 
-function ChoiceStep(props: { uid: string; kicker: string; q: string; options: Option[]; value: string; onPick: (v: string) => void; error?: string }) {
+function ChoiceStep(props: { uid: string; kicker: string; q: string; options: Option[]; value: string; onPick: (v: string) => void; error?: string; note?: string }) {
   const qid = `${props.uid}-q`;
   const { options, onPick } = props;
   // A, B, C… pick an answer, like the letters on the cards.
@@ -662,6 +735,7 @@ function ChoiceStep(props: { uid: string; kicker: string; q: string; options: Op
         {props.q}
       </h1>
       <Choices name={`${props.uid}-choice`} labelledBy={qid} options={props.options} value={props.value} onPick={props.onPick} autoFocus />
+      {props.note && <p className="ob-help">{props.note}</p>}
       <FieldError show={!!props.error} id={`${props.uid}-err`} message={props.error} />
     </>
   );
@@ -697,8 +771,10 @@ function Choices(props: { name: string; labelledBy: string; options: Option[]; v
   );
 }
 
-function Done({ name, email }: { name: string; email: string }) {
+function Done({ name, email, warm, hasWa }: { name: string; email: string; warm: boolean; hasWa: boolean }) {
   const first = name.trim().split(/\s+/)[0];
+  const by = formatReplyBy(replyBy(new Date()));
+  const wa = process.env.NEXT_PUBLIC_WA_NUMBER;
   return (
     <div className="ob-done-inner" role="status">
       <div className="ob-done-badge" aria-hidden="true">
@@ -707,17 +783,50 @@ function Done({ name, email }: { name: string; email: string }) {
         </svg>
       </div>
       <h1 tabIndex={-1}>{first ? `You're on the list, ${first}.` : "You're on the list."}</h1>
-      <p className="ob-done-lead">We read every profile by hand and reply within 2 working days.</p>
+      <p className="ob-done-lead">
+        {warm
+          ? `Hanif reads every profile himself. You'll hear from us by ${by}.`
+          : `Thanks for being straight with us. You'll still hear from us by ${by}, and after that one short email a month when cohorts open. No pressure.`}
+      </p>
       <ol className="ob-next-steps">
         <li>
-          <b>Check your inbox.</b> A confirmation is on its way{email ? ` to ${email}` : ""}.
+          <span>
+            <b>Check your inbox.</b> Your confirmation went to {email || "your email"}. Not there in 5 minutes? Look in Promotions or Spam.
+          </span>
         </li>
         <li>
-          <b>We review your profile.</b> If it's a fit, we'll message you by email or WhatsApp.
+          <span>
+            {hasWa && wa ? (
+              <>
+                <b>Save our number.</b> If it&rsquo;s a fit, we&rsquo;ll message you on WhatsApp from {wa}. It&rsquo;s the only number we use.
+              </>
+            ) : hasWa ? (
+              <>
+                <b>Watch your WhatsApp and email.</b> If it&rsquo;s a fit, Hanif messages you there.
+              </>
+            ) : (
+              <>
+                <b>Watch your email.</b> If it&rsquo;s a fit, Hanif replies there.
+              </>
+            )}
+          </span>
         </li>
-        <li>
-          <b>We show you how it works.</b> A short call if you want one, then your AI persona.
-        </li>
+        {warm && (
+          <>
+            <li>
+              <span>
+                <b>Then it moves fast.</b> An optional 15-minute call, then a refundable Rp 1,000,000 deposit holds your slot. It comes off your
+                first month.
+              </span>
+            </li>
+            <li>
+              <span>
+                <b>Your first video within 7 days of the deposit:</b> a test clip of your AI persona in the real format. Still not right after one
+                redo? The deposit comes back.
+              </span>
+            </li>
+          </>
+        )}
       </ol>
       <Link href="/" className="ob-next ob-next--ghost">
         Back to produktif.ai
