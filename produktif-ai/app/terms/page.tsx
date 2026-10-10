@@ -23,7 +23,7 @@ export default function TermsPage() {
             service works once you become a client.
           </p>
           <p>
-            This is a plain-language draft. An Indonesian lawyer will review it. If you are a client, your signed service agreement governs.
+            This is a plain-language draft. An Indonesian lawyer will review it. For clients, the signed service agreement governs.
           </p>
         </>
       }
@@ -52,22 +52,19 @@ export default function TermsPage() {
           heading: "Using this website",
           body: (
             <>
-              <p>By using this site, you agree to these terms. If you don&rsquo;t agree, please don&rsquo;t use it.</p>
+              <p>By using this site, you agree to these terms. Please don&rsquo;t use it if you disagree with them.</p>
               <ul>
                 <li>Use the site for its purpose: learning about the service and applying for it.</li>
                 <li>Only submit your own details. Don&rsquo;t apply on behalf of someone else without their permission.</li>
-                <li>
-                  Don&rsquo;t try to break, overload or scrape the site, its forms or its systems. We limit how often a form can be sent to
-                  keep spam out.
-                </li>
+                <li>Don&rsquo;t attack or scrape the site or its forms. We limit how often a form can be sent to keep spam out.</li>
               </ul>
               <p>
-                Numbers on this site about views and followers come from the founder&rsquo;s own accounts. They show what the playbook has
-                done for him. They are not a promise about your results. Nobody can guarantee views.
+                View and follower numbers on this site come from the founder&rsquo;s own accounts. They are his results. Yours may be
+                higher or lower, and nobody can guarantee views.
               </p>
               <p>
-                The text, design, videos and brand on this site belong to produktif.ai. Please don&rsquo;t copy them or present them as your
-                own.
+                The text, design, videos and brand on this site are ours or used with permission. Please don&rsquo;t copy them or pass
+                them off as your own.
               </p>
             </>
           ),
@@ -87,16 +84,19 @@ export default function TermsPage() {
                 </li>
                 <li>Clients must be 18 or older. Please apply only if you are.</li>
                 <li>
-                  Slots are limited. We pick clients by fit with the service, and we reply within 2 working days of your application.
+                  Slots are limited, and we pick clients by fit with the service. We reply within 2 working days of your application.
                 </li>
-                <li>If we can&rsquo;t take you yet, we&rsquo;ll keep you posted with a monthly email update.</li>
+                <li>
+                  While you wait for a slot, we send a short monthly email update. Reply to any of them to stop them.
+                </li>
                 <li>
                   You can leave the waitlist at any time. Email{" "}
                   <a href="mailto:privacy@produktif.ai">privacy@produktif.ai</a> and we will remove your details.
                 </li>
               </ul>
               <p>
-                The onboarding form saves your progress in your own browser until you finish, so you can pick up where you left off.
+                The onboarding form saves your progress in your own browser until you finish. That lets you pick up where you left off.
+                Clearing your browser data removes it.
               </p>
             </>
           ),
@@ -107,12 +107,12 @@ export default function TermsPage() {
           body: (
             <>
               <p>
-                Our <a href="/privacy">privacy policy</a> explains what we collect when you apply, where it is stored and how to ask for a
-                copy or deletion. The site uses no ad trackers or tracking cookies.
+                Our <a href="/privacy">privacy policy</a> explains what we collect when you apply and how to ask for a copy or deletion.
+                The site has no ad trackers or tracking cookies.
               </p>
               <p>
-                If you become a client, our <a href="/consent">face and voice page</a> explains how we handle your photos, voice and ID
-                check, and how they are deleted when you leave.
+                Clients share more: photos, a voice recording and an ID check. Our <a href="/consent">face and voice page</a> covers how
+                we handle them. Part two below has the short version.
               </p>
             </>
           ),
@@ -123,12 +123,12 @@ export default function TermsPage() {
           body: (
             <>
               <p>
-                The rest of this page summarises the service terms in plain words. Before any work starts, every client signs a service
-                agreement. <b>The signed agreement governs.</b> If this summary and your agreement ever differ, your agreement wins.
+                The rest of this page summarises the service terms in plain words. Every client signs a service agreement before any work
+                starts. <b>The signed agreement governs.</b> Where this summary and your agreement differ, your agreement wins.
               </p>
               <p>
-                You can only become a client after we have accepted your application, you have paid the deposit and you have signed the
-                agreement.
+                You become a client once you sign the agreement and pay the deposit. We only ask for either after we accept your
+                application.
               </p>
             </>
           ),
@@ -139,14 +139,44 @@ export default function TermsPage() {
           body: (
             <>
               <ul>
-                <li>60 short videos a month, about 2 a day, each 30 to 45 seconds long.</li>
-                <li>Your own AI persona, made from your recording, with your face and voice.</li>
-                <li>Videos in Indonesian, English or a mix. You choose the split each month.</li>
-                <li>Vertical files ready to post, with captions on screen and a written caption, hashtags and call to action for each one.</li>
+                <li>60 short videos a month, about 2 a day, 30 to 45 seconds long.</li>
+                <li>
+                  Your own AI persona, made from your recording, with your face and voice. It opens and closes your videos. The middle is
+                  motion graphics and screen demos made in-house.
+                </li>
+                <li>Videos in Indonesian, English or a mix. You pick the split month by month.</li>
+                <li>Vertical files ready to post, with captions on screen and a written caption, hashtags and call to action per video.</li>
               </ul>
               <p>
                 You post the videos yourself. Replying to comments and DMs is not part of the service. There are no tools for you to learn
                 and no tool subscriptions to pay for.
+              </p>
+            </>
+          ),
+        },
+        {
+          id: "face-voice",
+          heading: "Your face, voice and ID",
+          body: (
+            <>
+              <p>
+                Indonesia&rsquo;s Personal Data Protection Law (UU PDP, Law 27 of 2022) treats biometric data, such as your face and
+                voice, as specific personal data. Using it needs your explicit consent. You give it twice: by e-signing a consent form,
+                and by saying a consent line at the end of your voice recording.
+              </p>
+              <p>
+                The AI providers that build and run your persona are located outside Indonesia, in the United States or the European
+                Union. Your consent form names each provider and its country, and asks you to agree to your data being sent there. You
+                see that list before you sign.
+              </p>
+              <p>
+                To confirm you are the person in the videos and that you are 18 or older, we match your KTP or passport to a live selfie.
+                We delete the ID image right after the match and keep only a record that the check passed.
+              </p>
+              <p>
+                You can ask to see, correct or delete your data, or withdraw your consent, at{" "}
+                <a href="mailto:privacy@produktif.ai">privacy@produktif.ai</a>. We can&rsquo;t make your videos without your face and
+                voice, so withdrawing consent also ends the service. Payments already made follow your service agreement.
               </p>
             </>
           ),
@@ -188,7 +218,7 @@ export default function TermsPage() {
                 Prices are in Indonesian rupiah. The founding price is for our first cohort of clients. Later cohorts may pay more.
               </p>
               <p>
-                <b>Late payments.</b> If a payment is more than 3 days late, we pause production until it arrives.
+                <b>Late payments.</b> A payment more than 3 days late pauses production until it arrives.
               </p>
             </>
           ),
@@ -199,13 +229,17 @@ export default function TermsPage() {
           body: (
             <>
               <p>
-                A refundable deposit of <b>Rp 1,000,000</b> reserves your pilot slot. After you pay it, we make one short test clip of your
-                AI persona so you can see it before anything else happens. We aim to start delivery within 7 days of your deposit.
+                A refundable deposit of <b>Rp 1,000,000</b> reserves your pilot slot. After the deposit, you sign the agreement and send
+                your photos and voice recording. We then make one short test clip of your AI persona for you to judge.
               </p>
               <ul>
-                <li>If you approve the test clip, the deposit is credited to your first month.</li>
-                <li>If you reject the test clip, we refund the deposit in full.</li>
+                <li>Approve the test clip, and the deposit is credited to your first month.</li>
+                <li>Reject it, and we refund the deposit in full and delete your files.</li>
               </ul>
+              <p>
+                We aim to start delivery within 7 days of your deposit. That timing depends on your photos and recording reaching us
+                quickly.
+              </p>
             </>
           ),
         },
@@ -220,8 +254,9 @@ export default function TermsPage() {
               </p>
               <p>You can pause once a year, for up to one month.</p>
               <p>
-                When you leave, we delete your face, voice and source files everywhere, including at our AI providers, within 30 days. We
-                confirm it in writing.
+                When you leave, we delete your face, voice and source files everywhere within 30 days, including at our AI providers. We
+                confirm it in writing. A few records stay after that: the signed agreement and consent record, the log that your ID check
+                passed, and invoices. We keep them only to show we had your consent and to meet Indonesian tax and accounting rules.
               </p>
             </>
           ),
@@ -233,12 +268,13 @@ export default function TermsPage() {
             <>
               <p>
                 Our commitment is 60 finished videos a month. We can&rsquo;t promise views, and nobody honestly can. Once delivery starts,
-                there are no cash refunds. Instead, we make good on anything we miss:
+                there are no cash refunds. When we fall short on videos, this is how we make it good:
               </p>
               <ul>
-                <li>If we miss a video, we catch it up within 7 days.</li>
+                <li>A missed video is caught up within 7 days.</li>
                 <li>
-                  If a video is still missing at the end of the month, we credit about <b>Rp 66,700 per video</b> on your next invoice.
+                  A video still missing at the end of the month is credited on your next invoice at one sixtieth of your monthly fee.
+                  At the founding price that is about <b>Rp 66,700 per video</b>.
                 </li>
               </ul>
             </>
@@ -251,17 +287,16 @@ export default function TermsPage() {
             <>
               <ul>
                 <li>
-                  Each week we send that week&rsquo;s scripts in one message. If you don&rsquo;t reply within 24 hours, we go ahead with
-                  them.
+                  Scripts come once a week, in one message. No reply within 24 hours means we go ahead with them.
                 </li>
                 <li>Videos arrive in weekly batches of 14, a week before they are due to go out.</li>
                 <li>You have 48 hours to review each batch. Reply OK, or send notes.</li>
-                <li>Text fixes are free, any time. Each video also gets one full redo.</li>
+                <li>Text fixes are free, any time. You also get one full redo per video.</li>
                 <li>
                   A video counts toward your 60 once you approve it, or once the 48-hour window passes without notes.
                 </li>
               </ul>
-              <p>We never post anything for you. Every video goes out only after you have seen it and chosen to post it.</p>
+              <p>We never post anything for you. You decide what goes out and when.</p>
             </>
           ),
         },
@@ -271,11 +306,10 @@ export default function TermsPage() {
           body: (
             <>
               <p>
-                You approve and post every video, so you are responsible for the claims in the videos you approve. We log sources for every
-                script, and a person checks the facts before the video is made. You still have the final say, so watch each one before you
-                approve it.
+                You approve and post the videos, so the claims in videos you approve are your responsibility. To help, we log the sources
+                behind every script, and a person checks the facts before production. Please still watch them before you approve.
               </p>
-              <p>Every video uses an AI persona, so as a client you agree to:</p>
+              <p>Because the videos use an AI persona, you agree to:</p>
               <ul>
                 <li>switch on the platform&rsquo;s AI label every time you post one of our videos;</li>
                 <li>keep a line in your bio saying your videos use an AI persona.</li>
@@ -288,7 +322,9 @@ export default function TermsPage() {
           heading: "Content rules",
           body: (
             <>
-              <p>We only make videos with the face and voice of the creator who signed the agreement. That creator must be 18 or older.</p>
+              <p>
+                We only make videos with the face and voice of the creator who signed the agreement, and that creator must be 18 or older.
+              </p>
               <p>We don&rsquo;t make videos about:</p>
               <ul>
                 <li>politics or SARA (ethnicity, religion, race and inter-group issues);</li>
@@ -308,19 +344,17 @@ export default function TermsPage() {
           heading: "Misuse",
           body: (
             <>
-              <p>
-                Misuse means using the service for impersonation, fake endorsements or scams. Here is what happens:
-              </p>
+              <p>Misuse means using the service for impersonation, fake endorsements or scams. Here is what happens:</p>
               <ul>
                 <li>
                   <b>First time:</b> we refuse the request and send you a written warning.
                 </li>
                 <li>
-                  <b>Second time:</b> the agreement ends, we delete your persona and there is no refund.
+                  <b>Second time:</b> the agreement ends and we delete your persona. There is no refund.
                 </li>
               </ul>
               <p>
-                If you see a produktif.ai video being misused, or think someone has used your face or voice without permission, email{" "}
+                Seen a produktif.ai video being misused, or think someone used your face or voice without permission? Email{" "}
                 <a href="mailto:abuse@produktif.ai">abuse@produktif.ai</a>. We answer within 2 working days.
               </p>
             </>
@@ -336,10 +370,9 @@ export default function TermsPage() {
                 videos for you, and only while you are a client.
               </p>
               <p>
-                We will only show your videos as public samples if you opt in separately. Saying no doesn&rsquo;t change your service in any
-                way.
+                Public samples of your videos need your separate opt-in. Saying no doesn&rsquo;t change your service at all.
               </p>
-              <p>Our production methods, templates and know-how stay ours.</p>
+              <p>Our production methods and templates stay ours.</p>
             </>
           ),
         },
@@ -349,7 +382,7 @@ export default function TermsPage() {
           body: (
             <>
               <p>
-                If something goes wrong on our side, our total liability to you is capped at <b>one month&rsquo;s fee</b>.
+                For anything that goes wrong on our side, our total liability to you is capped at <b>one month&rsquo;s fee</b>.
               </p>
               <p>
                 We don&rsquo;t control social platforms. We aren&rsquo;t responsible for their algorithms, reach, policy changes or decisions
@@ -377,10 +410,10 @@ export default function TermsPage() {
           heading: "Governing law",
           body: (
             <>
-              <p>These terms and every client agreement are governed by the laws of the Republic of Indonesia.</p>
+              <p>These terms and all client agreements are governed by the laws of the Republic of Indonesia.</p>
               <p>
-                If you have a problem, please write to us first at <a href="mailto:hello@produktif.ai">hello@produktif.ai</a>. Most things
-                can be sorted out in a conversation.
+                Got a problem? Please write to us first at <a href="mailto:hello@produktif.ai">hello@produktif.ai</a>. Most things can be
+                sorted out in a conversation.
               </p>
             </>
           ),
