@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import "@fontsource/plus-jakarta-sans/500.css";
-import "@fontsource/plus-jakarta-sans/700.css";
-import "@fontsource/plus-jakarta-sans/800.css";
-import "./globals.css";
+import "./base.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://produktif.ai"),

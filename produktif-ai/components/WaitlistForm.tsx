@@ -3,13 +3,13 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { ROLES, STARTS } from "@/lib/waitlist";
 
-type Props = { source: "hero" | "footer"; tone?: "paper" | "ink" };
+type Props = { source: "hero" | "footer" };
 type Field = "name" | "whatsapp" | "handle";
 type Saved = { name: string; whatsapp: string };
 
 const DONE_EVENT = "wl:done";
 
-export default function WaitlistForm({ source, tone = "paper" }: Props) {
+export default function WaitlistForm({ source }: Props) {
   const id = useId();
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -86,19 +86,12 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
 
   if (state === "done") {
     return (
-      <div ref={doneRef} tabIndex={-1} className={`wl-done wl--${tone}`} role="status" aria-live="polite">
-        <p className="wl-done__stamp">You&rsquo;re on the list.</p>
-        <dl className="wl-done__lines">
-          <div>
-            <dt>Name</dt>
-            <dd>{saved.name}</dd>
-          </div>
-          <div>
-            <dt>WhatsApp</dt>
-            <dd>{saved.whatsapp}</dd>
-          </div>
-        </dl>
-        <p className="wl-done__note">We&rsquo;ll reach out on WhatsApp when the first cohort opens.</p>
+      <div ref={doneRef} tabIndex={-1} className="wl-card wl-done" role="status" aria-live="polite">
+        <div className="wl-head">
+          <span>Waitlist</span>
+          <span>Confirmed</span>
+        </div>
+        <Receipt name={saved.name} whatsapp={saved.whatsapp} />
       </div>
     );
   }
@@ -120,15 +113,25 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
     ) : null;
 
   return (
-    <form className={`wl wl--${tone}`} onSubmit={submit}>
+    <form className="wl-card wl-form" onSubmit={submit}>
+      <div className="wl-head">
+        <span>Your details</span>
+        <span>Free</span>
+      </div>
       <div className="wl-fields">
-        <div className="wl-input">
-          <label htmlFor={`${id}-name`}>Name</label>
+        <div className="wl-field">
+          <div className="wl-label">
+            <label htmlFor={`${id}-name`}>Name</label>
+            <span className="wl-meta">Required</span>
+          </div>
           <input {...fieldProps("name")} name="name" autoComplete="name" required maxLength={80} value={name} onChange={edit("name", setName)} />
           {errorLine("name")}
         </div>
-        <div className="wl-input">
-          <label htmlFor={`${id}-whatsapp`}>WhatsApp</label>
+        <div className="wl-field">
+          <div className="wl-label">
+            <label htmlFor={`${id}-whatsapp`}>WhatsApp</label>
+            <span className="wl-meta">Required</span>
+          </div>
           <input
             {...fieldProps("whatsapp")}
             name="whatsapp"
@@ -143,10 +146,11 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
           />
           {errorLine("whatsapp")}
         </div>
-        <div className="wl-input wl-input--wide">
-          <label htmlFor={`${id}-handle`}>
-            Instagram or TikTok <em>optional</em>
-          </label>
+        <div className="wl-field wl-field--full">
+          <div className="wl-label">
+            <label htmlFor={`${id}-handle`}>Instagram or TikTok</label>
+            <span className="wl-meta">Optional</span>
+          </div>
           <input
             {...fieldProps("handle")}
             name="handle"
@@ -158,46 +162,86 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
           />
           {errorLine("handle")}
         </div>
+
+        <fieldset className="wl-field wl-field--full">
+          <legend className="wl-label">
+            <span>What do you do?</span>
+            <span className="wl-meta">Optional</span>
+          </legend>
+          <div className="wl-opts">
+            {ROLES.map((r) => (
+              <label key={r.value} className="wl-opt">
+                <input type="radio" name={`${id}-role`} value={r.value} checked={role === r.value} onChange={() => setRole(r.value)} />
+                <span>{r.label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="wl-field wl-field--full">
+          <legend className="wl-label">
+            <span>When do you want to start?</span>
+            <span className="wl-meta">Optional</span>
+          </legend>
+          <div className="wl-opts">
+            {STARTS.map((s) => (
+              <label key={s.value} className="wl-opt">
+                <input type="radio" name={`${id}-start`} value={s.value} checked={start === s.value} onChange={() => setStart(s.value)} />
+                <span>{s.label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
       </div>
-
-      <fieldset className="wl-group">
-        <legend>What do you do?</legend>
-        <div className="wl-chips">
-          {ROLES.map((r) => (
-            <label key={r.value} className="wl-chip">
-              <input type="radio" name={`${id}-role`} value={r.value} checked={role === r.value} onChange={() => setRole(r.value)} />
-              <span>{r.label}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
-      <fieldset className="wl-group">
-        <legend>When do you want to start?</legend>
-        <div className="wl-chips">
-          {STARTS.map((s) => (
-            <label key={s.value} className="wl-chip">
-              <input type="radio" name={`${id}-start`} value={s.value} checked={start === s.value} onChange={() => setStart(s.value)} />
-              <span>{s.label}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
 
       <div className="wl-hp" aria-hidden="true">
         <label htmlFor={`${id}-hp`}>Leave this empty</label>
         <input id={`${id}-hp`} ref={hpRef} type="text" name="hp_ref" tabIndex={-1} autoComplete="off" data-1p-ignore data-bwignore data-lpignore="true" />
       </div>
 
-      <div className="wl-submitrow">
-        <button className="wl-submit wl-submit--block" type="submit" aria-disabled={busy}>
-          {busy ? "Saving…" : "Join the waitlist"}
-        </button>
-        <p className="wl-error" role="alert">
-          {formError}
-        </p>
-        <p className="wl-fine">No payment to join. We&rsquo;ll contact you on WhatsApp when the first cohort opens.</p>
-      </div>
+      <button className="lp-btn wl-submit" type="submit" aria-disabled={busy}>
+        {busy ? "Saving…" : "Join the waitlist"}
+        {!busy && <Arrow />}
+      </button>
+      <p className="wl-error" role="alert">
+        {formError}
+      </p>
+      <p className="wl-fine">We only use your number to tell you when the first cohort opens.</p>
     </form>
+  );
+}
+
+// Shared by the live confirmation and the static preview next to the form.
+export function Receipt({ name, whatsapp }: Saved) {
+  return (
+    <>
+      <p className="wl-ok">
+        <i aria-hidden="true">
+          <svg viewBox="0 0 16 16">
+            <path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </i>
+        You&rsquo;re on the list.
+      </p>
+      <dl className="wl-kv">
+        <div>
+          <dt>Name</dt>
+          <dd>{name}</dd>
+        </div>
+        <div>
+          <dt>WhatsApp</dt>
+          <dd>{whatsapp}</dd>
+        </div>
+      </dl>
+      <p className="wl-note">You&rsquo;ll hear from us on WhatsApp.</p>
+    </>
+  );
+}
+
+export function Arrow() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }

@@ -84,29 +84,40 @@ try {
         await page.screenshot({ path: `${OUT}/${slug}-${vp.name}.png`, fullPage: true });
         const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
         assert.ok(over <= 0, `page is ${over}px wider than the viewport`);
+        if (route === "/") {
+          // "Go live your life." must never break into a stray "life." line.
+          const lines = await page.evaluate(() =>
+            [...document.querySelectorAll("h1 span")].map((el) => {
+              const r = document.createRange();
+              r.selectNodeContents(el);
+              return new Set([...r.getClientRects()].map((x) => Math.round(x.top))).size;
+            }),
+          );
+          assert.deepEqual(lines, [1, 1], `headline lines: ${lines}`);
+        }
         await page.close();
       });
     }
   }
 
-  await check("waitlist: hero form signs up and prints the receipt", async () => {
+  await check("waitlist: the form signs up and prints the receipt", async () => {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     const errors = [];
     page.on("pageerror", (e) => errors.push(String(e)));
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     await page.goto("http://localhost:3101/");
-    const hero = page.locator(".lp-hero form");
-    await hero.getByLabel("Name", { exact: true }).fill("Ani Wijaya");
-    await hero.getByLabel("WhatsApp").fill("0812 3456 7890");
-    await hero.getByText("Business owner").click();
-    await hero.getByText("This month").click();
-    await hero.getByRole("button", { name: "Join the waitlist" }).click();
-    await page.waitForSelector(".lp-hero .wl-done", { timeout: 10000 });
-    const receipt = await page.locator(".lp-hero .wl-done").innerText();
+    const form = page.locator("#waitlist form");
+    await form.getByLabel("Name", { exact: true }).fill("Ani Wijaya");
+    await form.getByLabel("WhatsApp").fill("0812 3456 7890");
+    await form.getByRole("radio", { name: "Business owner" }).check();
+    await form.getByRole("radio", { name: "This month" }).check();
+    await form.getByRole("button", { name: "Join the waitlist" }).click();
+    await page.waitForSelector("#waitlist .wl-done", { timeout: 10000 });
+    const receipt = await page.locator("#waitlist .wl-done").innerText();
     assert.match(receipt, /Ani Wijaya/);
     assert.match(receipt, /0812 3456 7890/);
     assert.equal(await page.evaluate(() => document.activeElement?.classList.contains("wl-done")), true, "focus moves to the receipt");
-    assert.equal(await page.locator(".lp-close .wl-done").count(), 1, "the closing form also switches to the receipt");
+    assert.equal(await page.locator(".wl-preview").isVisible(), false, "the static preview gives way to the real receipt");
     await page.screenshot({ path: `${OUT}/waitlist-done-mobile.png`, fullPage: false });
     assert.deepEqual(errors, []);
     await page.close();
@@ -115,16 +126,16 @@ try {
   await check("waitlist: a bad WhatsApp number is flagged next to the field", async () => {
     const page = await browser.newPage();
     await page.goto("http://localhost:3101/");
-    const hero = page.locator(".lp-hero form");
-    await hero.getByLabel("Name", { exact: true }).fill("Ani");
-    await hero.getByLabel("WhatsApp").fill("12345");
-    await hero.getByRole("button", { name: "Join the waitlist" }).click();
-    await page.waitForFunction(() => document.querySelector(".lp-hero .wl-error")?.textContent?.includes("WhatsApp"));
-    assert.equal(await hero.getByLabel("WhatsApp").getAttribute("aria-invalid"), "true");
-    assert.equal(await hero.getByLabel("Name", { exact: true }).getAttribute("aria-invalid"), null);
+    const form = page.locator("#waitlist form");
+    await form.getByLabel("Name", { exact: true }).fill("Ani");
+    await form.getByLabel("WhatsApp").fill("12345");
+    await form.getByRole("button", { name: "Join the waitlist" }).click();
+    await page.waitForFunction(() => document.querySelector("#waitlist .wl-error")?.textContent?.includes("WhatsApp"));
+    assert.equal(await form.getByLabel("WhatsApp").getAttribute("aria-invalid"), "true");
+    assert.equal(await form.getByLabel("Name", { exact: true }).getAttribute("aria-invalid"), null);
     assert.equal(await page.evaluate(() => document.activeElement?.getAttribute("name")), "whatsapp", "focus moves to the bad field");
-    await hero.getByLabel("WhatsApp").fill("0812 3456 7890");
-    assert.equal(await hero.getByLabel("WhatsApp").getAttribute("aria-invalid"), null, "error clears while fixing");
+    await form.getByLabel("WhatsApp").fill("0812 3456 7890");
+    assert.equal(await form.getByLabel("WhatsApp").getAttribute("aria-invalid"), null, "error clears while fixing");
     await page.close();
   });
 

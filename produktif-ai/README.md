@@ -1,6 +1,6 @@
 # produktif.ai
 
-The home page (`/`) is the waitlist for the done-for-you service: an AI persona built from the client's own face and voice, 60 talking-head Reels a month (two a day), Rp 4 juta per month. The carousel tool described below lives at `/carousel`.
+The home page (`/`) is the English waitlist for the done-for-you service: an AI persona built from the client's own face and voice, 60 talking-head Reels a month (two a day), Rp 4,000,000 per month. Fonts (Geist and Geist Mono) are bundled through the `geist` package, so the page makes no third-party requests. The carousel tool described below lives at `/carousel` and stays in Indonesian.
 
 ## Waitlist
 
@@ -97,8 +97,12 @@ Screenshots and sample PNGs land in `e2e-output/`. Set `CHROME_PATH` if Chromium
 ## Layout
 
 ```
-app/page.tsx              landing page
-app/api/generate/route.ts the only API route: validate, rate-limit, call Claude
+app/page.tsx              waitlist landing (styles in app/landing.css, scoped under .lp)
+app/carousel/page.tsx     carousel tool (styles in app/globals.css)
+app/api/waitlist/route.ts waitlist signup: validate, rate-limit, forward to the webhook
+app/api/generate/route.ts carousel generation: validate, rate-limit, call Claude
+components/WaitlistForm.tsx the signup form and its confirmation
+components/HeroReel.tsx   the animated 9:16 caption preview in the hero
 components/Generator.tsx  form, topic score, previews, editing, PNG/ZIP export
 components/Slide.tsx      the 1080×1350 slide template
 lib/prompt.ts             system prompt (the method)
