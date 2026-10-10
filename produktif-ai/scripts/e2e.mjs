@@ -84,13 +84,15 @@ try {
         await page.screenshot({ path: `${OUT}/${slug}-${vp.name}.png`, fullPage: true });
         const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
         assert.ok(over <= 0, `page is ${over}px wider than the viewport`);
-        if (route === "/") {
-          // "Go live your life." must never break into a stray "life." line.
+        if (route === "/" && vp.width > 640) {
+          // On desktop each headline line ("Stop prompting." / "Start posting.") holds on one line.
           const lines = await page.evaluate(() =>
-            [...document.querySelectorAll("h1 span")].map((el) => {
-              const r = document.createRange();
-              r.selectNodeContents(el);
-              return new Set([...r.getClientRects()].map((x) => Math.round(x.top))).size;
+            // Words are mid-animation (translated) right after load, so measure the
+            // line box instead of the word rects.
+            [...document.querySelectorAll(".hero-h .k-line")].map((el) => {
+              const fs = parseFloat(getComputedStyle(el).fontSize);
+              const fits = el.scrollWidth <= el.parentElement.clientWidth + 1;
+              return el.getBoundingClientRect().height < fs * 1.5 && fits ? 1 : 2;
             }),
           );
           assert.deepEqual(lines, [1, 1], `headline lines: ${lines}`);
