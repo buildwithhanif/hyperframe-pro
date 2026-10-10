@@ -45,7 +45,7 @@ export default function ConsentPage() {
                 The waitlist and apply form never ask for photos, voice or ID. They ask for your contact details and some questions about
                 you and your content. Our <a href="/privacy">privacy policy</a> covers that part.
               </p>
-              <p>We ask for the items below only after you pay the deposit and sign the service agreement.</p>
+              <p>We ask for the items below only after you sign the service agreement and pay the deposit.</p>
               <table>
                 <tbody>
                   <tr>
@@ -158,8 +158,8 @@ export default function ConsentPage() {
             <>
               <ul>
                 <li>
-                  <b>Our team.</b> Only the people producing your videos can open your files. During the first pilot, that is the founder.
-                  If this changes, we will update this page.
+                  <b>Us.</b> Only the person producing your videos can open your files. During the first pilot, that&rsquo;s the founder. If
+                  this changes, we will update this page.
                 </li>
                 <li>
                   <b>AI providers.</b> They process your photos and voice to build your persona. Your scripts go to them too, so the persona

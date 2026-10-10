@@ -36,25 +36,23 @@ const TIRED = [
 
 // ---------- copy ----------
 
-type Step = { n: string; title: string; body: string; you?: string };
+type Step = { n: string; title: string; body: string };
 
 const STEPS: Step[] = [
   {
     n: "01",
     title: "Send your kit",
     body: "Take 3 photos of yourself, then record 2 minutes of you reading a script we send, ending with your spoken consent. A brief and a 30-minute call tell us your niche and your best posts.",
-    you: "Your part: about an hour, once.",
   },
   {
     n: "02",
     title: "Approve your test clip",
-    body: "We build your AI persona and make 1 test video in the real format. Don’t like it? We redo it once. Still not right after the redo? You get your Rp 1,000,000 deposit back.",
+    body: "We build your AI persona and make 1 test video in the real format. Not right? Ask for 1 redo, or say no and your Rp 1,000,000 deposit comes back.",
   },
   {
     n: "03",
     title: "Get 14 videos a week",
     body: "Each batch lands on WhatsApp a week before it goes out, with captions and post copy. Reply OK, or send notes within 48 hours.",
-    you: "Your part: about 15 minutes a week.",
   },
   { n: "04", title: "Post 2 a day", body: "Switch on the platform’s AI label when you upload. That’s the whole routine." },
 ];
@@ -78,7 +76,7 @@ const INCLUDED = [
 ];
 
 const COMPARE = [
-  ["Monthly cost", "Rp 6.5 to 18 million, before tools", "Rp 4,000,000"],
+  ["Monthly cost", "2 salaries, plus tools", "Rp 4,000,000"],
   ["Tool subscriptions", "You pay for them", "None for you"],
   ["You still film", "Yes", "No"],
   ["Who you manage", "2 people", "1 WhatsApp chat"],
@@ -90,9 +88,9 @@ const TRUST = [
   "An ID and live selfie check. 18 and over.",
   "Your persona only does the hook and the outro.",
   "Real stories only: the ones you told us.",
-  "Every post carries the platform’s AI label.",
+  "You switch on the platform’s AI label for every post. It’s in the agreement.",
   "You own your videos and your likeness.",
-  "Cancel, and we delete everything within 30 days and confirm it in writing.",
+  "Cancel, and we delete your photos, voice and persona within 30 days and confirm it in writing.",
 ];
 
 const FAQ = [
@@ -102,7 +100,7 @@ const FAQ = [
   ],
   [
     "Can I see a sample before I pay for a month?",
-    "Yes, of your own persona. Within 7 days of the deposit you get 1 test clip in the real format. If it still isn’t right after one redo, the deposit comes back and we delete your files.",
+    "Yes, of your own persona. Within 7 days of the deposit you get 1 test clip in the real format. Not right? Ask for 1 redo, or say no: the deposit comes back and we delete your files.",
   ],
   [
     "Do I ever have to film?",
@@ -122,7 +120,7 @@ const FAQ = [
   ],
   [
     "What if I don’t like a video?",
-    "Text fixes are free anytime, and every video gets one full redo. Nothing goes out unless you approve it, because you post it yourself.",
+    "Text fixes are free anytime, and every video gets one full redo. Nothing goes out unless you post it yourself. If 48 hours pass with no notes, the batch counts toward your 60.",
   ],
   [
     "Do you guarantee views?",
@@ -134,7 +132,7 @@ const FAQ = [
   ],
   [
     "What happens to my face and voice data?",
-    "It’s kept in restricted storage with two-factor login, and working copies are wiped after each video is made. If you cancel, we delete everything within 30 days and confirm it in writing.",
+    "It’s kept in restricted storage with two-factor login, and working copies are wiped after each video is made. If you cancel, we delete your photos, voice, persona and files within 30 days and confirm it in writing. We keep only the signed agreement, the consent record and invoices.",
   ],
   [
     "Who owns the videos?",
@@ -203,12 +201,13 @@ export default function Home() {
               </h1>
               <p className="hero-sub">
                 <span className="only-wide">
-                  Send 3 photos and a <span className="nw">2-minute</span> voice recording, once. We make 60 captioned videos a month with
-                  your AI persona and <span className="nw">B-roll</span>, ready to post 2 a day. You approve them on WhatsApp.
+                  Done-for-you short videos for creators. Send 3 photos and a <span className="nw">2-minute</span> voice recording once, and
+                  we make 60 captioned videos a month with your AI persona and <span className="nw">B-roll</span>, ready to post 2 a day.
+                  You approve them on WhatsApp.
                 </span>
                 <span className="only-narrow">
-                  3 photos and a <span className="nw">2-minute</span> voice recording, once. Then 60 finished videos a month with your AI
-                  persona, labeled as AI.
+                  For creators: 3 photos and a <span className="nw">2-minute</span> voice recording, once. Then 60 finished videos a month
+                  with your AI persona, labeled as AI.
                 </span>
               </p>
               <div className="hero-ctas" id="hero-cta">
@@ -218,7 +217,7 @@ export default function Home() {
                 </a>
               </div>
               <p className="hero-micro">
-                <b>Founding rate: Rp 4,000,000 a month for 60 videos.</b> About 2 minutes to apply, and nothing to pay now.
+                <b>Founding rate: Rp&nbsp;4,000,000 a month for 60 videos.</b> About 2 minutes to apply, and nothing to pay now.
               </p>
             </div>
             <div className="hero-media">
@@ -246,7 +245,9 @@ export default function Home() {
               {STRIP.map((c) => (
                 <li key={c.id}>
                   <Clip clip={c} />
-                  <p className="strip-t">{c.title}</p>
+                  <p className="strip-t" lang="id">
+                    {c.title}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -292,7 +293,6 @@ export default function Home() {
                   <span className="steps-n">{Number(s.n)}</span>
                   <h3>{s.title}</h3>
                   <p>{s.body}</p>
-                  {s.you && <p className="steps-you">{s.you}</p>}
                 </li>
               ))}
             </ol>
@@ -303,7 +303,7 @@ export default function Home() {
           <div className="wrap month-grid">
             <div className="month-copy">
               <h2 id="month-h" className="h-big">
-                Two a day, for the whole month.
+                2 a day, for the whole month.
               </h2>
               <p className="lead">
                 60 videos per 30-day cycle, in weekly batches of 14 that land a week before they go out. You never rush a post.
@@ -323,6 +323,7 @@ export default function Home() {
                 </div>
               </dl>
             </div>
+            <p className="sr">A month of posts: 2 a day, 60 in all.</p>
             <MonthWall frames={FRAMES} />
           </div>
         </section>
@@ -334,14 +335,11 @@ export default function Home() {
                 Built on the playbook behind 690K followers.
               </h2>
               <p className="lead">
-                Hanif Produktif grew his accounts with short videos about scams and money. Your scripts start from that playbook, written
-                for your niche.
+                Hanif Produktif grew his accounts with short videos and carousels about scams and money. Your scripts start from that
+                playbook, written for your niche.
               </p>
               <blockquote className="proof-quote">
-                <p>
-                  &ldquo;This started in my DMs. People kept asking if they could pay me to make their videos. I read every application
-                  myself, and if you&rsquo;re picked, you&rsquo;ll hear it from me.&rdquo;
-                </p>
+                <p>&ldquo;I read every application myself. If you&rsquo;re picked, you&rsquo;ll hear it from me.&rdquo;</p>
                 <footer>
                   Hanif Produktif, founder,{" "}
                   <a href="https://www.instagram.com/hanifmuh_/" target="_blank" rel="noopener noreferrer">
@@ -370,16 +368,16 @@ export default function Home() {
           <div className="wrap price-grid">
             <div>
               <h2 id="price-h" className="h-big">
-                Rp 4,000,000 a month. That&rsquo;s the whole bill.
+                <span className="nocase">Rp</span>&nbsp;4,000,000 a month. That&rsquo;s the whole bill.
               </h2>
               <p className="lead">60 finished videos, about Rp 66,700 each. No tool subscriptions on top.</p>
               <p className="price-note">
                 Applying is free. If you&rsquo;re picked, a Rp 1,000,000 deposit holds your slot and comes off your first month. You see a
-                test clip of your own persona first. Still not right after one redo? The deposit comes back.
+                test clip of your own persona first. If it&rsquo;s not right, ask for 1 redo or take the deposit back.
               </p>
               <div className="price-cta">
                 <Go size="lg" />
-                <p>You pay nothing until you&rsquo;re accepted.</p>
+                <p>Nothing to pay until you&rsquo;re picked.</p>
               </div>
               <p className="price-terms">
                 Month to month. Cancel 7 days before your next bill. Once delivery starts, we make up missed videos instead of refunding.{" "}
@@ -416,7 +414,6 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <p className="compare-src">Hiring costs from Jakarta job postings on Loker.id and Glints, October 2026.</p>
           </div>
         </section>
 
@@ -488,7 +485,7 @@ export default function Home() {
               <Link href="/start" className="btn btn--lg btn--ink">
                 Get started
               </Link>
-              <p className="final-fine">Takes about 2 minutes. No card needed.</p>
+              <p className="final-fine">About 2 minutes. Nothing to pay now.</p>
             </div>
           </div>
         </section>

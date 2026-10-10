@@ -106,6 +106,7 @@ export default function Clip({ clip, eager = false, className = "" }: { clip: Cl
         loop
         playsInline
         preload={eager ? "metadata" : "none"}
+        onError={() => setBlocked(true)}
         aria-label={`${clip.title}. A video made with Hanif's AI persona.`}
       />
       <span className="clip-label">AI persona</span>

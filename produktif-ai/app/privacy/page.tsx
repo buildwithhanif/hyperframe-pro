@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import LegalPage from "@/components/site/LegalPage";
 import "../tokens.css";
 import "../legal.css";
+import { CONSENT_TEXT } from "@/lib/waitlist-options";
 
 export const metadata: Metadata = {
   title: "Privacy policy | produktif.ai",
@@ -53,7 +54,7 @@ export default function PrivacyPage() {
             <>
               <p>
                 It depends on how far you go with us. Joining the waitlist takes a few details. Becoming a client takes much more. Your face
-                and voice are part of that, so we only ask for them after you&rsquo;ve paid the deposit and signed the agreement.
+                and voice are part of that, so we only ask for them after you sign the service agreement and pay the deposit.
               </p>
               <table>
                 <thead>
@@ -77,7 +78,7 @@ export default function PrivacyPage() {
                     <td>To message you about your application, if you&rsquo;d rather use WhatsApp</td>
                   </tr>
                   <tr>
-                    <td>The consent sentence you agreed to, and the time you ticked the box</td>
+                    <td>The consent sentence you agreed to, and the time you sent the form</td>
                     <td>To keep a record that you agreed</td>
                   </tr>
                   <tr>
@@ -93,7 +94,7 @@ export default function PrivacyPage() {
                   </tr>
                   <tr>
                     <th scope="colgroup" colSpan={2}>
-                      If you become a client (after the deposit and the signed agreement)
+                      If you become a client (after the signed agreement and the deposit)
                     </th>
                   </tr>
                   <tr>
@@ -178,8 +179,8 @@ export default function PrivacyPage() {
             <>
               <p>Your consent is the main reason.</p>
               <p>
-                <b>Waitlist.</b> Before you can send the form, you tick a box that says: &ldquo;I agree to the privacy policy and to be
-                contacted about produktif.ai by email or WhatsApp.&rdquo; We save that exact sentence with the date and time you ticked it.
+                <b>Waitlist.</b> Before you can send the form, you tick a box that says: &ldquo;{CONSENT_TEXT}&rdquo; We save that exact
+                sentence with the date and time you sent the form.
               </p>
               <p>
                 <b>Clients.</b> Indonesia&rsquo;s Personal Data Protection Law (UU PDP, Law No. 27 of 2022) treats biometric data, such as

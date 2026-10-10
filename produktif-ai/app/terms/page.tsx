@@ -220,8 +220,8 @@ export default function TermsPage() {
           body: (
             <>
               <p>
-                A refundable deposit of <b>Rp 1,000,000</b> reserves your pilot slot. After the deposit, you sign the agreement and send
-                your photos and voice recording. We then make one short test clip of your AI persona for you to judge.
+                Once you sign the agreement, a refundable deposit of <b>Rp 1,000,000</b> reserves your pilot slot. Then you send your photos
+                and voice recording. We then make one short test clip of your AI persona for you to judge.
               </p>
               <ul>
                 <li>Approve the test clip, and the deposit is credited to your first month.</li>

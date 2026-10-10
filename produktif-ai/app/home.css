@@ -3,8 +3,12 @@
    headlines, normal width for reading. Real video leads. */
 
 html:has(.home) {
-  scroll-behavior: smooth;
   scroll-padding-top: 80px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.home) {
+    scroll-behavior: smooth;
+  }
 }
 .pai.home {
   overflow-x: clip;
@@ -44,6 +48,9 @@ html:has(.home) {
 }
 .pai .nw {
   white-space: nowrap;
+}
+.pai .nocase {
+  text-transform: none;
 }
 
 /* ---------- type ----------
@@ -494,15 +501,6 @@ html:has(.home) {
   line-height: 1.5;
   color: var(--ink-2);
 }
-.pai .steps .steps-you {
-  display: inline-block;
-  margin-top: 14px;
-  padding: 2px 6px;
-  background: var(--yellow);
-  font-weight: 650;
-  font-size: 14px;
-  color: var(--ink);
-}
 
 /* the month */
 .pai .month-grid {
@@ -525,6 +523,19 @@ html:has(.home) {
   font-weight: 600;
   font-size: 15px;
   color: var(--muted);
+}
+.pai .mw-pad {
+  display: flex;
+  align-items: flex-end;
+}
+.pai .mw-label {
+  padding: 4px 8px;
+  white-space: nowrap;
+  border-radius: 6px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 650;
+  font-size: 12px;
 }
 .pai .mw-head,
 .pai .mw-grid {
@@ -571,14 +582,6 @@ html:has(.home) {
 .pai .mw.is-on .mw-pair img {
   opacity: 1;
   transform: none;
-}
-.pai .mw-day.is-today .mw-pair {
-  outline: 3px solid var(--yellow);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-.pai .mw-day.is-today em {
-  color: var(--ink);
 }
 
 /* proof: a ledger, not a stat grid */

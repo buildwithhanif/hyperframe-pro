@@ -19,10 +19,10 @@ export function confirmationEmail(name: string, resumeUrl: string, replyBy = "wi
       ? `If it's a fit, we'll message you on WhatsApp from ${waNumber}, or reply here by email. Save the number so we don't land in spam.`
       : "If it's a fit, I'll reply to this email.",
     "Then an optional 15-minute call. A refundable Rp 1,000,000 deposit holds your slot and comes off your first month.",
-    "Within 7 days of the deposit you get your test clip. Don't like it? We redo it once. Still not right after the redo? The deposit comes back.",
+    "Within 7 days of the deposit you get your test clip. Not right? Ask for 1 redo, or say no and the deposit comes back.",
   ];
   const profile =
-    "If you haven't finished your creator profile, it's 8 quick questions, about a minute, and it's how we pick the first cohort.";
+    "Already answered the 8 profile questions? You're all set. If you stopped early, it takes about a minute, and it's how we pick the first cohort.";
   const favor = "One favor: reply with a link to the video you're proudest of. It shows me your style, and I read every reply.";
   const footer =
     "You're getting this because you applied at produktif.ai. Didn't apply, or want your details deleted? Reply and we'll remove them.";
@@ -65,10 +65,11 @@ export function confirmationEmail(name: string, resumeUrl: string, replyBy = "wi
   return { subject, text, html };
 }
 
-export async function sendConfirmation(to: string, name: string, resumeUrl: string, replyBy?: string): Promise<boolean> {
+// The WhatsApp line only goes to people who gave a number.
+export async function sendConfirmation(to: string, name: string, resumeUrl: string, replyBy?: string, hasWa = false): Promise<boolean> {
   const key = process.env.RESEND_API_KEY;
   if (!key) return false;
-  const { subject, text, html } = confirmationEmail(name, resumeUrl, replyBy, process.env.NEXT_PUBLIC_WA_NUMBER || "");
+  const { subject, text, html } = confirmationEmail(name, resumeUrl, replyBy, hasWa ? process.env.NEXT_PUBLIC_WA_NUMBER || "" : "");
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",

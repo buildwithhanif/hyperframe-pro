@@ -10,6 +10,7 @@ import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
 import JSZip from "jszip";
 import { SAMPLE_DECK } from "../lib/sample.ts";
+import { CONSENT_TEXT } from "../lib/waitlist-options.ts";
 
 const OUT = path.resolve("e2e-output");
 fs.rmSync(OUT, { recursive: true, force: true });
@@ -125,6 +126,9 @@ try {
       }),
     );
     assert.ok(r.length >= 7, `only ${r.length} videos`);
+    // Display type is uppercase, but money keeps "Rp" and the name stays lowercase.
+    const caps = await page.evaluate(() => document.body.innerText.match(/PRODUKTIF\.AI|RP\s?\d/));
+    assert.equal(caps, null, `uppercased text: ${caps}`);
     for (const v of r) {
       assert.equal(v.label, "AI persona", `${v.src} has no AI persona label`);
       assert.ok(v.muted && v.playsInline, `${v.src} must start muted and inline`);
@@ -174,6 +178,37 @@ try {
     const stored = await page.evaluate(() => localStorage.getItem("pai-apply-v1"));
     assert.equal(stored, null, "finished applications clear saved progress");
     assert.deepEqual(errors, []);
+    await page.close();
+  });
+
+  await check("onboarding: server-rendered first question, one typo warning, exact consent text, arrow keys don't answer", async () => {
+    const html = await (await fetch("http://localhost:3101/start")).text();
+    assert.ok(html.includes("what should we call you"), "the first question is missing from the server HTML");
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    await page.goto("http://localhost:3101/start");
+    await page.getByLabel("First, what should we call you?").fill("Rina");
+    await page.keyboard.press("Enter");
+    await page.getByLabel("What’s your best email?").fill("rina@gmial.com");
+    await page.keyboard.press("Enter");
+    await page.getByText("press Enter again to keep").waitFor();
+    await page.keyboard.press("Enter");
+    await page.getByLabel("Your WhatsApp number?").waitFor();
+    assert.equal(await page.$eval(".ob-consent span", (el) => el.innerText.trim()), CONSENT_TEXT);
+    await page.getByRole("checkbox").check();
+    await page.getByRole("button", { name: "Join the waitlist" }).click();
+    await page.getByLabel("What are your videos about?").fill("Money tips");
+    await page.keyboard.press("Enter");
+    await page.getByRole("radio", { name: "TikTok" }).check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("heading", { name: "How many followers do you have there?" }).waitFor();
+    await page.waitForTimeout(700);
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowDown");
+    await page.waitForTimeout(700);
+    assert.ok(await page.getByRole("radio", { name: "50K to 250K" }).isChecked(), "arrow keys should move the selection");
+    assert.ok(await page.getByRole("heading", { name: "How many followers do you have there?" }).isVisible(), "arrow keys must not answer");
+    await page.keyboard.press("Enter");
+    await page.getByRole("heading", { name: "How often do you post right now?" }).waitFor();
     await page.close();
   });
 

@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 // A month of posts, two a day, filled with stills from Hanif's real AI persona
 // videos. It fills in once, day by day, the first time it scrolls into view.
 const OFFSET = 2; // the 1st falls on a Wednesday
-const TODAY = 9;
 
 export default function MonthWall({ frames }: { frames: string[] }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -33,11 +32,15 @@ export default function MonthWall({ frames }: { frames: string[] }) {
         ))}
       </div>
       <div className="mw-grid">
-        {Array.from({ length: OFFSET }, (_, i) => (
+        {/* The empty days before the 1st carry the wall's one AI label. */}
+        <span className="mw-pad">
+          <span className="mw-label">AI persona</span>
+        </span>
+        {Array.from({ length: OFFSET - 1 }, (_, i) => (
           <span key={`p${i}`} />
         ))}
         {Array.from({ length: 30 }, (_, d) => (
-          <div key={d} className={`mw-day${d + 1 === TODAY ? " is-today" : ""}`} style={{ ["--i" as string]: d }}>
+          <div key={d} className="mw-day" style={{ ["--i" as string]: d }}>
             <em>{d + 1}</em>
             <div className="mw-pair">
               {[0, 1].map((k) => (

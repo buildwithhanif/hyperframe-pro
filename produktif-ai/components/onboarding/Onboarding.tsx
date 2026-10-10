@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Wordmark } from "@/components/site/Brand";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { formatReplyBy, replyBy } from "@/lib/dates";
-import { BUDGETS, FOLLOWERS, GOALS, LANGUAGES, PLATFORMS, POSTING, STARTS } from "@/lib/waitlist";
+import { BUDGETS, FOLLOWERS, GOALS, LANGUAGES, PLATFORMS, POSTING, STARTS } from "@/lib/waitlist-options";
 
 type Answers = {
   name: string;
@@ -148,6 +148,7 @@ export default function Onboarding() {
   const [done, setDone] = useState(false);
   const [welcomeBack, setWelcomeBack] = useState(false);
   const [invite, setInvite] = useState(false);
+  const typoWarned = useRef("");
   const honeypot = useRef<HTMLInputElement>(null);
   const stage = useRef<HTMLDivElement>(null);
 
@@ -299,12 +300,19 @@ export default function Onboarding() {
       // The WhatsApp screen only blocks on the consent box.
       setError({ field: step === "whatsapp" ? "consent" : step, message: problem });
       if (step === "whatsapp") {
-        (document.activeElement as HTMLElement | null)?.blur();
+        document.querySelector<HTMLInputElement>(".ob-consent input")?.focus({ preventScroll: true });
         requestAnimationFrame(() =>
           document.querySelector(".ob-consent")?.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" }),
         );
       } else refocus();
       return;
+    }
+    // A likely typo in the email gets one warning; Enter again keeps it.
+    const sug = step === "email" ? emailSuggestion(merged.email) : null;
+    if (sug && typoWarned.current !== merged.email) {
+      typoWarned.current = merged.email;
+      setError({ field: "email", message: `Did you mean ${sug}? Tap “Yes, fix it”, or press Enter again to keep what you typed.` });
+      return refocus();
     }
     if (step === "whatsapp" && !session) {
       setBusy(true);
@@ -345,8 +353,6 @@ export default function Onboarding() {
     }),
     [reduce],
   );
-
-  if (!ready) return <div className="ob" aria-busy="true" />;
 
   return (
     <div className="ob">
@@ -435,9 +441,11 @@ export default function Onboarding() {
                   uid={uid}
                   answers={answers}
                   set={set}
-                  pick={(key, value) => {
-                    // Let the chosen answer light up before moving on.
+                  pick={(key, value, advance = true) => {
                     set(key, value as never);
+                    // Arrow keys only move the selection; Enter or Continue moves on.
+                    if (!advance) return;
+                    // Let the chosen answer light up before moving on.
                     window.setTimeout(() => next({ [key]: value } as Partial<Answers>), reduce ? 0 : 220);
                   }}
                   error={error}
@@ -467,7 +475,7 @@ export default function Onboarding() {
                   ) : (
                     <span />
                   )}
-                  {!isChoice(step) || step === "platform" ? (
+                  {!isChoice(step) || step === "platform" || answers[step as keyof Answers] ? (
                     <button type="submit" className="ob-next" aria-disabled={busy}>
                       {busy ? "Saving…" : index === total - 1 ? "Send my profile" : step === "whatsapp" ? "Join the waitlist" : "Continue"}
                     </button>
@@ -504,7 +512,7 @@ type BodyProps = {
   uid: string;
   answers: Answers;
   set: <K extends keyof Answers>(key: K, value: Answers[K]) => void;
-  pick: (key: keyof Answers, value: string) => void;
+  pick: (key: keyof Answers, value: string, advance?: boolean) => void;
   error: { field?: string; message: string } | null;
 };
 
@@ -630,7 +638,8 @@ function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: B
               <Link href="/privacy" target="_blank">
                 privacy policy
               </Link>
-              , and to produktif.ai contacting me about my application by email, or by WhatsApp if I added a number. I can opt out anytime.
+              , and to produktif.ai contacting me about my application and future cohorts by email, or by WhatsApp if I added a number. I
+              can opt out anytime.
             </span>
           </label>
           <FieldError show={error?.field === "consent"} id={`${uid}-consent-err`} message={error?.message} />
@@ -723,7 +732,7 @@ function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: B
           q="How many followers do you have there?"
           options={[...FOLLOWERS]}
           value={answers.followers}
-          onPick={(v) => pick("followers", v)}
+          onPick={(v, a) => pick("followers", v, a)}
           error={err("followers")}
         />
       );
@@ -735,7 +744,7 @@ function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: B
           q="How often do you post right now?"
           options={[...POSTING]}
           value={answers.posting}
-          onPick={(v) => pick("posting", v)}
+          onPick={(v, a) => pick("posting", v, a)}
           error={err("posting")}
         />
       );
@@ -747,7 +756,7 @@ function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: B
           q="What do you want most from this?"
           options={[...GOALS]}
           value={answers.goal}
-          onPick={(v) => pick("goal", v)}
+          onPick={(v, a) => pick("goal", v, a)}
           error={err("goal")}
         />
       );
@@ -759,7 +768,7 @@ function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: B
           q="Which language should your videos speak?"
           options={[...LANGUAGES]}
           value={answers.language}
-          onPick={(v) => pick("language", v)}
+          onPick={(v, a) => pick("language", v, a)}
           error={err("language")}
         />
       );
@@ -771,7 +780,7 @@ function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: B
           q="When would you like to start?"
           options={[...STARTS]}
           value={answers.start}
-          onPick={(v) => pick("start", v)}
+          onPick={(v, a) => pick("start", v, a)}
           error={err("start")}
         />
       );
@@ -785,7 +794,7 @@ function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: B
           note={answers.budget === "not-yet" ? "That’s fine. We’ll email you when later cohorts open." : undefined}
           options={[...BUDGETS]}
           value={answers.budget}
-          onPick={(v) => pick("budget", v)}
+          onPick={(v, a) => pick("budget", v, a)}
           error={err("budget")}
         />
       );
@@ -803,7 +812,7 @@ function ChoiceStep(props: {
   lead?: string;
   options: Option[];
   value: string;
-  onPick: (v: string) => void;
+  onPick: (v: string, advance?: boolean) => void;
   error?: string;
   note?: string;
 }) {
@@ -841,12 +850,25 @@ function Choices(props: {
   labelledBy: string;
   options: Option[];
   value: string;
-  onPick: (v: string) => void;
+  onPick: (v: string, advance?: boolean) => void;
   autoFocus?: boolean;
   compact?: boolean;
 }) {
+  // Arrow keys move through a radio group and check each option on the way.
+  // That must not count as an answer, or one ArrowDown would submit option B.
+  const arrow = useRef(false);
   return (
-    <div className={`ob-choices${props.compact ? " ob-choices--2col" : ""}`} role="radiogroup" aria-labelledby={props.labelledBy}>
+    <div
+      className={`ob-choices${props.compact ? " ob-choices--2col" : ""}`}
+      role="radiogroup"
+      aria-labelledby={props.labelledBy}
+      onKeyDown={(e) => {
+        arrow.current = e.key.startsWith("Arrow");
+      }}
+      onPointerDown={() => {
+        arrow.current = false;
+      }}
+    >
       {props.options.map((o, i) => {
         const checked = props.value === o.value;
         return (
@@ -857,7 +879,10 @@ function Choices(props: {
               value={o.value}
               checked={checked}
               data-autofocus={props.autoFocus && (checked || (!props.value && i === 0)) ? "" : undefined}
-              onChange={() => props.onPick(o.value)}
+              onChange={() => {
+                props.onPick(o.value, !arrow.current);
+                arrow.current = false;
+              }}
               onClick={() => checked && props.onPick(o.value)}
             />
             <span className="ob-key" aria-hidden="true">
@@ -947,8 +972,8 @@ function Done({ name, email, warm, hasWa, emailed }: { name: string; email: stri
             </li>
             <li>
               <span>
-                <b>Your test clip within 7 days of the deposit,</b> in the real format. Don&rsquo;t like it? We redo it once. Still not
-                right after the redo? The deposit comes back.
+                <b>Your test clip within 7 days of the deposit,</b> in the real format. Not right? Ask for 1 redo, or say no and the deposit
+                comes back.
               </span>
             </li>
           </>
