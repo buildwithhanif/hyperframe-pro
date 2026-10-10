@@ -235,7 +235,7 @@ export default function Home() {
           <div className="wrap">
             <div className="sec-head">
               <h2 id="samples-h" className="h-big">
-                One persona. A new topic every day.
+                One persona, a new topic every day.
               </h2>
               <p className="lead">
                 These are Hanif&rsquo;s own posts, made with his AI persona. Yours get built the same way around your niche. Your persona
@@ -279,11 +279,11 @@ export default function Home() {
           <div className="wrap">
             <div className="sec-head">
               <h2 id="how-h" className="h2">
-                Set up once. Approve once a week.
+                An hour to set up, then 15 minutes a week.
               </h2>
               <p className="lead">
-                About an hour at the start, then about 15 minutes a week on WhatsApp. Before step 1: apply in 2 minutes, and Hanif replies
-                within 2 working days.
+                Most of that hour is one 30-minute call. The weekly part happens on WhatsApp. Before step 1, you apply in 2 minutes and
+                Hanif replies within 2 working days.
               </p>
             </div>
             <ol className="steps">
