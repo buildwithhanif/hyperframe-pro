@@ -2,6 +2,7 @@
    .pai so the carousel tool keeps its own look. */
 
 html:has(.pai) {
+  color-scheme: only light;
   background: var(--pai-bg, #f5f2eb);
 }
 body:has(.pai) {
@@ -10,25 +11,60 @@ body:has(.pai) {
 }
 
 .pai {
-  --pai-bg: #f5f2eb;
-  --bg: #f5f2eb;
-  --bg-hi: #fbfaf6;
-  --bg-lo: #ede9df;
-  --fg: #15140f;
-  --fg-2: #3a372f;
+  /* color: paper, ink and one red (the record dot) */
+  --paper: #f5f2eb;
+  --paper-hi: #fbfaf6;
+  --paper-lo: #ede9df;
+  --ink: #15140f;
+  --ink-2: #3a372f;
   --muted: #6a665c;
+  --field: #857f73;
   --line: #ddd7ca;
   --line-2: #cbc4b5;
-  --field: #857f73;
-  --accent: #c8102e;
-  --accent-ink: #ffffff;
+  --rec: #cc1f24;
+  --on-rec: #ffffff;
+  --rec-inverse: #ff5245;
+  --video: #0c0b09;
+  --cap-box: #cc1f24;
   --night: #12110e;
   --on-night: #f2eee5;
   --on-night-2: #aba597;
+  /* older names, still used across the CSS */
+  --pai-bg: var(--paper);
+  --bg: var(--paper);
+  --bg-hi: var(--paper-hi);
+  --bg-lo: var(--paper-lo);
+  --fg: var(--ink);
+  --fg-2: var(--ink-2);
+  --accent: var(--rec);
+  --accent-ink: var(--on-rec);
+  /* type: Newsreader speaks for the creator, Geist does the work, Geist Mono prints machine data */
+  --display: var(--font-newsreader), ui-serif, Georgia, "Times New Roman", serif;
   --sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  /* radius and elevation */
+  --r-xs: 6px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-pill: 999px;
+  --e1: 0 1px 2px rgba(21, 20, 15, 0.06);
+  --e2: 0 1px 0 rgba(255, 255, 255, 0.07) inset, 0 40px 70px -40px rgba(21, 20, 15, 0.55), 0 14px 28px -16px rgba(21, 20, 15, 0.25);
+  --e3: 0 40px 80px -20px rgba(21, 20, 15, 0.35);
+  /* motion */
+  --ease-arrive: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-cut: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-leave: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-out: var(--ease-settle);
+  --ease-io: var(--ease-cut);
+  --d-press: 120ms;
+  --d-hover: 160ms;
+  --d-short: 240ms;
+  --d-base: 320ms;
+  --d-long: 560ms;
+  --d-reveal: 720ms;
 
   min-height: 100vh;
   min-height: 100dvh;

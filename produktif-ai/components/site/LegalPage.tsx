@@ -1,22 +1,20 @@
+import { fontVars } from "@/app/fonts";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+import { Wordmark } from "@/components/site/Brand";
 
 export type LegalSection = { id: string; heading: string; body: ReactNode };
 
 // Shared layout for /privacy, /terms and /consent.
 export default function LegalPage(props: { kicker: string; title: string; updated: string; intro: ReactNode; sections: LegalSection[] }) {
   return (
-    <div className={`pai lg ${GeistSans.variable} ${GeistMono.variable}`}>
+    <div className={`pai lg ${fontVars}`}>
       <header className="lg-top">
         <Link href="/" className="lg-brand" aria-label="produktif.ai home">
-          <span className="lg-mark" aria-hidden="true" />
-          <span>
-            produktif<i>.</i>ai
-          </span>
+          <Wordmark title={null} className="lg-wm" />
         </Link>
         <Link href="/start" className="lg-cta">
+          <i className="lg-dot" aria-hidden="true" />
           Get started
         </Link>
       </header>

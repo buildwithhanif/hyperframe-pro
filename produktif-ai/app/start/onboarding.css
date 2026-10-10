@@ -24,47 +24,32 @@
 .pai .ob-brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
   justify-self: start;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 17px;
-  letter-spacing: -0.03em;
+  min-height: 44px;
+  color: var(--ink);
 }
-.pai .ob-brand i {
-  font-style: normal;
-  color: var(--accent);
-}
-.pai .ob-mark {
-  position: relative;
-  width: 13px;
-  height: 21px;
-  border: 1.5px solid var(--fg);
-  border-radius: 3px;
-}
-.pai .ob-mark::after {
-  content: "";
-  position: absolute;
-  left: 2px;
-  right: 4px;
-  bottom: 3px;
-  height: 1.5px;
-  background: var(--accent);
+.pai .ob-wm {
+  display: block;
+  width: auto;
+  height: 19px;
 }
 .pai .ob-count {
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font-weight: 500;
+  font-size: 13.5px;
+  white-space: nowrap;
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
 }
 .pai .ob-close {
   justify-self: end;
+  white-space: nowrap;
   font-size: 14px;
   color: var(--fg-2);
   text-decoration: none;
   padding: 8px 2px;
   border-bottom: 1px solid transparent;
+}
+.pai .ob-close-less {
+  display: none;
 }
 .pai .ob-close:hover {
   border-color: var(--fg-2);
@@ -80,7 +65,7 @@
 .pai .ob-progress i {
   display: block;
   height: 100%;
-  background: var(--fg);
+  background: var(--ink);
   transform-origin: left center;
 }
 
@@ -101,17 +86,17 @@
 
 .pai .ob-kicker {
   margin-bottom: 14px;
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.45;
   color: var(--muted);
 }
 .pai .ob h1 {
-  font-weight: 560;
-  font-size: clamp(30px, 5.2vw, 46px);
-  line-height: 1.06;
-  letter-spacing: -0.04em;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(32px, 2.6vw + 20px, 54px);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
   text-wrap: balance;
 }
 .pai .ob h1:focus {
@@ -373,11 +358,31 @@
     background 0.2s,
     transform 0.2s var(--ease-out);
 }
-.pai .ob-next:hover {
-  background: #2c2a24;
+.pai .ob-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rec-inverse);
+}
+@media (hover: hover) and (pointer: fine) {
+  .pai .ob-next:hover {
+    background: #2a2823;
+  }
 }
 .pai .ob-next:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
+}
+.pai .ob-next:active .ob-dot {
+  animation: ob-blink 300ms steps(1) 1;
+}
+@keyframes ob-blink {
+  20% {
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
 }
 .pai .ob-next[aria-disabled="true"] {
   opacity: 0.7;
@@ -394,10 +399,7 @@
   background: var(--bg-hi);
 }
 .pai .ob-keyhint {
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: 14px;
   color: var(--muted);
 }
 
@@ -430,6 +432,36 @@
 .pai .ob-done-badge svg {
   width: 24px;
   height: 24px;
+}
+/* the confirmation headline lands like a caption, the name in the red box */
+.pai .ob-pop {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.24em;
+}
+.pai .ob-pop .w {
+  display: inline-block;
+  animation: ob-word 220ms var(--ease-pop) both;
+}
+.pai .ob-pop .w.box {
+  padding: 0 0.12em;
+  margin: 0 -0.04em;
+  border-radius: 0.14em;
+  background: var(--rec);
+  color: var(--on-rec);
+}
+@keyframes ob-word {
+  0% {
+    opacity: 0;
+    transform: translateY(0.18em) scale(0.86);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
 }
 .pai .ob-done-lead {
   margin-top: 16px;
@@ -467,6 +499,14 @@
 @media (max-width: 640px) {
   .pai .ob-top {
     height: 56px;
+    gap: 10px;
+  }
+  .pai .ob-count-more,
+  .pai .ob-close-more {
+    display: none;
+  }
+  .pai .ob-close-less {
+    display: inline;
   }
   .pai .ob-close {
     font-size: 13px;

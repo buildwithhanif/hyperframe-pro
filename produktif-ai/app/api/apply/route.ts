@@ -59,6 +59,7 @@ export async function POST(request: Request) {
   }
 
   const resumeUrl = `${siteUrl()}/start?lead=${leadId}&t=${token}`;
-  if (result === "saved") await sendConfirmation(input.email, input.name, resumeUrl, formatReplyBy(replyBy(new Date())));
-  return NextResponse.json({ ok: true, lead_id: leadId, token, ...(result === "demo" ? { demo: true } : {}) });
+  // The done screen only promises an email when one actually went out.
+  const emailed = result === "saved" && (await sendConfirmation(input.email, input.name, resumeUrl, formatReplyBy(replyBy(new Date()))));
+  return NextResponse.json({ ok: true, lead_id: leadId, token, emailed, ...(result === "demo" ? { demo: true } : {}) });
 }

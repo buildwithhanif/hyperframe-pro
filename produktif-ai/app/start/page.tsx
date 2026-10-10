@@ -1,7 +1,7 @@
+import { fontVars } from "@/app/fonts";
 import type { Metadata, Viewport } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
 import Onboarding from "@/components/onboarding/Onboarding";
+import MotionRoot from "@/components/site/MotionRoot";
 import "../tokens.css";
 import "./onboarding.css";
 
@@ -13,13 +13,16 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#F5F2EB",
-  colorScheme: "light",
+  colorScheme: "only light",
+  interactiveWidget: "resizes-content",
 };
 
 export default function StartPage() {
   return (
-    <div className={`pai ${GeistSans.variable} ${GeistMono.variable}`}>
-      <Onboarding />
+    <div className={`pai ${fontVars}`}>
+      <MotionRoot>
+        <Onboarding />
+      </MotionRoot>
     </div>
   );
 }

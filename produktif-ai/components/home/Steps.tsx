@@ -1,8 +1,8 @@
 "use client";
 
-import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
+import { AnimatePresence, m, useInView, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { EASE } from "./motion";
+import { CUT, EASE } from "./motion";
 
 export type Step = { n: string; title: string; body: string; you?: string };
 
@@ -28,7 +28,7 @@ function Visual({ i }: { i: number }) {
     case 0:
       return (
         <div className="sv sv-intake">
-          <p className="sv-h">Your one-time kit</p>
+          <p className="sv-h">Kit received</p>
           <div className="sv-photos">
             {["Front", "Left", "Right"].map((a) => (
               <span key={a} className="sv-photo">
@@ -57,13 +57,13 @@ function Visual({ i }: { i: number }) {
               <b>Spoken consent</b> &ldquo;I agree to produktif.ai making my AI persona.&rdquo;
             </span>
           </div>
-          <p className="sv-foot">About 10 minutes, from your phone.</p>
+          <p className="sv-foot sv-mono">3 photos ✓ · voice read 2:00 ✓ · consent line ✓</p>
         </div>
       );
     case 1:
       return (
         <div className="sv sv-persona">
-          <p className="sv-h">Building your persona</p>
+          <p className="sv-h">Test clip ready</p>
           <div className="sv-build">
             {[
               ["Face", "From your 3 photos"],
@@ -73,7 +73,7 @@ function Visual({ i }: { i: number }) {
               <div key={k} className="sv-build-row">
                 <b>{k}</b>
                 <span className="sv-meter">
-                  <motion.i initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 1.2, ease: EASE, delay: 0.2 + j * 0.25 }} />
+                  <m.i initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 1.2, ease: EASE, delay: 0.2 + j * 0.25 }} />
                 </span>
                 <em>{v}</em>
               </div>
@@ -83,7 +83,7 @@ function Visual({ i }: { i: number }) {
             <span className="sv-clip-thumb" />
             <span>
               <b>Your test clip is ready</b>
-              <em>Love it, or we redo it once. Still no? Deposit back.</em>
+              <em>Don&rsquo;t like it? We redo it once. Still not right, and your deposit comes back.</em>
             </span>
           </div>
         </div>
@@ -91,12 +91,10 @@ function Visual({ i }: { i: number }) {
     case 2:
       return (
         <div className="sv sv-wa">
-          <p className="sv-h">
-            WhatsApp <span>· every week</span>
-          </p>
+          <p className="sv-h">Batch 3 · 14 videos · review closes in 48 h</p>
           <div className="sv-chat">
             <div className="sv-msg them">
-              <p>Next week&rsquo;s 14 videos are ready. Scripts were approved Monday.</p>
+              <p>Batch 3 is ready: 14 videos for next week, captions and post copy included.</p>
               <div className="sv-grid">
                 {Array.from({ length: 8 }, (_, j) => (
                   <span key={j} />
@@ -118,7 +116,7 @@ function Visual({ i }: { i: number }) {
     default:
       return (
         <div className="sv sv-post">
-          <p className="sv-h">This week</p>
+          <p className="sv-h">Posted · AI label on</p>
           <div className="sv-week">
             {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d, j) => (
               <div key={d} className="sv-day">
@@ -149,14 +147,14 @@ function Visual({ i }: { i: number }) {
   }
 }
 
-function StepText({ step, i, onActive }: { step: Step; i: number; onActive: (i: number) => void }) {
+function StepText({ step, i, active, onActive }: { step: Step; i: number; active: boolean; onActive: (i: number) => void }) {
   const ref = useRef<HTMLLIElement>(null);
   const inView = useInView(ref, { margin: "-45% 0px -45% 0px" });
   useEffect(() => {
     if (inView) onActive(i);
   }, [inView, i, onActive]);
   return (
-    <li ref={ref} className="st-step">
+    <li ref={ref} className={`st-step${active ? " is-active" : ""}`}>
       <span className="st-n">{step.n}</span>
       <h3>{step.title}</h3>
       <p>{step.body}</p>
@@ -177,7 +175,7 @@ export default function Steps({ steps, children }: { steps: Step[]; children?: R
         {children}
         <ol className="st-list">
           {steps.map((s, i) => (
-            <StepText key={s.n} step={s} i={i} onActive={setActive} />
+            <StepText key={s.n} step={s} i={i} active={i === active} onActive={setActive} />
           ))}
         </ol>
       </div>
@@ -189,16 +187,16 @@ export default function Steps({ steps, children }: { steps: Step[]; children?: R
             ))}
           </div>
           <AnimatePresence mode="wait" initial={false}>
-            <motion.div
+            <m.div
               key={active}
               className="st-visual"
-              initial={reduce ? false : { opacity: 0, y: 24, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={reduce ? undefined : { opacity: 0, y: -16, scale: 0.98 }}
-              transition={{ duration: 0.5, ease: EASE }}
+              initial={reduce ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={reduce ? undefined : { opacity: 0 }}
+              transition={{ duration: 0.32, ease: CUT }}
             >
               <Visual i={active} />
-            </motion.div>
+            </m.div>
           </AnimatePresence>
         </div>
       </div>

@@ -20,36 +20,26 @@
 .pai .lg-brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 17px;
-  letter-spacing: -0.03em;
+  min-height: 44px;
+  color: var(--ink);
 }
-.pai .lg-brand i {
-  font-style: normal;
-  color: var(--accent);
+.pai .lg-wm {
+  display: block;
+  width: auto;
+  height: 19px;
 }
-.pai .lg-mark {
-  position: relative;
-  width: 13px;
-  height: 21px;
-  border: 1.5px solid var(--fg);
-  border-radius: 3px;
-}
-.pai .lg-mark::after {
-  content: "";
-  position: absolute;
-  left: 2px;
-  right: 4px;
-  bottom: 3px;
-  height: 1.5px;
-  background: var(--accent);
+.pai .lg-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--rec-inverse);
 }
 .pai .lg-cta {
   display: inline-flex;
   align-items: center;
-  height: 38px;
+  gap: 8px;
+  height: 40px;
   padding: 0 16px;
   border-radius: 999px;
   background: var(--fg);
@@ -65,18 +55,17 @@
   padding: clamp(48px, 9vh, 96px) clamp(20px, 5vw, 40px) 96px;
 }
 .pai .lg-kicker {
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 14px;
   color: var(--muted);
 }
 .pai .lg-main h1 {
-  margin-top: 16px;
-  font-weight: 560;
-  font-size: clamp(36px, 6vw, 56px);
+  margin-top: 14px;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(38px, 3vw + 24px, 64px);
   line-height: 1.02;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.03em;
   text-wrap: balance;
 }
 .pai .lg-updated {
@@ -121,9 +110,12 @@
   scroll-margin-top: 88px;
 }
 .pai .lg-sec h2 {
-  font-weight: 560;
-  font-size: 24px;
-  letter-spacing: -0.025em;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(26px, 1vw + 20px, 32px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 .pai .lg-body {
   margin-top: 14px;

@@ -1,119 +1,166 @@
 # produktif.ai
 
-The home page (`/`) is the English waitlist for the done-for-you service: an AI persona built from the client's own face and voice, 60 talking-head Reels a month (two a day), Rp 4,000,000 per month. Fonts (Geist and Geist Mono) are bundled through the `geist` package, so the page makes no third-party requests. The carousel tool described below lives at `/carousel` and stays in Indonesian.
+The site for produktif.ai, a done-for-you short video service: 60 videos a month (two a day) made with the client's AI persona, for Rp 4,000,000 a month at the founding rate.
 
-## Waitlist
+| Route | What it is |
+|---|---|
+| `/` | The homepage. English, with scroll motion built on `motion`. |
+| `/start` | Get started: a one-question-per-screen application that ends on the waitlist. |
+| `/privacy`, `/terms`, `/consent` | Legal pages. Drafts: have a lawyer read them before you take money. |
+| `/carousel` | Hanif's carousel tool, in Indonesian. Hidden from search. Off unless `ANTHROPIC_API_KEY` is set. |
 
-The form asks for a name, a WhatsApp number, an optional IG/TikTok handle, who they are and when they want to start. It posts to `/api/waitlist`, which validates the input, normalises the number to `628…` (ready for a `wa.me/` link), drops honeypot bots, rate-limits per IP, and forwards each signup as one flat JSON row to `WAITLIST_WEBHOOK_URL`:
+Fonts (Geist and Geist Mono) ship with the `geist` package, so pages make no third-party requests.
+
+## Deploy to produktif.ai (about 15 minutes)
+
+You need a Vercel account, a Google account and access to the produktif.ai DNS.
+
+1. **Make the sheet.** Create a Google Sheet called "produktif.ai applications". Open Extensions → Apps Script, paste the script from [The sheet](#the-sheet) below, and set `SECRET` to a long random string (run `openssl rand -hex 32`). Click Deploy → New deployment → Web app. Set "Execute as" to **Me** and "Who has access" to **Anyone**, then copy the web app URL.
+2. **Import the repo in Vercel.** Add New → Project → pick this repo, and set **Root Directory** to `produktif-ai`. The framework is detected as Next.js; leave the build settings alone.
+3. **Set the environment variables** (Settings → Environment Variables, Production):
+   - `WAITLIST_WEBHOOK_URL`: the web app URL from step 1.
+   - `WAITLIST_WEBHOOK_SECRET`: the same string you put in `SECRET`.
+   - `APPLY_SECRET`: a second random string. It signs the "finish my profile" links.
+   - `NEXT_PUBLIC_WA_NUMBER`: the WhatsApp Business number you'll message from, written the way people should save it (`+62 812 0000 0000`). Leave it empty until that number exists; the site then just says "WhatsApp".
+4. **Deploy**, then open the `.vercel.app` URL and apply once with your own email. A row should show up on the Signups tab, then one on Profiles when you finish.
+5. **Connect the domain.** Settings → Domains → add `produktif.ai` and `www.produktif.ai`. Copy the DNS records Vercel shows into your registrar (usually an `A` record for the apex and a `CNAME` for `www`). Vercel issues the certificate on its own once DNS resolves.
+6. **Turn on the confirmation email** (optional, but applicants expect it). Create a Resend account, add and verify `produktif.ai` as a sending domain (it gives you DNS records to add), create an API key, then set:
+   - `RESEND_API_KEY`
+   - `EMAIL_FROM`, for example `Hanif at produktif.ai <hello@produktif.ai>` (must use the verified domain)
+   - `EMAIL_REPLY_TO`: the inbox where you want replies.
+
+   Redeploy after changing variables. Without the key, signups still save; the done screen then stops promising an email.
+
+Before you share the link, apply once on your phone, then delete your own test rows from the sheet.
+
+### Environment variables
+
+| Variable | Needed | What it does |
+|---|---|---|
+| `WAITLIST_WEBHOOK_URL` | yes | Where each signup and profile row is POSTed as JSON. Without it, `/api/apply` answers 503 and applicants see "Applications aren't open yet". |
+| `WAITLIST_WEBHOOK_SECRET` | strongly recommended | Sent as `secret` in every row so the script can reject forged posts. Must match `SECRET` in the script exactly. |
+| `APPLY_SECRET` | recommended | Signs the lead token that links a profile to its signup. Falls back to `WAITLIST_WEBHOOK_SECRET`, then to a value derived from the webhook URL. Changing it breaks "finish my profile" links already sent. |
+| `NEXT_PUBLIC_WA_NUMBER` | no | Business WhatsApp number shown on the done screen and in the email. Use a business number, never a personal one. |
+| `RESEND_API_KEY` | no | Sends the confirmation email. A failed email never fails a signup. |
+| `EMAIL_FROM` | with Resend | Sender. Defaults to `Hanif at produktif.ai <hello@produktif.ai>`. |
+| `EMAIL_REPLY_TO` | no | Reply-to address on the confirmation email. |
+| `SITE_URL` | no | Base URL for links in the email. Defaults to `https://produktif.ai`. |
+| `ANTHROPIC_API_KEY` | only for `/carousel` | Turns the carousel tool on. Set a monthly spend limit in the Anthropic Console first. |
+| `RATE_LIMIT_PER_HOUR`, `GLOBAL_LIMIT_PER_HOUR` | no | Carousel limits per IP and per server instance (defaults 8 and 200). |
+| `DEMO_MODE` | never in production | `1` accepts applications without a webhook and serves a sample carousel. For local work and tests. |
+
+## How an application flows
+
+`/start` asks one question per screen, in two parts:
+
+1. **About you:** name, email, WhatsApp (optional) and consent. The "Join the waitlist" button posts to `/api/apply`. The lead is saved here, so someone who leaves halfway is still on the list.
+2. **Your channel:** niche, platform and handle, audience size, posting rhythm, goal, language, start date, and whether Rp 4,000,000 a month works. The last answer posts to `/api/apply/profile`.
+
+Answers are kept in `localStorage` (`pai-apply-v1`), so a reload or a closed tab resumes where the person stopped. The confirmation email links to `/start?lead=…&t=…`, which reopens part two on any device. UTM tags from the first page view ride along with the signup.
+
+Both routes validate with zod, cap the body at 8 KB, drop honeypot bots with a fake success, and rate-limit 30 requests per IP per hour (generous, because many Indonesian mobile users share a carrier IP). The profile route checks an HMAC token, so nobody can attach a profile to someone else's lead.
+
+The rows the sheet receives:
 
 ```json
-{ "name": "Ani", "whatsapp": "6281234567890", "handle": "@ani.coach", "role": "bisnis|profesional|coach|kreator|lainnya|", "start": "bulan-ini|1-3-bulan|liat-liat|", "source": "hero|footer", "created_at": "...", "secret": "..." }
+{ "stage": "signup", "lead_id": "uuid", "created_at": "2026-10-11T02:14:00.000Z", "name": "Ani", "email": "ani@example.com", "whatsapp": "6281234567890", "consent": "I agree to the privacy policy, and to …", "utm_source": "instagram", "utm_medium": "bio", "utm_campaign": "", "secret": "…" }
 ```
 
-If the webhook isn't set, the API answers 503, so signups never vanish silently. Set `DEMO_MODE=1` to accept signups locally without a webhook.
+```json
+{ "stage": "profile", "lead_id": "uuid", "created_at": "…", "niche": "Personal finance", "platform": "instagram", "handle": "@ani.coach", "followers": "50k-250k", "posting": "most-days", "goal": "sales", "language": "both", "start": "this-month", "budget": "yes", "fit_score": 10, "secret": "…" }
+```
 
-The simplest destination is a Google Sheet. In the sheet, open Extensions → Apps Script, paste this, then Deploy → New deployment → Web app, with access set to **Anyone**:
+`fit_score` is a rough first sort, 0 to 10: budget yes +4, starting this month +3 (1 to 3 months +1), audience size up to +2, posting most days +1. Sort the Profiles tab by it, then read each one yourself.
+
+## The sheet
+
+Paste this into the sheet's Apps Script editor. It writes signups and profiles to two tabs, creates them with headers on first use, and stops a value that starts with `=`, `+`, `-` or `@` from running as a formula.
 
 ```js
-const SECRET = ""; // or exactly the value of WAITLIST_WEBHOOK_SECRET
+const SECRET = ""; // exactly the value of WAITLIST_WEBHOOK_SECRET
+
+const TABS = {
+  signup: ["created_at", "lead_id", "name", "email", "whatsapp", "consent", "utm_source", "utm_medium", "utm_campaign"],
+  profile: ["created_at", "lead_id", "fit_score", "niche", "platform", "handle", "followers", "posting", "goal", "language", "start", "budget"],
+};
+const NAMES = { signup: "Signups", profile: "Profiles" };
 
 function reply(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
+function cell(v) {
+  if (v === undefined || v === null) return "";
+  return typeof v === "string" && /^[=+\-@]/.test(v) ? "'" + v : v;
+}
+
 function doPost(e) {
+  const lock = LockService.getScriptLock();
   try {
     const d = JSON.parse(e.postData.contents);
     if (SECRET && d.secret !== SECRET) return reply({ ok: false, error: "forbidden" });
-    SpreadsheetApp.getActiveSpreadsheet().getSheets()[0]
-      .appendRow([d.created_at, d.name, "https://wa.me/" + d.whatsapp, d.handle, d.role, d.start, d.source]);
+    const cols = TABS[d.stage];
+    if (!cols) return reply({ ok: false, error: "unknown stage" });
+    lock.waitLock(10000);
+    const book = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = book.getSheetByName(NAMES[d.stage]) || book.insertSheet(NAMES[d.stage]);
+    if (sheet.getLastRow() === 0) sheet.appendRow(cols);
+    const row = cols.map((c) => cell(d[c]));
+    if (d.stage === "signup" && d.whatsapp) row[cols.indexOf("whatsapp")] = "https://wa.me/" + d.whatsapp;
+    sheet.appendRow(row);
     return reply({ ok: true });
   } catch (err) {
     return reply({ ok: false, error: String(err) });
+  } finally {
+    lock.releaseLock();
   }
 }
 ```
 
-Apps Script can't send error status codes, so the app treats `{"ok": false}`, a bare `forbidden`, or an HTML error page as a failed save. The visitor sees "Gagal nyimpen" instead of a false confirmation. The two secrets must match exactly, or both be empty.
+After you edit the script, deploy a **new version** (Deploy → Manage deployments → edit → Version: New). Saving alone doesn't change the live web app.
 
-Put the web app URL in `WAITLIST_WEBHOOK_URL` and the same secret in `WAITLIST_WEBHOOK_SECRET`. Make, Zapier or n8n webhooks work the same way.
+Apps Script can't send error status codes, so the app treats `{"ok": false}`, a bare `forbidden` or an HTML error page as a failed save, and the applicant sees "We couldn't save that" instead of a false confirmation. To see a whole lead on one line, add a third tab and use `=FILTER(Profiles!A:L, Profiles!B:B = B2)` next to each signup, or join on `lead_id` however you like. Make, Zapier or n8n webhooks work too, as long as they answer with a 2xx and no `"ok": false`.
 
-## Carousel tool (`/carousel`)
-
-Type a topic, or paste a thread that's going viral, and get an Instagram carousel ready to post: 1080×1350 PNGs in the dark template from @hanifmuh_ (one gold anchor word, GESER pill, progress bar) plus a caption.
-
-Before writing, the model scores the topic on four tests: wallet, villain, tomorrow, tag. A topic likely to flop gets flagged up front. Every claim the creator should verify before posting is listed separately, and the model may only use personal numbers and stories that the user typed in.
-
-The writing rules live in `lib/prompt.ts`. They come from the 220 carousels (106.7M views in 63 days) and the viral-thread analysis behind @hanifmuh_. That file is the product, so change it carefully.
-
-## Run it
+## Run it locally
 
 ```bash
 npm install
-cp .env.example .env.local   # then put your key in ANTHROPIC_API_KEY
-npm run dev                  # http://localhost:3000
+DEMO_MODE=1 npm run dev     # http://localhost:3000, applications accepted without a sheet
 ```
 
-To work on the UI without a key, set `DEMO_MODE=1` and the API returns a built-in sample deck.
-
-| Variable | Needed | What it does |
-|---|---|---|
-| `ANTHROPIC_API_KEY` | yes, in production | Calls `claude-opus-5-5` with structured output and server-side refusal fallbacks (`fallbacks: "default"`). |
-| `DEMO_MODE` | no | `1` serves the sample deck and never calls the API. Never set it in production. |
-| `RATE_LIMIT_PER_HOUR` | no | Generations per IP (IPv6: per /64) per hour, default 8. `0` turns generation off. |
-| `GLOBAL_LIMIT_PER_HOUR` | no | Generations per server instance per hour, default 200. |
-| `WAITLIST_WEBHOOK_URL` | yes, for the waitlist | Where each signup is POSTed as JSON. |
-| `WAITLIST_WEBHOOK_SECRET` | no | Sent as `secret` in each row so the receiver can reject forged posts. |
-
-**Set a monthly spend limit in the Anthropic Console before launch.** The in-app limits live in each server instance's memory, so they slow abuse but can't cap your bill.
-
-## Deploy to produktif.ai
-
-1. Push this folder to its own GitHub repo, or point Vercel at this one with **Root Directory** set to `produktif-ai`.
-2. Import it in Vercel. Add `ANTHROPIC_API_KEY` under Settings → Environment Variables.
-3. Under Settings → Domains, add `produktif.ai` and `www.produktif.ai`, then copy the DNS records Vercel shows into your registrar.
-
-The generate route allows up to 300 seconds (`maxDuration`). The Claude call times out at 270 seconds with no automatic retry, so a slow request ends in a clear error and never starts a second paid generation.
-
-If you self-host instead of using Vercel, put the app behind a proxy that overwrites `X-Real-IP` (nginx: `proxy_set_header X-Real-IP $remote_addr;`). The rate limiter trusts that header, so a bare `next start` exposed to the internet lets anyone get around it.
+Copy `.env.example` to `.env.local` to test against a real sheet or a real email.
 
 ## Tests
 
 ```bash
-npm test          # unit tests for the schema, prompt builder and rate limiter
+npm test          # unit tests: schemas, phone and handle parsing, fit score, tokens, reply-by dates, rate limiter
 npm run build
-npm run e2e       # needs a build; drives Chromium through the whole flow
+npm run e2e       # needs a build; drives Chromium through the site and the APIs
 ```
 
-`npm run e2e` runs 28 checks across four servers. Both pages are checked for horizontal scroll at 320, 375 and 1280px. The waitlist is checked in the browser (signup and receipt, a malformed email blocked) and through the API (the exact webhook row, a bad email, the honeypot, the webhook failing or missing). The carousel checks are:
-
-- **Demo mode:** layout at 375px and 1280px, slide text overflow, editing and live anchor warnings, the over-length input counter, and the ZIP export (8 PNGs at 1080×1350 plus `caption.txt`).
-- **Real API route, fake Anthropic server:** the exact request (model, betas, `fallbacks: "default"`, JSON schema output, how a pasted thread is wrapped) and every error path: cut-off output, refusal, refusal with a busy fallback, oversized body, IPv6 /64 rate limiting, and a verdict that disagrees with its pass flags.
-- **No key configured:** must return 503.
-- **`RATE_LIMIT_PER_HOUR=0`:** must stop generation.
-
-Screenshots and sample PNGs land in `e2e-output/`. Set `CHROME_PATH` if Chromium isn't at `/opt/pw-browsers/chromium`.
+`npm run e2e` starts several production servers. It checks the homepage at phone and desktop widths (no sideways scroll, the headline holds its lines), walks the whole application on a 390×844 phone including a reload halfway through, and calls the APIs directly: the exact rows sent to the sheet, a forged profile token, the honeypot, a sheet that fails or answers `forbidden`, and a missing webhook. The carousel checks run against demo mode and a fake model server. Screenshots land in `e2e-output/`. Set `CHROME_PATH` if Chromium isn't at `/opt/pw-browsers/chromium`.
 
 ## Layout
 
 ```
-app/page.tsx              waitlist landing (styles in app/landing.css, scoped under .lp)
-app/carousel/page.tsx     carousel tool (styles in app/globals.css)
-app/api/waitlist/route.ts waitlist signup: validate, rate-limit, forward to the webhook
-app/api/generate/route.ts carousel generation: validate, rate-limit, call Claude
-components/WaitlistForm.tsx the signup form and its confirmation
-components/HeroReel.tsx   the animated 9:16 caption preview in the hero
-components/Generator.tsx  form, topic score, previews, editing, PNG/ZIP export
-components/Slide.tsx      the 1080×1350 slide template
-lib/prompt.ts             system prompt (the method)
-lib/schema.ts             request and deck schemas, helpers
-lib/sample.ts             demo deck
-lib/ratelimit.ts          in-memory per-IP limiter
+app/page.tsx                 homepage (styles in app/home.css, tokens in app/tokens.css, all under .pai)
+app/start/                   Get started page and its styles
+app/privacy, terms, consent  legal pages (shared styles in app/legal.css)
+app/api/apply/route.ts       part one: validate, rate-limit, save the lead, send the email
+app/api/apply/profile/       part two: check the token, save the profile with its fit score
+app/carousel/, app/api/generate/   the carousel tool
+components/home/             homepage sections: Nav, PhoneReel, ChaosToCalm, Steps, MonthGrid, motion helpers
+components/onboarding/       the application flow
+components/site/             legal page frame, UTM keeper
+lib/waitlist.ts              schemas, option lists, phone and handle parsing, fit score, webhook rows
+lib/forward.ts               posts a row to the sheet and checks it was saved
+lib/email.ts                 confirmation email
+lib/dates.ts                 reply-by date in Jakarta time, skipping weekends
+lib/ratelimit.ts             in-memory per-IP limiter
 ```
 
-## Not built yet
+## Before you promote it widely
 
-- **Shared rate limiting.** The limiter lives in each server instance's memory. Move it to Upstash or Vercel KV before promoting the site widely.
-- **A real-API test run.** Every test so far used demo mode or a fake API. Generate a few decks with a real key before launch, to check output quality and how long a 12-slide deck takes.
-- **Accounts, payments and saved decks.** Anyone can generate; nothing is stored.
-- **Reels.** The next step in the method is turning a winning carousel into a Reel.
+- **Shared rate limiting.** The limiter lives in each server instance's memory. Move it to Upstash or Vercel KV if the form gets abused.
+- **Legal review.** The privacy, terms and consent pages are careful drafts, not legal advice. Have an Indonesian lawyer check the refund clause, the liability cap, the UU PDP wording and the language requirement for consumer agreements.
+- **Hiring comparison.** The pricing section compares against job-board salary ranges (Loker.id, Glints). Re-check the numbers before a big push.

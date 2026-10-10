@@ -1,7 +1,8 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, m, useReducedMotion } from "motion/react";
 import Link from "next/link";
+import { Wordmark } from "@/components/site/Brand";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { formatReplyBy, replyBy } from "@/lib/dates";
 import { BUDGETS, FOLLOWERS, GOALS, LANGUAGES, PLATFORMS, POSTING, STARTS } from "@/lib/waitlist";
@@ -21,7 +22,7 @@ type Answers = {
   start: string;
   budget: string;
 };
-type Session = { lead_id: string; token: string };
+type Session = { lead_id: string; token: string; emailed?: boolean };
 type Option = { value: string; label: string; hint?: string };
 
 const EMPTY: Answers = {
@@ -134,7 +135,9 @@ function readUtm() {
   return out;
 }
 
-async function post(url: string, body: unknown): Promise<{ ok: boolean; status: number; data: Record<string, string> }> {
+type ApiReply = { error?: string; field?: string; lead_id?: string; token?: string; emailed?: boolean };
+
+async function post(url: string, body: unknown): Promise<{ ok: boolean; status: number; data: ApiReply }> {
   const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, data };
@@ -164,7 +167,7 @@ export default function Onboarding() {
       const params = new URLSearchParams(window.location.search);
       const lead = params.get("lead");
       const t = params.get("t");
-      if (lead && t && /^[0-9a-f-]{36}$/i.test(lead) && /^[a-f0-9]{64}$/.test(t)) s = { lead_id: lead, token: t };
+      if (lead && t && /^[0-9a-f-]{36}$/i.test(lead) && /^[a-f0-9]{64}$/.test(t)) s = { lead_id: lead, token: t, emailed: true };
     } catch {}
     setAnswers(stored.answers);
     setSession(s);
@@ -240,7 +243,7 @@ export default function Onboarding() {
       setError({ field, message: res.data.error || "We couldn't save that. Please try again." });
       return false;
     }
-    setSession({ lead_id: res.data.lead_id, token: res.data.token });
+    setSession({ lead_id: res.data.lead_id ?? "", token: res.data.token ?? "", emailed: res.data.emailed === true });
     return true;
   }
 
@@ -250,7 +253,8 @@ export default function Onboarding() {
       return false;
     }
     const res = await post("/api/apply/profile", {
-      ...session,
+      lead_id: session.lead_id,
+      token: session.token,
       niche: final.niche,
       platform: final.platform,
       handle: final.handle,
@@ -333,24 +337,34 @@ export default function Onboarding() {
     <div className="ob">
       <header className="ob-top">
         <Link href="/" className="ob-brand" aria-label="produktif.ai home">
-          <span className="ob-mark" aria-hidden="true" />
-          <span>
-            produktif<i>.</i>ai
-          </span>
+          <Wordmark title={null} className="ob-wm" />
         </Link>
         {!done && (
           <p className="ob-count" aria-live="polite">
-            {index < PHASE1 ? "About you" : "Your channel · about 1 minute"}
+            {index < PHASE1 ? (
+              "About you"
+            ) : (
+              <>
+                Your channel<span className="ob-count-more"> · about 1 minute</span>
+              </>
+            )}
             <span className="sr">
               , question {index + 1} of {total}
             </span>
           </p>
         )}
         <Link href="/" className="ob-close">
-          {done ? "Back to site" : "Save and finish later"}
+          {done ? (
+            "Back to site"
+          ) : (
+            <>
+              <span className="ob-close-more">Save and finish later</span>
+              <span className="ob-close-less">Finish later</span>
+            </>
+          )}
         </Link>
         <div className="ob-progress" aria-hidden="true">
-          <motion.i
+          <m.i
             initial={false}
             animate={{ scaleX: done ? 1 : index < PHASE1 ? (index + 1) / PHASE1 : (index - PHASE1 + 1) / (total - PHASE1) }}
             transition={{ duration: reduce ? 0 : 0.5, ease: EASE }}
@@ -362,16 +376,17 @@ export default function Onboarding() {
         <div className="ob-stage" ref={stage}>
           <AnimatePresence mode="wait" custom={dir} initial={false}>
             {done ? (
-              <motion.section key="done" className="ob-step ob-done" variants={variants} custom={1} initial="enter" animate="center" exit="exit" transition={{ duration: reduce ? 0 : 0.45, ease: EASE }}>
+              <m.section key="done" className="ob-step ob-done" variants={variants} custom={1} initial="enter" animate="center" exit="exit" transition={{ duration: reduce ? 0 : 0.45, ease: EASE }}>
                 <Done
                   name={answers.name}
                   email={answers.email}
                   warm={answers.budget === "yes" && answers.start !== "looking"}
                   hasWa={!!answers.whatsapp.trim()}
+                  emailed={session?.emailed !== false}
                 />
-              </motion.section>
+              </m.section>
             ) : (
-              <motion.form
+              <m.form
                 key={step}
                 className="ob-step"
                 variants={variants}
@@ -422,6 +437,7 @@ export default function Onboarding() {
                   )}
                   {!isChoice(step) || step === "platform" ? (
                     <button type="submit" className="ob-next" aria-disabled={busy}>
+                      <i className="ob-dot" aria-hidden="true" />
                       {busy ? "Saving…" : index === total - 1 ? "Send my profile" : step === "whatsapp" ? "Join the waitlist" : "Continue"}
                       {!busy && (
                         <svg viewBox="0 0 16 16" aria-hidden="true">
@@ -442,7 +458,7 @@ export default function Onboarding() {
                     </span>
                   )}
                 </div>
-              </motion.form>
+              </m.form>
             )}
           </AnimatePresence>
         </div>
@@ -771,7 +787,7 @@ function Choices(props: { name: string; labelledBy: string; options: Option[]; v
   );
 }
 
-function Done({ name, email, warm, hasWa }: { name: string; email: string; warm: boolean; hasWa: boolean }) {
+function Done({ name, email, warm, hasWa, emailed }: { name: string; email: string; warm: boolean; hasWa: boolean; emailed: boolean }) {
   const first = name.trim().split(/\s+/)[0];
   const by = formatReplyBy(replyBy(new Date()));
   const wa = process.env.NEXT_PUBLIC_WA_NUMBER;
@@ -782,7 +798,13 @@ function Done({ name, email, warm, hasWa }: { name: string; email: string; warm:
           <path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
-      <h1 tabIndex={-1}>{first ? `You're on the list, ${first}.` : "You're on the list."}</h1>
+      <h1 tabIndex={-1} className="ob-pop" aria-label={first ? `You're on the list, ${first}.` : "You're on the list."}>
+        {(first ? ["You're", "on", "the", "list,", `${first}.`] : ["You're", "on", "the", "list."]).map((w, i, all) => (
+          <span key={i} aria-hidden="true" className={first && i === all.length - 1 ? "w box" : "w"} style={{ animationDelay: `${0.15 + i * 0.24}s` }}>
+            {w}
+          </span>
+        ))}
+      </h1>
       <p className="ob-done-lead">
         {warm
           ? `Hanif reads every profile himself. You'll hear from us by ${by}.`
@@ -791,26 +813,30 @@ function Done({ name, email, warm, hasWa }: { name: string; email: string; warm:
       <ol className="ob-next-steps">
         <li>
           <span>
-            <b>Check your inbox.</b> Your confirmation went to {email || "your email"}. Not there in 5 minutes? Look in Promotions or Spam.
-          </span>
-        </li>
-        <li>
-          <span>
-            {hasWa && wa ? (
+            {emailed ? (
               <>
-                <b>Save our number.</b> If it&rsquo;s a fit, we&rsquo;ll message you on WhatsApp from {wa}. It&rsquo;s the only number we use.
-              </>
-            ) : hasWa ? (
-              <>
-                <b>Watch your WhatsApp and email.</b> If it&rsquo;s a fit, Hanif messages you there.
+                <b>Check your inbox.</b> Your confirmation went to {email || "your email"}. Not there in 5 minutes? Look in Promotions or Spam.
               </>
             ) : (
               <>
-                <b>Watch your email.</b> If it&rsquo;s a fit, Hanif replies there.
+                <b>Watch {email || "your email"}.</b> If it&rsquo;s a fit, Hanif replies there. Check Promotions and Spam too.
               </>
             )}
           </span>
         </li>
+        {hasWa && wa ? (
+          <li>
+            <span>
+              <b>Save our number.</b> If it&rsquo;s a fit, we&rsquo;ll message you on WhatsApp from {wa}. It&rsquo;s the only number we use.
+            </span>
+          </li>
+        ) : emailed ? (
+          <li>
+            <span>
+              <b>Watch your email.</b> If it&rsquo;s a fit, Hanif replies there.
+            </span>
+          </li>
+        ) : null}
         {warm && (
           <>
             <li>
@@ -821,8 +847,8 @@ function Done({ name, email, warm, hasWa }: { name: string; email: string; warm:
             </li>
             <li>
               <span>
-                <b>Your first video within 7 days of the deposit:</b> a test clip of your AI persona in the real format. Still not right after one
-                redo? The deposit comes back.
+                <b>Your test clip within 7 days of the deposit,</b> in the real format. Don&rsquo;t like it? We redo it once. Still not right, and the
+                deposit comes back.
               </span>
             </li>
           </>

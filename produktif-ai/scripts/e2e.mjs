@@ -85,7 +85,7 @@ try {
         const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
         assert.ok(over <= 0, `page is ${over}px wider than the viewport`);
         if (route === "/" && vp.width > 640) {
-          // On desktop each headline line ("Stop prompting." / "Start posting.") holds on one line.
+          // On desktop each headline line ("Post every day." / "We make the" / "videos.") holds on one line.
           const lines = await page.evaluate(() =>
             // Words are mid-animation (translated) right after load, so measure the
             // line box instead of the word rects.
@@ -95,12 +95,26 @@ try {
               return el.getBoundingClientRect().height < fs * 1.5 && fits ? 1 : 2;
             }),
           );
-          assert.deepEqual(lines, [1, 1], `headline lines: ${lines}`);
+          assert.deepEqual(lines, [1, 1, 1], `headline lines: ${lines}`);
         }
         await page.close();
       });
     }
   }
+
+  await check("home: kicker, headline, button and price line sit above the fold on a 360x740 phone", async () => {
+    const page = await browser.newPage({ viewport: { width: 360, height: 740 } });
+    await page.goto("http://localhost:3101/");
+    const bottoms = await page.evaluate(() =>
+      [".hero-kicker", ".hero-h", "#hero-cta .btn", ".hero-micro b"].map((sel) => {
+        const el = document.querySelector(sel);
+        return el ? Math.round(el.getBoundingClientRect().bottom) : 9999;
+      }),
+    );
+    assert.ok(Math.max(...bottoms) <= 740, `hero bottoms: ${bottoms}`);
+    assert.equal(await page.getByRole("heading", { level: 1 }).getAttribute("aria-label"), "Post every day. We make the videos.");
+    await page.close();
+  });
 
   await check("onboarding: the full Get Started flow ends on the confirmation", async () => {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
