@@ -80,7 +80,7 @@ try {
       await check(`[${route} ${vp.name}] page loads with no horizontal scroll`, async () => {
         const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
         await page.goto(`http://localhost:3101${route}`);
-        const slug = route === "/" ? "waitlist" : "carousel";
+        const slug = route === "/" ? "home" : "carousel";
         await page.screenshot({ path: `${OUT}/${slug}-${vp.name}.png`, fullPage: true });
         const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
         assert.ok(over <= 0, `page is ${over}px wider than the viewport`);
@@ -100,42 +100,48 @@ try {
     }
   }
 
-  await check("waitlist: the form signs up and prints the receipt", async () => {
+  await check("onboarding: the full Get Started flow ends on the confirmation", async () => {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     const errors = [];
     page.on("pageerror", (e) => errors.push(String(e)));
-    page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
-    await page.goto("http://localhost:3101/");
-    const form = page.locator("#waitlist form");
-    await form.getByLabel("Name", { exact: true }).fill("Ani Wijaya");
-    await form.getByLabel("WhatsApp").fill("0812 3456 7890");
-    await form.getByRole("radio", { name: "Business owner" }).check();
-    await form.getByRole("radio", { name: "This month" }).check();
-    await form.getByRole("button", { name: "Join the waitlist" }).click();
-    await page.waitForSelector("#waitlist .wl-done", { timeout: 10000 });
-    const receipt = await page.locator("#waitlist .wl-done").innerText();
-    assert.match(receipt, /Ani Wijaya/);
-    assert.match(receipt, /0812 3456 7890/);
-    assert.equal(await page.evaluate(() => document.activeElement?.classList.contains("wl-done")), true, "focus moves to the receipt");
-    assert.equal(await page.locator(".wl-preview").isVisible(), false, "the static preview gives way to the real receipt");
-    await page.screenshot({ path: `${OUT}/waitlist-done-mobile.png`, fullPage: false });
+    await page.goto("http://localhost:3101/start");
+    await page.getByLabel("First, what should we call you?").fill("Ani Wijaya");
+    await page.keyboard.press("Enter");
+    await page.getByLabel("Where should we send your spot?").fill("ani@example.com");
+    await page.keyboard.press("Enter");
+    await page.getByLabel("Your WhatsApp number?").fill("0812 3456 7890");
+    await page.getByRole("button", { name: "Join the list" }).click();
+    await page.getByText("Please tick the box").waitFor();
+    await page.getByRole("checkbox").check();
+    await page.getByRole("button", { name: "Join the list" }).click();
+    await page.getByLabel("What do your videos teach or talk about?").fill("Money tips for first jobbers");
+    await page.keyboard.press("Enter");
+    await page.getByRole("radio", { name: "TikTok" }).check();
+    await page.getByLabel(/Your handle/).fill("tiktok.com/@ani_w");
+    await page.getByRole("button", { name: "Continue" }).click();
+    for (const answer of ["50K to 250K", "1 to 2 a week", "Get my time back", "Both", "This month", "Yes, that works"]) {
+      // Choice screens move on as soon as an answer is picked.
+      await page.getByRole("radio", { name: answer }).click();
+    }
+    await page.getByRole("heading", { name: "You're on the list, Ani." }).waitFor({ timeout: 10000 });
+    await page.screenshot({ path: `${OUT}/onboarding-done-mobile.png` });
+    const stored = await page.evaluate(() => localStorage.getItem("pai-apply-v1"));
+    assert.equal(stored, null, "finished applications clear saved progress");
     assert.deepEqual(errors, []);
     await page.close();
   });
 
-  await check("waitlist: a bad WhatsApp number is flagged next to the field", async () => {
+  await check("onboarding: progress survives a reload and bad emails are caught", async () => {
     const page = await browser.newPage();
-    await page.goto("http://localhost:3101/");
-    const form = page.locator("#waitlist form");
-    await form.getByLabel("Name", { exact: true }).fill("Ani");
-    await form.getByLabel("WhatsApp").fill("12345");
-    await form.getByRole("button", { name: "Join the waitlist" }).click();
-    await page.waitForFunction(() => document.querySelector("#waitlist .wl-error")?.textContent?.includes("WhatsApp"));
-    assert.equal(await form.getByLabel("WhatsApp").getAttribute("aria-invalid"), "true");
-    assert.equal(await form.getByLabel("Name", { exact: true }).getAttribute("aria-invalid"), null);
-    assert.equal(await page.evaluate(() => document.activeElement?.getAttribute("name")), "whatsapp", "focus moves to the bad field");
-    await form.getByLabel("WhatsApp").fill("0812 3456 7890");
-    assert.equal(await form.getByLabel("WhatsApp").getAttribute("aria-invalid"), null, "error clears while fixing");
+    await page.goto("http://localhost:3101/start");
+    await page.getByLabel("First, what should we call you?").fill("Budi");
+    await page.keyboard.press("Enter");
+    await page.getByLabel("Where should we send your spot?").fill("budi@example");
+    await page.keyboard.press("Enter");
+    await page.getByText("That email doesn't look right").waitFor();
+    assert.equal(await page.getByLabel("Where should we send your spot?").getAttribute("aria-invalid"), "true");
+    await page.reload();
+    assert.equal(await page.getByLabel("First, what should we call you?").inputValue(), "Budi");
     await page.close();
   });
 
@@ -279,46 +285,68 @@ try {
     WAITLIST_WEBHOOK_URL: "http://localhost:3198/hook",
     WAITLIST_WEBHOOK_SECRET: "s3cret",
   });
-  const join = (body, headers = {}) =>
-    fetch("http://localhost:3102/api/waitlist", {
+  const apply = (path, body, headers = {}) =>
+    fetch(`http://localhost:3102/api/apply${path}`, {
       method: "POST",
       headers: { "content-type": "application/json", ...headers },
       body: JSON.stringify(body),
     });
+  const PROFILE = {
+    niche: "Money tips",
+    platform: "tiktok",
+    handle: "@ani_w",
+    followers: "10k-50k",
+    posting: "weekly",
+    goal: "time",
+    language: "id",
+    start: "this-month",
+    budget: "yes",
+  };
 
-  await check("waitlist API forwards a clean row to the webhook", async () => {
-    const r = await join({ name: " Ani ", whatsapp: "+62 812-3456-7890", handle: "ani.coach", role: "coach", start: "bulan-ini", source: "footer" });
+  await check("apply API: signup row, then a profile row joined by lead_id", async () => {
+    const r = await apply("", { name: " Ani ", email: "Ani@Example.com", whatsapp: "+62 812-3456-7890", consent: true, utm_source: "x" });
     assert.equal(r.status, 200);
+    const { lead_id, token } = await r.json();
     const row = hooks.at(-1);
+    assert.equal(row.stage, "signup");
+    assert.equal(row.lead_id, lead_id);
     assert.equal(row.name, "Ani");
+    assert.equal(row.email, "ani@example.com");
     assert.equal(row.whatsapp, "6281234567890");
-    assert.equal(row.handle, "@ani.coach");
-    assert.equal(row.role, "coach");
-    assert.equal(row.start, "bulan-ini");
-    assert.equal(row.source, "footer");
+    assert.equal(row.utm_source, "x");
     assert.equal(row.secret, "s3cret");
-    assert.ok(!Number.isNaN(Date.parse(row.created_at)));
+    assert.match(row.consent, /privacy policy/);
+    const p = await apply("/profile", { lead_id, token, ...PROFILE });
+    assert.equal(p.status, 200);
+    const prow = hooks.at(-1);
+    assert.equal(prow.stage, "profile");
+    assert.equal(prow.lead_id, lead_id);
+    assert.equal(prow.fit_score, 8);
+    assert.equal("token" in prow, false);
   });
 
-  await check("waitlist API: bad number 400 with field, honeypot swallowed, webhook failure 502", async () => {
-    const r1 = await join({ name: "Ani", whatsapp: "021 555 1234" });
+  await check("apply API: bad email 400 with field, missing consent, forged token 403, honeypot swallowed, webhook failure 502", async () => {
+    const r1 = await apply("", { name: "Ani", email: "ani@", consent: true });
     assert.equal(r1.status, 400);
-    const body = await r1.json();
-    assert.equal(body.field, "whatsapp");
-    assert.match(body.error, /WhatsApp/);
+    assert.equal((await r1.json()).field, "email");
+    const r2 = await apply("", { name: "Ani", email: "ani@example.com" });
+    assert.equal(r2.status, 400);
+    assert.equal((await r2.json()).field, "consent");
+    const forged = await apply("/profile", { lead_id: "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b", token: "a".repeat(64), ...PROFILE });
+    assert.equal(forged.status, 403);
     const before = hooks.length;
-    const r2 = await join({ name: "Bot", whatsapp: "081234567890", company: "PT Bot" });
-    assert.equal(r2.status, 200);
+    const r3 = await apply("", { name: "Bot", email: "bot@example.com", consent: true, company: "PT Bot" });
+    assert.equal(r3.status, 200);
     assert.equal(hooks.length, before, "honeypot signup must not reach the webhook");
     hookStatus = 500;
-    const r3 = await join({ name: "Ani", whatsapp: "081234567890" }, { "x-real-ip": "7.7.7.7" });
-    assert.equal(r3.status, 502);
+    const r4 = await apply("", { name: "Ani", email: "ani@example.com", consent: true }, { "x-real-ip": "7.7.7.7" });
+    assert.equal(r4.status, 502);
     hookStatus = 200;
   });
 
-  await check("waitlist API: a 200 that says 'forbidden' is a failed save, not a signup", async () => {
+  await check("apply API: a 200 that says 'forbidden' is a failed save, not a signup", async () => {
     hookBody = '{"ok":false,"error":"forbidden"}';
-    const r = await join({ name: "Ani", whatsapp: "081234567890" }, { "x-real-ip": "8.8.8.8" });
+    const r = await apply("", { name: "Ani", email: "ani@example.com", consent: true }, { "x-real-ip": "8.8.8.8" });
     assert.equal(r.status, 502);
     hookBody = '{"ok":true}';
   });
@@ -405,11 +433,11 @@ try {
     });
     assert.equal(r.status, 503);
   });
-  await check("waitlist without a webhook answers 503 instead of dropping signups", async () => {
-    const r = await fetch("http://localhost:3103/api/waitlist", {
+  await check("apply without a webhook answers 503 instead of dropping signups", async () => {
+    const r = await fetch("http://localhost:3103/api/apply", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name: "Ani", whatsapp: "081234567890" }),
+      body: JSON.stringify({ name: "Ani", email: "ani@example.com", consent: true }),
     });
     assert.equal(r.status, 503);
   });

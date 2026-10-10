@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./base.css";
+import UtmKeeper from "@/components/site/UtmKeeper";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://produktif.ai"),
@@ -19,7 +20,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <UtmKeeper />
+        {children}
+      </body>
     </html>
   );
 }

@@ -7,6 +7,7 @@ import Generator from "@/components/Generator";
 
 export const metadata: Metadata = {
   title: "Carousel engine · produktif.ai",
+  robots: { index: false, follow: false },
   description:
     "Masukin topik, keluar carousel Instagram yang siap posting. Formatnya dari 220 carousel @hanifmuh_ yang tembus 106,7 juta views.",
 };

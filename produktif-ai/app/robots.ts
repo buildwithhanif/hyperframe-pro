@@ -1,0 +1,9 @@
+import type { MetadataRoute } from "next";
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: [{ userAgent: "*", allow: "/", disallow: ["/api/", "/carousel"] }],
+    sitemap: "https://produktif.ai/sitemap.xml",
+    host: "https://produktif.ai",
+  };
+}

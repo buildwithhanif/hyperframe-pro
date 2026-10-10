@@ -1,0 +1,195 @@
+/* /privacy, /terms, /consent */
+.pai.lg {
+  display: flex;
+  flex-direction: column;
+}
+.pai .lg-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 clamp(16px, 4vw, 40px);
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.pai .lg-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -0.03em;
+}
+.pai .lg-brand i {
+  font-style: normal;
+  color: var(--accent);
+}
+.pai .lg-mark {
+  position: relative;
+  width: 13px;
+  height: 21px;
+  border: 1.5px solid var(--fg);
+  border-radius: 3px;
+}
+.pai .lg-mark::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 4px;
+  bottom: 3px;
+  height: 1.5px;
+  background: var(--accent);
+}
+.pai .lg-cta {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--fg);
+  color: var(--bg);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+.pai .lg-main {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(48px, 9vh, 96px) clamp(20px, 5vw, 40px) 96px;
+}
+.pai .lg-kicker {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pai .lg-main h1 {
+  margin-top: 16px;
+  font-weight: 560;
+  font-size: clamp(36px, 6vw, 56px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.pai .lg-updated {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.pai .lg-intro {
+  margin-top: 28px;
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--fg-2);
+}
+.pai .lg-intro p + p {
+  margin-top: 12px;
+}
+.pai .lg-toc {
+  margin-top: 40px;
+  padding: 20px 24px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-hi);
+}
+.pai .lg-toc ol {
+  margin: 0;
+  padding-left: 20px;
+  columns: 2;
+  column-gap: 32px;
+  font-size: 15px;
+  line-height: 1.9;
+}
+.pai .lg-toc a {
+  text-decoration: none;
+  color: var(--fg-2);
+}
+.pai .lg-toc a:hover {
+  color: var(--fg);
+  text-decoration: underline;
+}
+.pai .lg-sec {
+  margin-top: 56px;
+  scroll-margin-top: 88px;
+}
+.pai .lg-sec h2 {
+  font-weight: 560;
+  font-size: 24px;
+  letter-spacing: -0.025em;
+}
+.pai .lg-body {
+  margin-top: 14px;
+  color: var(--fg-2);
+}
+.pai .lg-body p + p,
+.pai .lg-body p + ul,
+.pai .lg-body ul + p,
+.pai .lg-body p + table,
+.pai .lg-body table + p {
+  margin-top: 12px;
+}
+.pai .lg-body ul {
+  margin: 0;
+  padding-left: 20px;
+}
+.pai .lg-body li + li {
+  margin-top: 6px;
+}
+.pai .lg-body b,
+.pai .lg-body strong {
+  color: var(--fg);
+  font-weight: 560;
+}
+.pai .lg-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.pai .lg-body th,
+.pai .lg-body td {
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.pai .lg-body th {
+  color: var(--fg);
+  font-weight: 560;
+}
+.pai .lg-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: auto;
+  padding: 24px clamp(16px, 4vw, 40px);
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--muted);
+}
+.pai .lg-foot nav {
+  display: flex;
+  gap: 20px;
+}
+.pai .lg-foot a {
+  text-decoration: none;
+}
+.pai .lg-foot a:hover {
+  color: var(--fg);
+}
+@media (max-width: 640px) {
+  .pai .lg-toc ol {
+    columns: 1;
+  }
+  .pai .lg-body table {
+    font-size: 14px;
+  }
+}
