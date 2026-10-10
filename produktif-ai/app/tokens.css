@@ -1,0 +1,88 @@
+/* produktif.ai design tokens, shared by every marketing page. Scoped under
+   .pai so the carousel tool keeps its own look. */
+
+html:has(.pai) {
+  background: var(--pai-bg, #f5f2eb);
+}
+body:has(.pai) {
+  margin: 0;
+  background: var(--pai-bg, #f5f2eb);
+}
+
+.pai {
+  --pai-bg: #f5f2eb;
+  --bg: #f5f2eb;
+  --bg-hi: #fbfaf6;
+  --bg-lo: #ede9df;
+  --fg: #15140f;
+  --fg-2: #3a372f;
+  --muted: #6a665c;
+  --line: #ddd7ca;
+  --line-2: #cbc4b5;
+  --field: #857f73;
+  --accent: #c8102e;
+  --accent-ink: #ffffff;
+  --night: #12110e;
+  --on-night: #f2eee5;
+  --on-night-2: #aba597;
+  --sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+.pai *,
+.pai *::before,
+.pai *::after {
+  box-sizing: border-box;
+}
+.pai :where(h1, h2, h3, h4, p, ul, ol, dl, dd, figure, fieldset, legend, blockquote) {
+  margin: 0;
+  padding: 0;
+}
+.pai a {
+  color: inherit;
+}
+.pai button,
+.pai input,
+.pai textarea {
+  font: inherit;
+  color: inherit;
+}
+.pai ::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
+.pai :focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.pai .sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pai *,
+  .pai *::before,
+  .pai *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

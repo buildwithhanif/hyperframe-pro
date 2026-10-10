@@ -4,7 +4,6 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./landing.css";
 import HeroReel from "@/components/HeroReel";
-import WaitlistForm, { Arrow, Receipt } from "@/components/WaitlistForm";
 
 export const viewport: Viewport = {
   themeColor: "#F5F2EB",
@@ -73,6 +72,14 @@ const FAQ = [
   },
 ];
 
+function Arrow() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function Check({ width = 1.7 }: { width?: number }) {
   return (
     <svg viewBox="0 0 16 16" aria-hidden="true">
@@ -116,7 +123,7 @@ export default function Home() {
               <a href="#faq">FAQ</a>
             </li>
           </ul>
-          <a className="lp-btn lp-btn--sm" href="#waitlist">
+          <a className="lp-btn lp-btn--sm" href="/start">
             Join the waitlist
           </a>
         </div>
@@ -148,7 +155,7 @@ export default function Home() {
                 </div>
                 <div className="hero-act rise d3">
                   <div className="ctas">
-                    <a className="lp-btn" href="#waitlist">
+                    <a className="lp-btn" href="/start">
                       Join the waitlist <Arrow />
                     </a>
                     <a className="link" href="#how">
@@ -262,7 +269,7 @@ export default function Home() {
               </li>
               <li className="nos-last">
                 <span>Nothing new to learn.</span>
-                <a className="lp-btn" href="#waitlist">
+                <a className="lp-btn" href="/start">
                   Get on the list <Arrow />
                 </a>
               </li>
@@ -493,7 +500,7 @@ export default function Home() {
                     <span className="per">/ month</span>
                   </p>
                   <p className="plan-note">Less than what you&rsquo;d pay one full-time hire in Jakarta.</p>
-                  <a className="lp-btn" href="#waitlist">
+                  <a className="lp-btn" href="/start">
                     Count me in <Arrow />
                   </a>
                   <p className="fine">Nothing to pay yet. We&rsquo;ll message you on WhatsApp before we open.</p>
@@ -563,7 +570,7 @@ export default function Home() {
                 <h2 id="faq-h">Questions</h2>
                 <div className="faq-cta">
                   <p>Seen enough?</p>
-                  <a className="lp-btn lp-btn--sm" href="#waitlist">
+                  <a className="lp-btn lp-btn--sm" href="/start">
                     Get on the list <Arrow />
                   </a>
                 </div>
@@ -589,15 +596,10 @@ export default function Home() {
                 <h2 id="join-h">Be in the first cohort.</h2>
                 <p className="lead">Leave your name and WhatsApp. That&rsquo;s all we need for now.</p>
               </div>
-              <div className="wl-card wl-preview" aria-label="Example of the confirmation you'll see" role="group">
-                <div className="wl-head">
-                  <span>After you join</span>
-                  <span>Preview</span>
-                </div>
-                <Receipt name="Your name" whatsapp="0812 3456 7890" />
-              </div>
               <div className="join-form">
-                <WaitlistForm source="footer" />
+                <a className="lp-btn" href="/start">
+                  Get started <Arrow />
+                </a>
               </div>
             </div>
           </div>
