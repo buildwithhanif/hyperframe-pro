@@ -1,0 +1,42 @@
+# Pulls Hanif's own videos (his AI persona Reels on X) for the produktif.ai
+# site samples. The cloud dev box can't reach X's video CDN; Actions can.
+# Output goes to the orphan branch samples-raw, never into site history.
+name: fetch-samples
+on:
+  push:
+    branches: [claude/awesome-edison-wdtgt9]
+    paths: [produktif-ai/samples/sources.txt]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: produktif-ai/samples
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Download and re-encode
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          while read -r name url; do
+            [ -z "${name:-}" ] && continue
+            curl -fsSL -A "Mozilla/5.0" "$url" -o "raw-$name.mp4"
+            ffprobe -v error -show_entries stream=width,height,duration -of csv=p=0 "raw-$name.mp4" | tee "out/$name.txt"
+            ffmpeg -nostdin -loglevel error -y -i "raw-$name.mp4" -vf "scale='min(720,iw)':-2" \
+              -c:v libx264 -preset slow -crf 21 -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart "out/$name.mp4"
+            ls -la "out/$name.mp4"
+          done < produktif-ai/samples/sources.txt
+      - name: Push to samples-raw
+        run: |
+          cd out
+          git init -q -b samples-raw
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "Source clips for produktif.ai samples"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" samples-raw
