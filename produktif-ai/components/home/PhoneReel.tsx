@@ -45,9 +45,18 @@ export default function PhoneReel({ longLabel = false, chipHref }: { longLabel?:
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => setActive(e.isIntersecting), { threshold: 0.15 });
-    io.observe(el);
-    return () => io.disconnect();
+    // The first frame is already a finished caption, so the loop can wait
+    // until the page has loaded and settled before it starts.
+    let io: IntersectionObserver | undefined;
+    const start = () => {
+      io = new IntersectionObserver(([e]) => setActive(e.isIntersecting), { threshold: 0.15 });
+      io.observe(el);
+    };
+    const timer = window.setTimeout(start, document.readyState === "complete" ? 600 : 1800);
+    return () => {
+      window.clearTimeout(timer);
+      io?.disconnect();
+    };
   }, []);
 
   const t = useLoopTime(active);

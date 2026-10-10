@@ -9,7 +9,8 @@ import MonthGrid from "@/components/home/MonthGrid";
 import Nav from "@/components/home/Nav";
 import PhoneReel, { FrameStill } from "@/components/home/PhoneReel";
 import Steps, { type Step } from "@/components/home/Steps";
-import { Kinetic, Rise } from "@/components/home/motion";
+import Kinetic from "@/components/home/Kinetic";
+import { Rise } from "@/components/home/motion";
 import { Wordmark } from "@/components/site/Brand";
 import MotionRoot from "@/components/site/MotionRoot";
 
@@ -459,7 +460,7 @@ export default function Home() {
           {/* final call to action */}
           <section className="final" id="final-cta" aria-labelledby="final-h">
             <div className="wrap final-in">
-              <Rise id="final-h" className="final-h" lines={["You pay.", "You get the *videos.*"]} />
+              <Rise id="final-h" className="final-h" lines={["You pay.", "You get the", "*videos.*"]} />
               <p className="final-sub">The first cohort is 2 to 3 creators. Hanif reads every application and replies within 2 working days.</p>
               <Go size="lg" light />
               <p className="final-fine">Apply for the first cohort. About 2 minutes, nothing to pay now.</p>
