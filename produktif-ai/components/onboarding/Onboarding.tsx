@@ -274,7 +274,7 @@ export default function Onboarding() {
       if (res.status === 403 || (res.status === 400 && !res.data.field && /session/i.test(res.data.error || ""))) {
         setSession(null);
         go(0);
-        setError({ message: "Your session expired. Your answers are saved, so just confirm your details again." });
+        setError({ message: "Your session expired. Confirm your details and you’ll pick up where you left off." });
         return false;
       }
       const field = res.data.field;

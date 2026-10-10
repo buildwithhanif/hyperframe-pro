@@ -27,7 +27,7 @@ const STEPS: Step[] = [
   {
     n: "01",
     title: "Send your kit",
-    body: "3 photos and a 2-minute voice read that ends with your spoken consent. A short brief and a 30-minute call tell us your niche and your best posts.",
+    body: "Take 3 photos of yourself, then read a script aloud for about 2 minutes and finish with your spoken consent. A brief and a 30-minute call tell us your niche and your best posts.",
     you: "Your part: about an hour, once.",
   },
   {
@@ -77,7 +77,7 @@ const COMPARE = [
 const TRUST = [
   "Only the creator who signs. Never anyone else's face.",
   "An ID and live selfie check. 18 and over.",
-  "Your persona opens and closes each video. The rest is graphics.",
+  "Your persona only does the hook and the outro. Graphics carry the middle.",
   "Real stories only: the ones you told us.",
   "Every post carries the platform's AI label.",
   "You own your videos and your likeness.",
@@ -87,7 +87,7 @@ const TRUST = [
 const FAQ = [
   [
     "Is it really me in the videos?",
-    "It's your AI persona, made from your recording: 3 photos and a 2-minute voice read. It opens and closes each video, and every video is labeled as AI. You approve each one before you post it.",
+    "It's your AI persona, built from the photos and the voice read you sent us. It appears at the start and end of each video, with an AI label. You still approve every video before it goes out.",
   ],
   ["Do I ever have to film?", "No. You send the photos and the voice read once, at the start. You can still post your own filmed videos whenever you like."],
   [
@@ -115,7 +115,7 @@ const FAQ = [
     "You own the videos and your likeness. We get a license to make videos for you while you're a client. Your videos only appear as our samples if you opt in separately.",
   ],
   ["Can I make a persona of someone else?", "No. We only build a persona of the creator who signs the agreement and records the consent line."],
-  ["How does cancelling work?", "It's month to month. Message us at least 7 days before your next bill, and charges stop after the month you've paid for."],
+  ["How does canceling work?", "It's month to month. Message us at least 7 days before your next bill, and charges stop after the month you've paid for."],
   [
     "Why apply instead of just paying?",
     "Every persona takes real setup, so we start small: 2 to 3 creators in the first cohort, picked by fit. Applying is free, and Hanif reads every application.",
@@ -308,10 +308,10 @@ export default function Home() {
                   <figcaption>Hanif Produktif, founder</figcaption>
                 </figure>
               </div>
+              <p className="stats-tag">Founder&rsquo;s accounts · numbers as of October 2026</p>
               <ul className="stats">
                 {STATS.map((s) => (
                   <li key={s.label} className="stat">
-                    <span className="stat-tag">Founder&rsquo;s account · as of Oct 2026</span>
                     <b>{s.value}</b>
                     <p>{s.label}</p>
                   </li>
@@ -340,7 +340,7 @@ export default function Home() {
                   </p>
                   <p className="plan-note">Applying is free. If you&rsquo;re picked, a refundable Rp 1,000,000 deposit holds your slot and comes off your first month.</p>
                   <Go size="lg" />
-                  <p className="plan-under">Apply for the first cohort. About 2 minutes, nothing to pay now.</p>
+                  <p className="plan-under">Opens the application for the first cohort. You pay nothing until you&rsquo;re accepted.</p>
                   <p className="plan-terms">
                     Month to month. Cancel 7 days before your next bill. Once delivery starts, we make up missed videos instead of refunding.{" "}
                     <Link href="/terms">Full terms</Link>
@@ -437,7 +437,7 @@ export default function Home() {
                 <Kicker>FAQ</Kicker>
                 <Rise id="faq-h" className="h2" lines={["Questions before you apply"]} />
                 <div className="faq-cta">
-                  <p>About 2 minutes to apply. Nothing to pay now.</p>
+                  <p>Applying is free and takes about 2 minutes.</p>
                   <Go size="sm" />
                 </div>
               </div>
@@ -461,9 +461,9 @@ export default function Home() {
           <section className="final" id="final-cta" aria-labelledby="final-h">
             <div className="wrap final-in">
               <Rise id="final-h" className="final-h" lines={["You pay.", "You get the", "*videos.*"]} />
-              <p className="final-sub">The first cohort is 2 to 3 creators. Hanif reads every application and replies within 2 working days.</p>
+              <p className="final-sub">The first cohort is 2 to 3 creators. Hanif answers every application within 2 working days.</p>
               <Go size="lg" light />
-              <p className="final-fine">Apply for the first cohort. About 2 minutes, nothing to pay now.</p>
+              <p className="final-fine">Takes about 2 minutes. No card needed.</p>
             </div>
           </section>
         </main>

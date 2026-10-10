@@ -161,11 +161,11 @@ export default function PrivacyPage() {
                 waitlist is free and doesn&rsquo;t commit you to buy anything.
               </p>
               <p>
-                Client materials let us build your own AI persona (your face and voice) and make your videos with it. We use them for your account only, never
+                Client materials let us build your own AI persona (made from your photos and recording) and make your videos with it. We use them for your account only, never
                 for another client.
               </p>
               <p>
-                You own your videos and your likeness. We get a licence to use them only to produce your videos. Your videos appear in public as
+                You own your videos and your likeness. We get a license to use them only to produce your videos. Your videos appear in public as
                 samples only if you give separate permission for that.
               </p>
             </>

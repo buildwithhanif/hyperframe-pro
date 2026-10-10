@@ -1478,7 +1478,7 @@ html:has(.home) {
 .pai .stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin: 64px 0 0;
+  margin: 14px 0 0;
   padding: 0;
   list-style: none;
   border-top: 1px solid rgba(242, 238, 229, 0.14);
@@ -1490,14 +1490,15 @@ html:has(.home) {
   padding-left: 24px;
   border-left: 1px solid rgba(242, 238, 229, 0.14);
 }
-.pai .stat-tag {
+.pai .stats-tag {
+  margin-top: 56px;
   font-weight: 450;
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--on-night-2);
 }
 .pai .stat b {
   display: block;
-  margin-top: 16px;
+  margin-top: 4px;
   font-family: var(--display);
   font-weight: 500;
   font-size: clamp(46px, 3.6vw + 20px, 84px);

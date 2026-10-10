@@ -6,7 +6,7 @@ import "../legal.css";
 export const metadata: Metadata = {
   title: "Terms · produktif.ai",
   description:
-    "The rules for using produktif.ai and joining the waitlist, plus a plain summary of the service terms for clients: price, billing, cancelling, refunds, approvals, AI labels and content rules.",
+    "The rules for using produktif.ai and joining the waitlist, plus a plain summary of the service terms for clients: price, billing, canceling, refunds, approvals, AI labels and content rules.",
   alternates: { canonical: "/terms" },
 };
 
@@ -123,7 +123,7 @@ export default function TermsPage() {
           body: (
             <>
               <p>
-                The rest of this page summarises the service terms in plain words. Every client signs a service agreement before any work
+                The rest of this page summarizes the service terms in plain words. Every client signs a service agreement before any work
                 starts. <b>The signed agreement governs.</b> Where this summary and your agreement differ, your agreement wins.
               </p>
               <p>
@@ -245,7 +245,7 @@ export default function TermsPage() {
         },
         {
           id: "cancel",
-          heading: "Cancelling and pausing",
+          heading: "Canceling and pausing",
           body: (
             <>
               <p>
@@ -366,7 +366,7 @@ export default function TermsPage() {
           body: (
             <>
               <p>
-                <b>You own your videos and your likeness.</b> We get a licence to use your face, voice and materials only to make your
+                <b>You own your videos and your likeness.</b> We get a license to use your face, voice and materials only to make your
                 videos for you, and only while you are a client.
               </p>
               <p>

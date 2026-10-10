@@ -55,25 +55,25 @@ export default function ConsentPage() {
                 <tbody>
                   <tr>
                     <th scope="row">3 photos of your face</th>
-                    <td>One from the front and two from different angles. We use them to build your persona&rsquo;s face.</td>
+                    <td>One from the front and two from different angles. They become your persona&rsquo;s face.</td>
                   </tr>
                   <tr>
                     <th scope="row">A 2-minute voice recording</th>
                     <td>
-                      You read a short script we send you. It ends with a consent line spoken in your own voice. We use it to build your
-                      persona&rsquo;s voice.
+                      You read a short script we send you. It ends with a consent line spoken in your own voice. The recording becomes
+                      your persona&rsquo;s voice.
                     </td>
                   </tr>
                   <tr>
                     <th scope="row">ID and a live selfie</th>
                     <td>
-                      Your KTP, or your passport if you live outside Indonesia. We use both only for the identity and age check.
+                      Your KTP, or your passport if you live outside Indonesia. Both are checked once, for identity and age only.
                     </td>
                   </tr>
                   <tr>
                     <th scope="row">Your brief and onboarding call</th>
                     <td>
-                      Your answers to our brief and a recording of the onboarding call. We use them to write scripts that sound like you
+                      Your answers to our brief and a recording of the onboarding call. They help us write scripts that sound like you
                       and fit your niche.
                     </td>
                   </tr>
@@ -93,8 +93,8 @@ export default function ConsentPage() {
           body: (
             <>
               <p>
-                From your photos and recording, we build one AI persona. It is a digital version of your face and voice that speaks the
-                scripts we write for you. It is used for your videos and nobody else&rsquo;s.
+                From your photos and recording, we build one AI persona. It is a digital likeness, made from your recording, that speaks
+                the scripts we write for you. It is used for your videos and nobody else&rsquo;s.
               </p>
               <p>
                 After your deposit, we make one test clip first. If it doesn&rsquo;t feel like you, you can reject it. We then refund
@@ -120,7 +120,7 @@ export default function ConsentPage() {
               <ul>
                 <li>
                   <b>In writing.</b> You e-sign the service agreement and a consent form. The form explains what we collect and why. It
-                  also names every company that processes your face and voice.
+                  also names every company that processes your photos and recording.
                 </li>
                 <li>
                   <b>Out loud.</b> Your voice recording ends with a consent line, spoken by you. It shows that the voice is yours and
@@ -128,7 +128,7 @@ export default function ConsentPage() {
                 </li>
               </ul>
               <p>
-                Building a persona needs specialised AI providers. The ones we use are located outside Indonesia, in the United States
+                Building a persona needs specialized AI providers. The ones we use are located outside Indonesia, in the United States
                 or the European Union. Your consent form names each provider and its country, and asks you to agree to your data being
                 sent there. You see that list before you sign anything, and we send nothing until you agree.
               </p>
@@ -307,8 +307,8 @@ export default function ConsentPage() {
           body: (
             <>
               <p>
-                You own your videos, and you own your face and voice. We get a licence to use them for one purpose: producing your
-                videos for you. The licence ends when you leave.
+                You own your videos and your likeness. We get a license to use them for one purpose: producing your
+                videos for you. The license ends when you leave.
               </p>
               <p>
                 You approve and post every video, so you are responsible for the claims in videos you approve. To help with that, we log
@@ -346,7 +346,7 @@ export default function ConsentPage() {
             <>
               <p>
                 Indonesia&rsquo;s Personal Data Protection Law (UU PDP, Law 27 of 2022) treats biometric data as specific personal data,
-                and using it needs your explicit consent. We treat your face and voice that way. That is why we ask for consent in
+                and using it needs your explicit consent. We treat your photos and recording that way. That is why we ask for consent in
                 writing and out loud.
               </p>
               <p>
