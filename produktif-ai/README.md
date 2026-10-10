@@ -15,16 +15,26 @@ If the webhook isn't set, the API answers 503, so signups never vanish silently.
 The simplest destination is a Google Sheet. In the sheet, open Extensions → Apps Script, paste this, then Deploy → New deployment → Web app, with access set to **Anyone**:
 
 ```js
-const SECRET = "same value as WAITLIST_WEBHOOK_SECRET";
+const SECRET = ""; // or exactly the value of WAITLIST_WEBHOOK_SECRET
+
+function reply(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
 
 function doPost(e) {
-  const d = JSON.parse(e.postData.contents);
-  if (SECRET && d.secret !== SECRET) return ContentService.createTextOutput("forbidden");
-  SpreadsheetApp.getActiveSpreadsheet().getSheets()[0]
-    .appendRow([d.created_at, d.email, d.tool, (d.needs || []).join(", "), d.source]);
-  return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+  try {
+    const d = JSON.parse(e.postData.contents);
+    if (SECRET && d.secret !== SECRET) return reply({ ok: false, error: "forbidden" });
+    SpreadsheetApp.getActiveSpreadsheet().getSheets()[0]
+      .appendRow([d.created_at, d.email, d.tool, (d.needs || []).join(", "), d.source]);
+    return reply({ ok: true });
+  } catch (err) {
+    return reply({ ok: false, error: String(err) });
+  }
 }
 ```
+
+Apps Script can't send error status codes, so the app treats `{"ok": false}`, a bare `forbidden`, or an HTML error page as a failed save. The visitor sees "Gagal nyimpen" instead of a false confirmation. The two secrets must match exactly, or both be empty.
 
 Put the web app URL in `WAITLIST_WEBHOOK_URL` and the same secret in `WAITLIST_WEBHOOK_SECRET`. Make, Zapier or n8n webhooks work the same way.
 

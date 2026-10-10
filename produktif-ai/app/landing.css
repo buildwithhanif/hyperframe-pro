@@ -44,6 +44,16 @@ body:has(.lp) {
   outline-offset: 3px;
 }
 
+.lp-ink :focus-visible,
+.wl--ink .wl-row:focus-within,
+.wl--ink .wl-chip input:focus-visible + span {
+  outline-color: var(--red-on-dark);
+}
+
+.lp-nowrap {
+  white-space: nowrap;
+}
+
 .lp .sr-only {
   position: absolute;
   width: 1px;
@@ -287,6 +297,7 @@ body:has(.lp) {
 }
 
 .receipt__foot {
+  text-wrap: balance;
   margin: 0;
   padding-top: 14px;
   border-top: 1.5px dashed var(--ink);
@@ -389,6 +400,12 @@ body:has(.lp) {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+@media (max-width: 359px) {
+  .lp-proof {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (min-width: 900px) {
   .lp-proof {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -435,9 +452,9 @@ body:has(.lp) {
 
 .lp-catalog li {
   display: grid;
-  grid-template-columns: 40px auto 1fr;
-  gap: 6px 14px;
-  align-items: baseline;
+  grid-template-columns: auto 1fr;
+  gap: 10px 12px;
+  align-items: center;
   padding: 22px 0;
   border-top: 1px solid var(--line);
 }
@@ -445,8 +462,9 @@ body:has(.lp) {
 .lp-catalog h3 {
   margin: 0;
   font-size: 22px;
+  line-height: 1.2;
   letter-spacing: -0.02em;
-  grid-column: 3;
+  grid-column: 1 / -1;
 }
 
 .lp-catalog p {
@@ -460,6 +478,7 @@ body:has(.lp) {
   .lp-catalog li {
     grid-template-columns: 48px 112px minmax(0, 0.9fr) minmax(0, 1.6fr);
     gap: 24px;
+    align-items: baseline;
   }
 
   .lp-catalog h3 {
@@ -644,7 +663,8 @@ body:has(.lp) {
 }
 
 .lp .wl-email::placeholder {
-  color: #98a2b3;
+  color: var(--gray);
+  opacity: 1;
 }
 
 .wl-submit {
@@ -661,6 +681,11 @@ body:has(.lp) {
 
 .wl-submit:hover {
   background: var(--red-deep);
+}
+
+.wl-submit:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: -7px;
 }
 
 .wl-submit[aria-disabled="true"] {
@@ -746,12 +771,28 @@ body:has(.lp) {
   overflow: hidden;
 }
 
+.wl-field {
+  display: grid;
+  gap: 8px;
+}
+
 .wl-error {
   margin: 0;
-  min-height: 1.4em;
   color: var(--red);
   font-weight: 700;
   font-size: 15px;
+}
+
+.wl-error:empty {
+  position: absolute;
+}
+
+.wl-row:has([aria-invalid="true"]) {
+  border-color: var(--red);
+}
+
+.wl--ink .wl-row:has([aria-invalid="true"]) {
+  border-color: var(--red-on-dark);
 }
 
 .wl--ink .wl-row {
@@ -764,7 +805,8 @@ body:has(.lp) {
 }
 
 .lp .wl--ink .wl-email::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.6);
+  opacity: 1;
 }
 
 .wl--ink .wl-chip span {
@@ -794,6 +836,7 @@ body:has(.lp) {
 .wl-done {
   max-width: 460px;
   font-family: var(--mono);
+  font-size: 15px;
   border: 1.5px dashed currentColor;
   border-radius: 4px;
   padding: 22px 22px 18px;
@@ -826,15 +869,20 @@ body:has(.lp) {
 
 .wl-done__lines div {
   display: grid;
-  grid-template-columns: 88px 1fr;
+  grid-template-columns: 80px minmax(0, 1fr);
   gap: 8px;
+  align-items: baseline;
 }
 
 .wl-done__lines dt {
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 14px;
-  padding-top: 1px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
+.wl-done:focus {
+  outline: none;
 }
 
 .wl-done__lines dd {
@@ -847,4 +895,30 @@ body:has(.lp) {
   padding-top: 12px;
   border-top: 1.5px dashed currentColor;
   font-size: 14px;
+}
+
+/* narrow phones: keep receipt lines on one row */
+@media (max-width: 379px) {
+  .receipt--order {
+    font-size: 13px;
+    padding: 22px 16px 18px;
+  }
+
+  .receipt--order .receipt__lines li {
+    grid-template-columns: 52px 1fr auto;
+  }
+}
+
+/* Windows high contrast: the chip's state must not rely on colour alone */
+@media (forced-colors: active) {
+  .wl-chip input:checked + span {
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+    forced-color-adjust: none;
+  }
+
+  .wl-submit {
+    border: 2px solid ButtonText;
+  }
 }

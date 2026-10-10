@@ -21,6 +21,12 @@ export function rateLimit(key: string, limit: number, now = Date.now()): { ok: b
   return { ok: true, retryAfterSec: 0 };
 }
 
+// Give back the most recent hit, for attempts that failed through no fault of
+// the caller (e.g. our webhook was down).
+export function unhit(key: string): void {
+  hits.get(key)?.pop();
+}
+
 // One IPv6 holder usually controls a whole /64, so bucket by that prefix.
 export function ipBucket(ip: string): string {
   if (!ip.includes(":")) return ip;

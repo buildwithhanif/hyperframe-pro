@@ -242,13 +242,14 @@ try {
   // Fake waitlist webhook: records what it gets, can be told to fail.
   const hooks = [];
   let hookStatus = 200;
+  let hookBody = '{"ok":true}';
   const hook = http.createServer((req, res) => {
     let body = "";
     req.on("data", (c) => (body += c));
     req.on("end", () => {
       hooks.push(JSON.parse(body));
       res.statusCode = hookStatus;
-      res.end("{}");
+      res.end(hookBody);
     });
   });
   await new Promise((r) => hook.listen(3198, r));
@@ -290,6 +291,13 @@ try {
     const r3 = await join({ email: "x@contoh.id" }, { "x-real-ip": "7.7.7.7" });
     assert.equal(r3.status, 502);
     hookStatus = 200;
+  });
+
+  await check("waitlist API: a 200 that says 'forbidden' is a failed save, not a signup", async () => {
+    hookBody = '{"ok":false,"error":"forbidden"}';
+    const r = await join({ email: "y@contoh.id" }, { "x-real-ip": "8.8.8.8" });
+    assert.equal(r.status, 502);
+    hookBody = '{"ok":true}';
   });
   const post = (body, headers = {}) =>
     fetch("http://localhost:3102/api/generate", {

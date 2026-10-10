@@ -15,6 +15,7 @@ const ORDER = [
   ["SKILL", "Bedah konten viral"],
   ["SKILL", "Profil akun & ICP"],
   ["FLOW", "Mesin konten organik"],
+  ["FLOW", "Invoice & quotation"],
 ];
 
 const SKILL_RULES = [
@@ -23,14 +24,14 @@ const SKILL_RULES = [
   ["Slide 2 wajib nambah info baru."],
   ["Satu langkah per slide, satu peringatan."],
   ["Satu kata emas per judul."],
-  ["Angka yang nggak dikasih user: dilarang."],
+  ["Angka tanpa sumber: dilarang."],
 ];
 
 const RECEIPTS = [
-  { value: "106,7 jt", text: "views dari 220 carousel dalam 63 hari", source: "@hanifmuh_, 22 Jul–22 Sep 2026" },
+  { value: "106,7 jt", text: "views dari 220 carousel dalam 63 hari", source: "@hanifmuh_, 22 Jul–22 Sep 2026" },
   { value: "1,7 jt", text: "views di satu thread organik", source: "@hanifproduktif" },
-  { value: "27", text: "thread viral yang dibedah buat skill hook, masing-masing 80 rb sampai 1,7 jt views", source: "@hanifproduktif" },
-  { value: "Rp 0", text: "keluar buat iklan", source: "semua akun" },
+  { value: "27", text: "thread viral yang dibedah buat skill hook, masing-masing 80 rb sampai 1,7 jt views", source: "@hanifproduktif" },
+  { value: "Rp 0", text: "keluar buat iklan", source: "@hanifmuh_ & @hanifproduktif" },
 ];
 
 const CATALOG = [
@@ -42,7 +43,7 @@ const CATALOG = [
   {
     type: "Skill",
     name: "Hook 5 ketukan",
-    text: "Nulis pembuka thread pakai pola dari 27 thread yang tembus 80 rb sampai 1,7 jt views.",
+    text: "Nulis pembuka thread pake pola dari 27 thread yang tembus 80 rb sampai 1,7 jt views.",
   },
   {
     type: "Skill",
@@ -52,12 +53,12 @@ const CATALOG = [
   {
     type: "Skill",
     name: "Profil akun & ICP",
-    text: "Satu jawaban dari lo plus maksimal empat pertanyaan, jadi profil akun yang dipakai sebagai dasar semua konten.",
+    text: "Lo jawab beberapa pertanyaan, AI riset sisanya. Hasilnya profil akun yang jadi dasar semua konten.",
   },
   {
     type: "Workflow",
     name: "Mesin konten organik",
-    text: "Cek antrean, isi jadwal minggu depan, saring kualitasnya, lalu belajar dari performa minggu lalu. Nyambung ke Buffer.",
+    text: "Cek dan benerin antrean, isi slot kosong berikutnya, saring kualitasnya, terus belajar dari performa minggu lalu. Nyambung ke Buffer.",
   },
   {
     type: "Workflow",
@@ -69,7 +70,7 @@ const CATALOG = [
 const FAQ = [
   {
     q: "Bedanya sama prompt gratisan yang banyak beredar?",
-    a: "Prompt gratisan biasanya satu permintaan. Skill isinya cara kerja lengkap: langkah, standar kualitas, dan larangan. Potongannya ada di bagian atas halaman ini.",
+    a: "Prompt gratisan biasanya cuma satu perintah. Skill ngasih AI urutan kerja sama batasannya, sampe ke kapan dia harus jujur bilang topik lo lemah. Contohnya ada di potongan Carousel engine di atas.",
   },
   {
     q: "Bisa dipakai di ChatGPT?",
@@ -77,11 +78,11 @@ const FAQ = [
   },
   {
     q: "Harus ngerti coding?",
-    a: "Nggak. Lo pasang file-nya, terus ngobrol kayak biasa. Workflow yang nyambung ke tools lain, kayak Buffer, dateng sama panduan setup langkah demi langkah.",
+    a: "Ga. Lo pasang file-nya, terus ngobrol kayak biasa. Workflow yang nyambung ke tools lain, misalnya Buffer, dateng sama panduan setup langkah demi langkah.",
   },
   {
     q: "Hasilnya bahasa Indonesia?",
-    a: "Iya. Skill konten nulis dalam bahasa Indonesia santai pakai gue-lo, gaya yang sama dengan akun-akun gue.",
+    a: "Iya, yang buat konten nulis pake bahasa Indonesia santai, gue-lo, gayanya sama kayak akun-akun gue.",
   },
   {
     q: "Kapan rilis, berapa harganya?",
@@ -106,14 +107,14 @@ export default function Home() {
           <div className="lp-hero__copy">
             <p className="lp-tag">Waitlist · drop pertama</p>
             <h1 id="hero-title">
-              Lo udah bayar AI-nya. Yang belum ada: <span className="lp-red">cara kerjanya.</span>
+              Lo udah bayar <span className="lp-nowrap">AI-nya.</span> Yang belum ada: <span className="lp-red">cara kerjanya.</span>
             </h1>
             <p className="lp-lead">
-              Skill dan workflow yang gue pakai buat ngejalanin akun-akun dengan total sekitar 690 ribu follower. Dibungkus jadi file yang tinggal lo
-              pasang di ChatGPT atau Claude.
+              Skill dan workflow yang gue pake buat ngejalanin akun-akun gue, yang totalnya sekitar 690 ribu follower. Semuanya dibungkus jadi file
+              yang tinggal lo pasang di ChatGPT atau Claude.
             </p>
             <WaitlistForm source="hero" />
-            <p className="lp-fine">Daftarnya gratis. Email cuma dikirim pas drop pertama dibuka.</p>
+            <p className="lp-fine">Daftarnya gratis. Lo dikabarin begitu skill-nya siap.</p>
           </div>
 
           <figure className="lp-order" aria-label="Contoh isi drop pertama, ditulis kayak struk">
@@ -143,7 +144,7 @@ export default function Home() {
                   <span>CONSISTENCY</span>
                 </li>
               </ul>
-              <p className="receipt__foot">Dipakai di akun sendiri dulu, baru dijual.</p>
+              <p className="receipt__foot">Struk ini belum bisa ditukar. Masuk waitlist dulu.</p>
             </div>
           </figure>
         </section>
@@ -152,7 +153,7 @@ export default function Home() {
           <div className="lp-wrap">
             <p className="lp-tag lp-tag--dark">Prompt vs skill</p>
             <h2 id="diff-title" className="lp-h2">
-              Prompt nyuruh AI ngapain. Skill ngajarin dia ngerjainnya kayak orang yang udah ratusan kali ngerjain.
+              Prompt nyuruh AI ngapain. Skill ngajarin caranya, kayak orang yang udah ratusan kali ngerjain hal yang sama.
             </h2>
             <div className="lp-diff">
               <figure className="lp-diff__col">
@@ -186,7 +187,7 @@ export default function Home() {
         <section className="lp-section lp-wrap" aria-labelledby="proof-title">
           <p className="lp-tag">Buktinya</p>
           <h2 id="proof-title" className="lp-h2">
-            Tiap skill lahir dari akun yang beneran jalan.
+            Angkanya dari akun gue sendiri.
           </h2>
           <ul className="lp-proof">
             {RECEIPTS.map((r) => (
@@ -246,7 +247,7 @@ export default function Home() {
       <footer className="lp-foot lp-wrap">
         <p>produktif.ai · Muhammad Hanif · @hanifproduktif · Yogyakarta</p>
         <p>
-          <a href="/carousel">Coba workflow carousel (beta)</a>
+          <a href="/carousel">Coba Carousel engine versi web (beta)</a>
         </p>
       </footer>
     </div>

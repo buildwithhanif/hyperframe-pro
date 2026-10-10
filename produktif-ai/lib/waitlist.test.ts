@@ -34,3 +34,13 @@ test("payload is flat, lowercased, deduped, and carries the secret only when set
   });
   assert.equal(webhookPayload(v, now, "s3cret").secret, "s3cret");
 });
+
+test("webhookSaved only trusts a real confirmation", async () => {
+  const { webhookSaved } = await import("./waitlist.ts");
+  assert.equal(webhookSaved(200, "application/json", '{"ok":true}'), true);
+  assert.equal(webhookSaved(200, "text/plain", "Accepted"), true);
+  assert.equal(webhookSaved(200, "application/json", '{"ok":false,"error":"forbidden"}'), false);
+  assert.equal(webhookSaved(200, "text/plain", "forbidden"), false);
+  assert.equal(webhookSaved(200, "text/html; charset=utf-8", "<html>Error</html>"), false);
+  assert.equal(webhookSaved(500, "application/json", '{"ok":true}'), false);
+});
