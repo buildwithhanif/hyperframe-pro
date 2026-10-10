@@ -7,8 +7,8 @@ export const maxDuration = 30;
 
 const MAX_BODY_BYTES = 8_192;
 
-function fail(status: number, error: string) {
-  return NextResponse.json({ error }, { status });
+function fail(status: number, error: string, field?: string) {
+  return NextResponse.json(field ? { error, field } : { error }, { status });
 }
 
 export async function POST(request: Request) {
@@ -24,8 +24,11 @@ export async function POST(request: Request) {
 
   const parsed = WaitlistSchema.safeParse(body);
   if (!parsed.success) {
-    const emailIssue = parsed.error.issues.find((i) => i.path[0] === "email");
-    return fail(400, emailIssue?.message ?? "Isian form-nya ada yang aneh. Coba refresh.");
+    // Report the first problem in a field the visitor can actually fix.
+    const issue = parsed.error.issues.find((i) => ["name", "whatsapp", "handle"].includes(String(i.path[0])));
+    return issue
+      ? fail(400, issue.message, String(issue.path[0]))
+      : fail(400, "Isian form-nya ada yang aneh. Coba refresh.");
   }
   const input = parsed.data;
 

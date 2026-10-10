@@ -1,13 +1,13 @@
 # produktif.ai
 
-The home page (`/`) is a waitlist for skills and workflows sold to people who already pay for ChatGPT or Claude. The carousel tool described below lives at `/carousel`.
+The home page (`/`) is the waitlist for the done-for-you service: an AI persona built from the client's own face and voice, 60 talking-head Reels a month (two a day), Rp 4 juta per month. The carousel tool described below lives at `/carousel`.
 
 ## Waitlist
 
-The form posts to `/api/waitlist`, which validates the email, drops honeypot bots, rate-limits per IP, and forwards each signup as one flat JSON row to `WAITLIST_WEBHOOK_URL`:
+The form asks for a name, a WhatsApp number, an optional IG/TikTok handle, who they are and when they want to start. It posts to `/api/waitlist`, which validates the input, normalises the number to `628…` (ready for a `wa.me/` link), drops honeypot bots, rate-limits per IP, and forwards each signup as one flat JSON row to `WAITLIST_WEBHOOK_URL`:
 
 ```json
-{ "email": "a@b.co", "tool": "chatgpt|claude|both|", "needs": ["konten"], "source": "hero|footer", "created_at": "...", "secret": "..." }
+{ "name": "Ani", "whatsapp": "6281234567890", "handle": "@ani.coach", "role": "bisnis|profesional|coach|kreator|lainnya|", "start": "bulan-ini|1-3-bulan|liat-liat|", "source": "hero|footer", "created_at": "...", "secret": "..." }
 ```
 
 If the webhook isn't set, the API answers 503, so signups never vanish silently. Set `DEMO_MODE=1` to accept signups locally without a webhook.
@@ -26,7 +26,7 @@ function doPost(e) {
     const d = JSON.parse(e.postData.contents);
     if (SECRET && d.secret !== SECRET) return reply({ ok: false, error: "forbidden" });
     SpreadsheetApp.getActiveSpreadsheet().getSheets()[0]
-      .appendRow([d.created_at, d.email, d.tool, (d.needs || []).join(", "), d.source]);
+      .appendRow([d.created_at, d.name, "https://wa.me/" + d.whatsapp, d.handle, d.role, d.start, d.source]);
     return reply({ ok: true });
   } catch (err) {
     return reply({ ok: false, error: String(err) });

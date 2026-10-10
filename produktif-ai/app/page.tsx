@@ -9,84 +9,78 @@ export const viewport: Viewport = {
   colorScheme: "light",
 };
 
-const ORDER = [
-  ["SKILL", "Carousel engine"],
-  ["SKILL", "Hook 5 ketukan"],
-  ["SKILL", "Bedah konten viral"],
-  ["SKILL", "Profil akun & ICP"],
-  ["FLOW", "Mesin konten organik"],
-  ["FLOW", "Invoice & quotation"],
+const RECEIPT_LINES: [string, string][] = [
+  ["Video talking head", "60"],
+  ["Shooting", "0"],
+  ["Rekaman suara", "0"],
+  ["Nyari topik", "0"],
 ];
 
-const SKILL_RULES = [
-  ["Skor topik dulu: wallet, villain, tomorrow, tag.", "Lolos kurang dari dua? Bilang terus terang."],
-  ['Slide 1 buka di pembaca. Jangan mulai dari "gue".'],
-  ["Slide 2 wajib nambah info baru."],
-  ["Satu langkah per slide, satu peringatan."],
-  ["Satu kata emas per judul."],
-  ["Angka tanpa sumber: dilarang."],
+// Numbers from @hanifmuh_'s own dashboards (social profile, 7-10 Oct 2026).
+const REELS = [
+  {
+    title: "STOP transfer balik",
+    kind: "Reel",
+    result: "17,6 jt views di IG, 4,8 jt di FB",
+    href: "https://www.instagram.com/reel/DdwMBX4ywwk/",
+  },
+  {
+    title: "STOP minjemin HP",
+    kind: "Reel",
+    result: "4,4 jt views di IG, 8,7 jt di FB",
+    href: "https://www.instagram.com/reel/Dd8O73qSouU/",
+  },
+  {
+    title: "Dua Kuali × Mbok Geni",
+    kind: "Iklan, full AI",
+    result: "6,6 jt views",
+    href: "https://www.instagram.com/reel/DdbZHMBSVE8/",
+  },
 ];
 
-const RECEIPTS = [
-  { value: "106,7 jt", text: "views dari 220 carousel dalam 63 hari", source: "@hanifmuh_, 22 Jul–22 Sep 2026" },
-  { value: "1,7 jt", text: "views di satu thread organik", source: "@hanifproduktif" },
-  { value: "27", text: "thread viral yang dibedah buat skill hook, masing-masing 80 rb sampai 1,7 jt views", source: "@hanifproduktif" },
-  { value: "Rp 0", text: "keluar buat iklan", source: "@hanifmuh_ & @hanifproduktif" },
+const STEPS = [
+  {
+    title: "Setup sekali",
+    text: "Lo kirim video dan rekaman suara singkat, terus kita ngobrol soal bisnis atau keahlian lo. Dari situ gue bikin persona dan suara AI lo.",
+  },
+  {
+    title: "Produksi tiap hari",
+    text: "Topik dan naskahnya gue yang urus. Tiap hari jadi 2 video talking head pake persona lo, subtitle udah nempel.",
+  },
+  {
+    title: "Lo cek, baru tayang",
+    text: "Tiap video bisa lo cek dulu. Ga ada yang tayang atas nama lo tanpa lo setujuin.",
+  },
 ];
 
-const CATALOG = [
-  {
-    type: "Skill",
-    name: "Carousel engine",
-    text: "Topik jadi naskah carousel 5 sampai 12 slide, lengkap sama skor topik dan daftar klaim yang perlu lo cek.",
-  },
-  {
-    type: "Skill",
-    name: "Hook 5 ketukan",
-    text: "Nulis pembuka thread pake pola dari 27 thread yang tembus 80 rb sampai 1,7 jt views.",
-  },
-  {
-    type: "Skill",
-    name: "Bedah konten viral",
-    text: "Ambil mekanik konten orang yang lagi rame, terus tulis versi lo tanpa nyontek kalimatnya.",
-  },
-  {
-    type: "Skill",
-    name: "Profil akun & ICP",
-    text: "Lo jawab beberapa pertanyaan, AI riset sisanya. Hasilnya profil akun yang jadi dasar semua konten.",
-  },
-  {
-    type: "Workflow",
-    name: "Mesin konten organik",
-    text: "Cek dan benerin antrean, isi slot kosong berikutnya, saring kualitasnya, terus belajar dari performa minggu lalu. Nyambung ke Buffer.",
-  },
-  {
-    type: "Workflow",
-    name: "Invoice & quotation",
-    text: "Buat kreator yang mulai dapet brand deal: invoice dan penawaran yang rapi, siap kirim ke klien.",
-  },
+const FIT = [
+  "Pemilik bisnis yang tau harus ngonten dan selalu kehabisan waktu.",
+  "Profesional kayak dokter, konsultan, atau agen properti yang mau dikenal di bidangnya.",
+  "Coach dan edukator yang materinya banyak, tapi ga betah di depan kamera.",
 ];
+
+const NOT_FIT = ["Yang nyari views dijamin.", "Yang mau clone wajah atau suara orang lain."];
 
 const FAQ = [
   {
-    q: "Bedanya sama prompt gratisan yang banyak beredar?",
-    a: "Prompt gratisan biasanya cuma satu perintah. Skill ngasih AI urutan kerja sama batasannya, sampe ke kapan dia harus jujur bilang topik lo lemah. Contohnya ada di potongan Carousel engine di atas.",
+    q: "Harganya berapa?",
+    a: "Rp 4 juta per bulan buat 60 video, dua per hari. Anggap aja lo gaji satu orang yang kerjanya cuma bikin konten buat lo.",
   },
   {
-    q: "Bisa dipakai di ChatGPT?",
-    a: "Bisa. Di Claude, file-nya dipasang sebagai Skill. Di ChatGPT, isinya dimasukin ke Project atau Custom GPT. Tiap skill dateng sama panduan pasang buat dua-duanya.",
+    q: "Beneran ga perlu rekaman sama sekali?",
+    a: "Cuma sekali di awal, buat bikin persona dan suara AI lo. Abis itu ga perlu lagi.",
   },
   {
-    q: "Harus ngerti coding?",
-    a: "Ga. Lo pasang file-nya, terus ngobrol kayak biasa. Workflow yang nyambung ke tools lain, misalnya Buffer, dateng sama panduan setup langkah demi langkah.",
+    q: "Views-nya dijamin?",
+    a: "Ga. Ga ada yang bisa jamin views, dan gue ga mau janji yang ga bisa gue pegang. Yang lo dapet: 60 video sebulan dengan format yang sama kayak Reels gue.",
   },
   {
-    q: "Hasilnya bahasa Indonesia?",
-    a: "Iya, yang buat konten nulis pake bahasa Indonesia santai, gue-lo, gayanya sama kayak akun-akun gue.",
+    q: "Bisa clone wajah atau suara orang lain?",
+    a: "Ga bisa. Persona cuma dibikin dari rekaman lo sendiri, dengan izin lo.",
   },
   {
-    q: "Kapan rilis, berapa harganya?",
-    a: "Belum diumumin. Yang ada di waitlist dikabarin duluan, sebelum dibuka ke publik.",
+    q: "Videonya dikasih label AI?",
+    a: "Iya. Instagram dan TikTok minta konten AI yang realistis dikasih label, dan gue ikutin aturan itu.",
   },
 ];
 
@@ -97,131 +91,136 @@ export default function Home() {
         <a href="/" className="lp-logo">
           produktif<span>.ai</span>
         </a>
-        <a href="#waitlist" className="lp-nav__cta">
-          Gabung waitlist
+        <a href="#daftar" className="lp-nav__cta">
+          Daftar waitlist
         </a>
       </header>
 
       <main>
-        <section className="lp-hero lp-wrap" id="waitlist" aria-labelledby="hero-title">
+        <section className="lp-hero lp-wrap" id="daftar" aria-labelledby="hero-title">
           <div className="lp-hero__copy">
-            <p className="lp-tag">Waitlist · drop pertama</p>
+            <p className="lp-tag">Done for you · waitlist batch pertama</p>
             <h1 id="hero-title">
-              Lo udah bayar <span className="lp-nowrap">AI-nya.</span> Yang belum ada: <span className="lp-red">cara kerjanya.</span>
+              2 video talking head tiap hari. <span className="lp-red">Lo ga perlu rekaman.</span>
             </h1>
             <p className="lp-lead">
-              Skill dan workflow yang gue pake buat ngejalanin akun-akun gue, yang totalnya sekitar 690 ribu follower. Semuanya dibungkus jadi file
-              yang tinggal lo pasang di ChatGPT atau Claude.
+              Gue bikin persona AI dari wajah dan suara lo. Abis itu tiap hari lo dapet 2 video Reels yang siap posting, lengkap sama naskah dan
+              subtitle. Formatnya sama kayak Reels di akun gue.
             </p>
             <WaitlistForm source="hero" />
-            <p className="lp-fine">Daftarnya gratis. Lo dikabarin begitu skill-nya siap.</p>
+            <p className="lp-fine">Daftar dulu, belum bayar apa-apa. Gue hubungin lewat WhatsApp.</p>
           </div>
 
-          <figure className="lp-order" aria-label="Contoh isi drop pertama, ditulis kayak struk">
+          <figure className="lp-order" aria-label="Isi paket per bulan, ditulis kayak struk: 60 video talking head, nol shooting, nol rekaman suara, nol nyari topik, total Rp 4.000.000">
             <div className="receipt receipt--order">
               <p className="receipt__head">
                 <strong>PRODUKTIF.AI</strong>
-                <span>ORDER #001 · DROP PERTAMA</span>
+                <span>DONE FOR YOU · PER BULAN</span>
               </p>
-              <ul className="receipt__lines">
-                {ORDER.map(([type, name]) => (
-                  <li key={name}>
-                    <span className="receipt__type">{type}</span>
-                    <span className="receipt__name">{name}</span>
-                    <span className="receipt__qty">1</span>
+              <ul className="receipt__totals receipt__totals--plain">
+                {RECEIPT_LINES.map(([label, qty]) => (
+                  <li key={label}>
+                    <span>{label.toUpperCase()}</span>
+                    <i aria-hidden="true" />
+                    <span className={qty === "0" ? "receipt__zero" : undefined}>{qty}</span>
                   </li>
                 ))}
               </ul>
               <ul className="receipt__totals">
                 <li>
-                  <span>AD SPEND</span>
+                  <span>TOTAL</span>
                   <i aria-hidden="true" />
-                  <span>Rp 0</span>
+                  <span>Rp 4.000.000</span>
                 </li>
                 <li>
                   <span>PAID IN</span>
                   <i aria-hidden="true" />
-                  <span>CONSISTENCY</span>
+                  <span>WAKTU LO BALIK</span>
                 </li>
               </ul>
-              <p className="receipt__foot">Struk ini belum bisa ditukar. Masuk waitlist dulu.</p>
+              <p className="receipt__foot">2 video sehari · 9:16 · siap posting</p>
             </div>
           </figure>
         </section>
 
-        <section className="lp-ink" aria-labelledby="diff-title">
+        <section className="lp-ink" aria-labelledby="proof-title">
           <div className="lp-wrap">
-            <p className="lp-tag lp-tag--dark">Prompt vs skill</p>
-            <h2 id="diff-title" className="lp-h2">
-              Prompt nyuruh AI ngapain. Skill ngajarin caranya, kayak orang yang udah ratusan kali ngerjain hal yang sama.
+            <p className="lp-tag lp-tag--dark">Buktinya</p>
+            <h2 id="proof-title" className="lp-h2">
+              Formatnya udah jalan di akun gue.
             </h2>
-            <div className="lp-diff">
-              <figure className="lp-diff__col">
-                <div className="receipt receipt--dark">
-                  <p className="receipt__label">PROMPT</p>
-                  <p className="receipt__prompt">Bikinin carousel tentang modus transfer nyasar.</p>
-                </div>
-                <figcaption>Satu kalimat. AI nebak sisanya sendiri.</figcaption>
-              </figure>
-              <figure className="lp-diff__col lp-diff__col--wide">
-                <div className="receipt receipt--dark">
-                  <p className="receipt__label">SKILL · CAROUSEL ENGINE</p>
-                  <ol className="receipt__rules">
-                    {SKILL_RULES.map((lines, i) => (
-                      <li key={i}>
-                        <span className="receipt__n">{String(i + 1).padStart(2, "0")}</span>
-                        <span>
-                          {lines[0]}
-                          {lines[1] ? <em>{lines[1]}</em> : null}
-                        </span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-                <figcaption>Ini potongan aturannya. Versi lengkapnya puluhan baris, disusun dari 220 carousel yang udah tayang.</figcaption>
-              </figure>
-            </div>
+            <p className="lp-ink__lead">
+              Hook-nya dibuka pake STOP dan durasinya 60 sampai 120 detik. Voice-over di banyak Reels gue juga pake suara clone gue sendiri.
+            </p>
+            <ul className="lp-reels">
+              {REELS.map((r) => (
+                <li key={r.title}>
+                  <a href={r.href} target="_blank" rel="noopener noreferrer" className="receipt receipt--dark lp-reel">
+                    <span className="receipt__label">{r.kind.toUpperCase()}</span>
+                    <strong className="lp-reel__title">{r.title}</strong>
+                    <span className="lp-reel__result">{r.result}</span>
+                    <span className="lp-reel__open">Tonton di Instagram</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p className="lp-median">
+              Median 30 Reels terakhir: <strong>297{" "}rb views</strong>.
+            </p>
+            <p className="lp-disclaimer">
+              Ini angka akun gue, @hanifmuh_, yang follower-nya 298{" "}rb. Akun lo mulai dari titik yang beda, dan ga ada yang bisa jamin views.
+            </p>
           </div>
         </section>
 
-        <section className="lp-section lp-wrap" aria-labelledby="proof-title">
-          <p className="lp-tag">Buktinya</p>
-          <h2 id="proof-title" className="lp-h2">
-            Angkanya dari akun gue sendiri.
+        <section className="lp-section lp-wrap" aria-labelledby="how-title">
+          <p className="lp-tag">Cara kerjanya</p>
+          <h2 id="how-title" className="lp-h2">
+            Lo cukup muncul sekali di awal.
           </h2>
-          <ul className="lp-proof">
-            {RECEIPTS.map((r) => (
-              <li key={r.value}>
-                <strong>{r.value}</strong>
-                <span>{r.text}</span>
-                <small>{r.source}</small>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="lp-section lp-wrap" aria-labelledby="catalog-title">
-          <p className="lp-tag">Rencana drop pertama</p>
-          <h2 id="catalog-title" className="lp-h2">
-            Yang lagi gue siapin.
-          </h2>
-          <ol className="lp-catalog">
-            {CATALOG.map((c, i) => (
-              <li key={c.name}>
-                <span className="lp-catalog__n">{String(i + 1).padStart(2, "0")}</span>
-                <span className={`lp-catalog__type lp-catalog__type--${c.type.toLowerCase()}`}>{c.type}</span>
-                <h3>{c.name}</h3>
-                <p>{c.text}</p>
+          <ol className="lp-steps">
+            {STEPS.map((s, i) => (
+              <li key={s.title}>
+                <span className="lp-steps__n" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
               </li>
             ))}
           </ol>
-          <p className="lp-note">Urutannya masih bisa berubah. Pilihan lo di form waitlist ikut nentuin mana yang keluar duluan.</p>
+          <p className="lp-note">Detail alurnya gue rapiin bareng batch pertama.</p>
+        </section>
+
+        <section className="lp-section lp-wrap" aria-labelledby="fit-title">
+          <p className="lp-tag">Buat siapa</p>
+          <h2 id="fit-title" className="lp-h2">
+            Paling kepake buat orang yang ilmunya banyak tapi waktunya mepet.
+          </h2>
+          <div className="lp-fit">
+            <div>
+              <h3>Cocok</h3>
+              <ul>
+                {FIT.map((f) => (
+                  <li key={f}>{f}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="lp-fit__no">
+              <h3>Belum cocok</h3>
+              <ul>
+                {NOT_FIT.map((f) => (
+                  <li key={f}>{f}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </section>
 
         <section className="lp-soft" aria-labelledby="faq-title">
           <div className="lp-wrap lp-faq">
             <h2 id="faq-title" className="lp-h2">
-              Yang sering ditanyain.
+              Yang pasti lo tanyain.
             </h2>
             <div className="lp-faq__list">
               {FAQ.map((f) => (
@@ -237,7 +236,7 @@ export default function Home() {
         <section className="lp-ink lp-close" aria-labelledby="close-title">
           <div className="lp-wrap lp-close__inner">
             <h2 id="close-title" className="lp-h2">
-              Drop pertama dikabarin ke waitlist <span className="lp-red-dark">duluan.</span>
+              Batch pertama gue buka kecil dulu, <span className="lp-red-dark">biar kualitasnya kejaga.</span>
             </h2>
             <WaitlistForm source="footer" tone="ink" />
           </div>
@@ -246,9 +245,6 @@ export default function Home() {
 
       <footer className="lp-foot lp-wrap">
         <p>produktif.ai · Muhammad Hanif · @hanifproduktif · Yogyakarta</p>
-        <p>
-          <a href="/carousel">Coba Carousel engine versi web (beta)</a>
-        </p>
       </footer>
     </div>
   );

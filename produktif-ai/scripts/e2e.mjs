@@ -96,27 +96,31 @@ try {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     await page.goto("http://localhost:3101/");
     const hero = page.locator(".lp-hero form");
-    await hero.locator('input[type="email"]').fill("Tes@Contoh.id");
-    await hero.getByText("Claude", { exact: true }).click();
-    await hero.getByText("Konten sosmed").click();
-    await hero.getByRole("button", { name: "Masuk waitlist" }).click();
+    await hero.getByLabel("Nama").fill("Ani Wijaya");
+    await hero.getByLabel("WhatsApp").fill("0812 3456 7890");
+    await hero.getByText("Pemilik bisnis").click();
+    await hero.getByText("Bulan ini").click();
+    await hero.getByRole("button", { name: "Daftar waitlist" }).click();
     await page.waitForSelector(".lp-hero .wl-done", { timeout: 10000 });
-    assert.match(await page.locator(".lp-hero .wl-done").innerText(), /tes@contoh\.id/);
+    const receipt = await page.locator(".lp-hero .wl-done").innerText();
+    assert.match(receipt, /Ani Wijaya/);
+    assert.match(receipt, /0812 3456 7890/);
+    assert.equal(await page.evaluate(() => document.activeElement?.classList.contains("wl-done")), true, "focus moves to the receipt");
     await page.screenshot({ path: `${OUT}/waitlist-done-mobile.png`, fullPage: false });
     assert.deepEqual(errors, []);
     await page.close();
   });
 
-  await check("waitlist: browser blocks a malformed email before sending", async () => {
+  await check("waitlist: a bad WhatsApp number is flagged next to the field", async () => {
     const page = await browser.newPage();
-    let sent = false;
-    page.on("request", (r) => r.url().endsWith("/api/waitlist") && (sent = true));
     await page.goto("http://localhost:3101/");
     const hero = page.locator(".lp-hero form");
-    await hero.locator('input[type="email"]').fill("bukan-email");
-    await hero.getByRole("button", { name: "Masuk waitlist" }).click();
-    await page.waitForTimeout(300);
-    assert.equal(sent, false);
+    await hero.getByLabel("Nama").fill("Ani");
+    await hero.getByLabel("WhatsApp").fill("12345");
+    await hero.getByRole("button", { name: "Daftar waitlist" }).click();
+    await page.waitForFunction(() => document.querySelector(".lp-hero .wl-error")?.textContent?.includes("WhatsApp"));
+    assert.equal(await hero.getByLabel("WhatsApp").getAttribute("aria-invalid"), "true");
+    assert.equal(await hero.getByLabel("Nama").getAttribute("aria-invalid"), null);
     await page.close();
   });
 
@@ -268,37 +272,42 @@ try {
     });
 
   await check("waitlist API forwards a clean row to the webhook", async () => {
-    const r = await join({ email: " Orang@Contoh.ID ", tool: "both", needs: ["konten", "kantor"], source: "footer" });
+    const r = await join({ name: " Ani ", whatsapp: "+62 812-3456-7890", handle: "ani.coach", role: "coach", start: "bulan-ini", source: "footer" });
     assert.equal(r.status, 200);
     const row = hooks.at(-1);
-    assert.equal(row.email, "orang@contoh.id");
-    assert.equal(row.tool, "both");
-    assert.deepEqual(row.needs, ["konten", "kantor"]);
+    assert.equal(row.name, "Ani");
+    assert.equal(row.whatsapp, "6281234567890");
+    assert.equal(row.handle, "@ani.coach");
+    assert.equal(row.role, "coach");
+    assert.equal(row.start, "bulan-ini");
     assert.equal(row.source, "footer");
     assert.equal(row.secret, "s3cret");
     assert.ok(!Number.isNaN(Date.parse(row.created_at)));
   });
 
-  await check("waitlist API: bad email 400, honeypot swallowed, webhook failure 502", async () => {
-    const r1 = await join({ email: "salah" });
+  await check("waitlist API: bad number 400 with field, honeypot swallowed, webhook failure 502", async () => {
+    const r1 = await join({ name: "Ani", whatsapp: "021 555 1234" });
     assert.equal(r1.status, 400);
-    assert.match((await r1.json()).error, /salah ketik/);
+    const body = await r1.json();
+    assert.equal(body.field, "whatsapp");
+    assert.match(body.error, /WhatsApp/);
     const before = hooks.length;
-    const r2 = await join({ email: "bot@contoh.id", company: "PT Bot" });
+    const r2 = await join({ name: "Bot", whatsapp: "081234567890", company: "PT Bot" });
     assert.equal(r2.status, 200);
     assert.equal(hooks.length, before, "honeypot signup must not reach the webhook");
     hookStatus = 500;
-    const r3 = await join({ email: "x@contoh.id" }, { "x-real-ip": "7.7.7.7" });
+    const r3 = await join({ name: "Ani", whatsapp: "081234567890" }, { "x-real-ip": "7.7.7.7" });
     assert.equal(r3.status, 502);
     hookStatus = 200;
   });
 
   await check("waitlist API: a 200 that says 'forbidden' is a failed save, not a signup", async () => {
     hookBody = '{"ok":false,"error":"forbidden"}';
-    const r = await join({ email: "y@contoh.id" }, { "x-real-ip": "8.8.8.8" });
+    const r = await join({ name: "Ani", whatsapp: "081234567890" }, { "x-real-ip": "8.8.8.8" });
     assert.equal(r.status, 502);
     hookBody = '{"ok":true}';
   });
+
   const post = (body, headers = {}) =>
     fetch("http://localhost:3102/api/generate", {
       method: "POST",
@@ -385,7 +394,7 @@ try {
     const r = await fetch("http://localhost:3103/api/waitlist", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email: "a@contoh.id" }),
+      body: JSON.stringify({ name: "Ani", whatsapp: "081234567890" }),
     });
     assert.equal(r.status, 503);
   });
