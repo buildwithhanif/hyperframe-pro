@@ -6,22 +6,22 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://produktif.ai"),
-  title: "produktif.ai: 2 video talking head tiap hari, rekaman cukup sekali",
+  title: "produktif.ai · Let AI work. Go live your life.",
   description:
-    "Done for you dari Hanif Produktif: persona AI dari wajah dan suara lo, 60 video Reels sebulan, Rp 4 juta per bulan. Daftar waitlist batch pertama.",
+    "Done-for-you AI content. We turn your face and voice into an AI persona and deliver two ready-to-post talking-head videos a day. Join the waitlist for the first cohort.",
   openGraph: {
     title: "produktif.ai",
-    description: "2 video talking head tiap hari. Rekamannya cukup sekali. Daftar waitlist batch pertama.",
+    description: "Two ready-to-post talking-head videos a day. You record once. We handle the rest.",
     url: "https://produktif.ai",
     siteName: "produktif.ai",
-    locale: "id_ID",
+    locale: "en_US",
     type: "website",
   },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

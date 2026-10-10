@@ -65,13 +65,13 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
         body: JSON.stringify({ name, whatsapp, handle, role, start, source, company: hpRef.current?.value ?? "" }),
       });
     } catch {
-      setFormError("Koneksinya putus. Cek internet lo, terus coba lagi.");
+      setFormError("Connection lost. Check your internet and try again.");
       setState("error");
       return;
     }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      const message = data.error || "Gagal nyimpen. Coba sekali lagi.";
+      const message = data.error || "We couldn't save that. Please try again.";
       if (res.status === 400 && ["name", "whatsapp", "handle"].includes(data.field)) {
         setFieldError({ field: data.field, message });
       } else {
@@ -87,28 +87,18 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
   if (state === "done") {
     return (
       <div ref={doneRef} tabIndex={-1} className={`wl-done wl--${tone}`} role="status" aria-live="polite">
-        <p className="wl-done__stamp">Tercatat</p>
+        <p className="wl-done__stamp">You&rsquo;re on the list.</p>
         <dl className="wl-done__lines">
           <div>
-            <dt>Nama</dt>
+            <dt>Name</dt>
             <dd>{saved.name}</dd>
           </div>
           <div>
             <dt>WhatsApp</dt>
             <dd>{saved.whatsapp}</dd>
           </div>
-          <div>
-            <dt>Kabar</dt>
-            <dd>pas batch pertama dibuka</dd>
-          </div>
         </dl>
-        <p className="wl-done__note">
-          Sambil nunggu, gaya naskahnya bisa lo liat di{" "}
-          <a href="https://www.instagram.com/hanifmuh_/" target="_blank" rel="noopener noreferrer">
-            @hanifmuh_
-          </a>
-          .
-        </p>
+        <p className="wl-done__note">We&rsquo;ll reach out on WhatsApp when the first cohort opens.</p>
       </div>
     );
   }
@@ -133,7 +123,7 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
     <form className={`wl wl--${tone}`} onSubmit={submit}>
       <div className="wl-fields">
         <div className="wl-input">
-          <label htmlFor={`${id}-name`}>Nama</label>
+          <label htmlFor={`${id}-name`}>Name</label>
           <input {...fieldProps("name")} name="name" autoComplete="name" required maxLength={80} value={name} onChange={edit("name", setName)} />
           {errorLine("name")}
         </div>
@@ -155,13 +145,13 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
         </div>
         <div className="wl-input wl-input--wide">
           <label htmlFor={`${id}-handle`}>
-            Akun IG atau TikTok <em>kalo ada</em>
+            Instagram or TikTok <em>optional</em>
           </label>
           <input
             {...fieldProps("handle")}
             name="handle"
             autoComplete="off"
-            placeholder="@akunlo"
+            placeholder="@yourhandle"
             maxLength={120}
             value={handle}
             onChange={edit("handle", setHandle)}
@@ -171,7 +161,7 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
       </div>
 
       <fieldset className="wl-group">
-        <legend>Lo siapa?</legend>
+        <legend>What do you do?</legend>
         <div className="wl-chips">
           {ROLES.map((r) => (
             <label key={r.value} className="wl-chip">
@@ -183,7 +173,7 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
       </fieldset>
 
       <fieldset className="wl-group">
-        <legend>Mau mulai kapan?</legend>
+        <legend>When do you want to start?</legend>
         <div className="wl-chips">
           {STARTS.map((s) => (
             <label key={s.value} className="wl-chip">
@@ -195,18 +185,18 @@ export default function WaitlistForm({ source, tone = "paper" }: Props) {
       </fieldset>
 
       <div className="wl-hp" aria-hidden="true">
-        <label htmlFor={`${id}-hp`}>Kosongin</label>
+        <label htmlFor={`${id}-hp`}>Leave this empty</label>
         <input id={`${id}-hp`} ref={hpRef} type="text" name="hp_ref" tabIndex={-1} autoComplete="off" data-1p-ignore data-bwignore data-lpignore="true" />
       </div>
 
       <div className="wl-submitrow">
         <button className="wl-submit wl-submit--block" type="submit" aria-disabled={busy}>
-          {busy ? "Nyimpen..." : "Daftar waitlist"}
+          {busy ? "Saving…" : "Join the waitlist"}
         </button>
         <p className="wl-error" role="alert">
           {formError}
         </p>
-        <p className="lp-fine">Belum bayar apa-apa. Nomor lo cuma gue pake buat ngabarin batch pertama lewat WhatsApp.</p>
+        <p className="wl-fine">No payment to join. We&rsquo;ll contact you on WhatsApp when the first cohort opens.</p>
       </div>
     </form>
   );

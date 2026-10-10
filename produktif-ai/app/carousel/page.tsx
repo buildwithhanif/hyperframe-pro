@@ -37,7 +37,7 @@ const STEPS = [
 
 export default function CarouselPage() {
   return (
-    <>
+    <div lang="id">
       <header className="nav">
         <a href="/" className="logo">
           produktif<span>.ai</span>
@@ -102,6 +102,6 @@ export default function CarouselPage() {
           </a>
         </p>
       </footer>
-    </>
+    </div>
   );
 }
