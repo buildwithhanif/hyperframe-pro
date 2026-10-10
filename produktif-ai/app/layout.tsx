@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import "@fontsource/plus-jakarta-sans/500.css";
 import "@fontsource/plus-jakarta-sans/700.css";
 import "@fontsource/plus-jakarta-sans/800.css";
@@ -6,22 +6,17 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://produktif.ai"),
-  title: "produktif.ai: topik jadi carousel",
+  title: "produktif.ai: skill dan workflow AI dari akun yang beneran jalan",
   description:
-    "Masukin topik, keluar carousel Instagram yang siap posting. Formatnya dari 220 carousel @hanifmuh_ yang tembus 106,7 juta views.",
+    "Skill dan workflow yang dipakai Hanif Produktif buat ngejalanin akun-akunnya, dibungkus jadi file yang tinggal dipasang di ChatGPT atau Claude. Gabung waitlist drop pertama.",
   openGraph: {
     title: "produktif.ai",
-    description: "Topik jadi carousel yang orang save dan kirim ke temennya.",
+    description: "Lo udah bayar AI-nya. Yang belum ada: cara kerjanya. Gabung waitlist drop pertama.",
     url: "https://produktif.ai",
     siteName: "produktif.ai",
     locale: "id_ID",
     type: "website",
   },
-};
-
-export const viewport: Viewport = {
-  themeColor: "#0D1117",
-  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

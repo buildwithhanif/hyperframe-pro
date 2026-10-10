@@ -1,5 +1,35 @@
 # produktif.ai
 
+The home page (`/`) is a waitlist for skills and workflows sold to people who already pay for ChatGPT or Claude. The carousel tool described below lives at `/carousel`.
+
+## Waitlist
+
+The form posts to `/api/waitlist`, which validates the email, drops honeypot bots, rate-limits per IP, and forwards each signup as one flat JSON row to `WAITLIST_WEBHOOK_URL`:
+
+```json
+{ "email": "a@b.co", "tool": "chatgpt|claude|both|", "needs": ["konten"], "source": "hero|footer", "created_at": "...", "secret": "..." }
+```
+
+If the webhook isn't set, the API answers 503, so signups never vanish silently. Set `DEMO_MODE=1` to accept signups locally without a webhook.
+
+The simplest destination is a Google Sheet. In the sheet, open Extensions → Apps Script, paste this, then Deploy → New deployment → Web app, with access set to **Anyone**:
+
+```js
+const SECRET = "same value as WAITLIST_WEBHOOK_SECRET";
+
+function doPost(e) {
+  const d = JSON.parse(e.postData.contents);
+  if (SECRET && d.secret !== SECRET) return ContentService.createTextOutput("forbidden");
+  SpreadsheetApp.getActiveSpreadsheet().getSheets()[0]
+    .appendRow([d.created_at, d.email, d.tool, (d.needs || []).join(", "), d.source]);
+  return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+}
+```
+
+Put the web app URL in `WAITLIST_WEBHOOK_URL` and the same secret in `WAITLIST_WEBHOOK_SECRET`. Make, Zapier or n8n webhooks work the same way.
+
+## Carousel tool (`/carousel`)
+
 Type a topic, or paste a thread that's going viral, and get an Instagram carousel ready to post: 1080×1350 PNGs in the dark template from @hanifmuh_ (one gold anchor word, GESER pill, progress bar) plus a caption.
 
 Before writing, the model scores the topic on four tests: wallet, villain, tomorrow, tag. A topic likely to flop gets flagged up front. Every claim the creator should verify before posting is listed separately, and the model may only use personal numbers and stories that the user typed in.
@@ -22,6 +52,8 @@ To work on the UI without a key, set `DEMO_MODE=1` and the API returns a built-i
 | `DEMO_MODE` | no | `1` serves the sample deck and never calls the API. Never set it in production. |
 | `RATE_LIMIT_PER_HOUR` | no | Generations per IP (IPv6: per /64) per hour, default 8. `0` turns generation off. |
 | `GLOBAL_LIMIT_PER_HOUR` | no | Generations per server instance per hour, default 200. |
+| `WAITLIST_WEBHOOK_URL` | yes, for the waitlist | Where each signup is POSTed as JSON. |
+| `WAITLIST_WEBHOOK_SECRET` | no | Sent as `secret` in each row so the receiver can reject forged posts. |
 
 **Set a monthly spend limit in the Anthropic Console before launch.** The in-app limits live in each server instance's memory, so they slow abuse but can't cap your bill.
 
@@ -43,7 +75,7 @@ npm run build
 npm run e2e       # needs a build; drives Chromium through the whole flow
 ```
 
-`npm run e2e` runs 19 checks across four servers:
+`npm run e2e` runs 28 checks across four servers. Both pages are checked for horizontal scroll at 320, 375 and 1280px. The waitlist is checked in the browser (signup and receipt, a malformed email blocked) and through the API (the exact webhook row, a bad email, the honeypot, the webhook failing or missing). The carousel checks are:
 
 - **Demo mode:** layout at 375px and 1280px, slide text overflow, editing and live anchor warnings, the over-length input counter, and the ZIP export (8 PNGs at 1080×1350 plus `caption.txt`).
 - **Real API route, fake Anthropic server:** the exact request (model, betas, `fallbacks: "default"`, JSON schema output, how a pasted thread is wrapped) and every error path: cut-off output, refusal, refusal with a busy fallback, oversized body, IPv6 /64 rate limiting, and a verdict that disagrees with its pass flags.

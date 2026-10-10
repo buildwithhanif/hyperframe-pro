@@ -71,26 +71,61 @@ try {
   await startNext(3101, { DEMO_MODE: "1", ANTHROPIC_API_KEY: "" });
   const browser = await chromium.launch({ executablePath: CHROME });
 
-  for (const vp of [
-    { name: "mobile", width: 375, height: 812 },
-    { name: "desktop", width: 1280, height: 900 },
-  ]) {
-    await check(`[${vp.name}] page loads with no horizontal scroll`, async () => {
-      const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
-      await page.goto("http://localhost:3101/");
-      await page.screenshot({ path: `${OUT}/landing-${vp.name}.png`, fullPage: true });
-      const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-      assert.ok(over <= 0, `page is ${over}px wider than the viewport`);
-      await page.close();
-    });
+  for (const route of ["/", "/carousel"]) {
+    for (const vp of [
+      { name: "small", width: 320, height: 640 },
+      { name: "mobile", width: 375, height: 812 },
+      { name: "desktop", width: 1280, height: 900 },
+    ]) {
+      await check(`[${route} ${vp.name}] page loads with no horizontal scroll`, async () => {
+        const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
+        await page.goto(`http://localhost:3101${route}`);
+        const slug = route === "/" ? "waitlist" : "carousel";
+        await page.screenshot({ path: `${OUT}/${slug}-${vp.name}.png`, fullPage: true });
+        const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+        assert.ok(over <= 0, `page is ${over}px wider than the viewport`);
+        await page.close();
+      });
+    }
   }
+
+  await check("waitlist: hero form signs up and prints the receipt", async () => {
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    const errors = [];
+    page.on("pageerror", (e) => errors.push(String(e)));
+    page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+    await page.goto("http://localhost:3101/");
+    const hero = page.locator(".lp-hero form");
+    await hero.locator('input[type="email"]').fill("Tes@Contoh.id");
+    await hero.getByText("Claude", { exact: true }).click();
+    await hero.getByText("Konten sosmed").click();
+    await hero.getByRole("button", { name: "Masuk waitlist" }).click();
+    await page.waitForSelector(".lp-hero .wl-done", { timeout: 10000 });
+    assert.match(await page.locator(".lp-hero .wl-done").innerText(), /tes@contoh\.id/);
+    await page.screenshot({ path: `${OUT}/waitlist-done-mobile.png`, fullPage: false });
+    assert.deepEqual(errors, []);
+    await page.close();
+  });
+
+  await check("waitlist: browser blocks a malformed email before sending", async () => {
+    const page = await browser.newPage();
+    let sent = false;
+    page.on("request", (r) => r.url().endsWith("/api/waitlist") && (sent = true));
+    await page.goto("http://localhost:3101/");
+    const hero = page.locator(".lp-hero form");
+    await hero.locator('input[type="email"]').fill("bukan-email");
+    await hero.getByRole("button", { name: "Masuk waitlist" }).click();
+    await page.waitForTimeout(300);
+    assert.equal(sent, false);
+    await page.close();
+  });
 
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, acceptDownloads: true });
   const page = await ctx.newPage();
   const consoleErrors = [];
   page.on("console", (m) => m.type() === "error" && consoleErrors.push(m.text()));
   page.on("pageerror", (e) => consoleErrors.push(String(e)));
-  await page.goto("http://localhost:3101/");
+  await page.goto("http://localhost:3101/carousel");
 
   await check("generate shows topic score, fact check and 8 slides", async () => {
     await page.fill('textarea[name="input"]', "modus transfer nyasar");
@@ -137,7 +172,7 @@ try {
 
   await check("over-long input is shown and blocks submit instead of being cut silently", async () => {
     const p2 = await ctx.newPage();
-    await p2.goto("http://localhost:3101/");
+    await p2.goto("http://localhost:3101/carousel");
     await p2.getByRole("button", { name: "Dari thread viral" }).click();
     await p2.fill('textarea[name="input"]', "x".repeat(6100));
     assert.equal((await p2.inputValue('textarea[name="input"]')).length, 6100);
@@ -204,7 +239,58 @@ try {
     });
   });
   await new Promise((r) => fake.listen(3199, r));
-  await startNext(3102, { ANTHROPIC_API_KEY: "test-key", ANTHROPIC_BASE_URL: "http://localhost:3199", DEMO_MODE: "" });
+  // Fake waitlist webhook: records what it gets, can be told to fail.
+  const hooks = [];
+  let hookStatus = 200;
+  const hook = http.createServer((req, res) => {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", () => {
+      hooks.push(JSON.parse(body));
+      res.statusCode = hookStatus;
+      res.end("{}");
+    });
+  });
+  await new Promise((r) => hook.listen(3198, r));
+  await startNext(3102, {
+    ANTHROPIC_API_KEY: "test-key",
+    ANTHROPIC_BASE_URL: "http://localhost:3199",
+    DEMO_MODE: "",
+    WAITLIST_WEBHOOK_URL: "http://localhost:3198/hook",
+    WAITLIST_WEBHOOK_SECRET: "s3cret",
+  });
+  const join = (body, headers = {}) =>
+    fetch("http://localhost:3102/api/waitlist", {
+      method: "POST",
+      headers: { "content-type": "application/json", ...headers },
+      body: JSON.stringify(body),
+    });
+
+  await check("waitlist API forwards a clean row to the webhook", async () => {
+    const r = await join({ email: " Orang@Contoh.ID ", tool: "both", needs: ["konten", "kantor"], source: "footer" });
+    assert.equal(r.status, 200);
+    const row = hooks.at(-1);
+    assert.equal(row.email, "orang@contoh.id");
+    assert.equal(row.tool, "both");
+    assert.deepEqual(row.needs, ["konten", "kantor"]);
+    assert.equal(row.source, "footer");
+    assert.equal(row.secret, "s3cret");
+    assert.ok(!Number.isNaN(Date.parse(row.created_at)));
+  });
+
+  await check("waitlist API: bad email 400, honeypot swallowed, webhook failure 502", async () => {
+    const r1 = await join({ email: "salah" });
+    assert.equal(r1.status, 400);
+    assert.match((await r1.json()).error, /salah ketik/);
+    const before = hooks.length;
+    const r2 = await join({ email: "bot@contoh.id", company: "PT Bot" });
+    assert.equal(r2.status, 200);
+    assert.equal(hooks.length, before, "honeypot signup must not reach the webhook");
+    hookStatus = 500;
+    const r3 = await join({ email: "x@contoh.id" }, { "x-real-ip": "7.7.7.7" });
+    assert.equal(r3.status, 502);
+    hookStatus = 200;
+  });
   const post = (body, headers = {}) =>
     fetch("http://localhost:3102/api/generate", {
       method: "POST",
@@ -275,6 +361,7 @@ try {
     assert.equal(last, 429, "addresses inside one IPv6 /64 must share a bucket");
   });
   fake.close();
+  hook.close();
 
   // ---------- 3. no key configured ----------
   await startNext(3103, { ANTHROPIC_API_KEY: "", DEMO_MODE: "" });
@@ -283,6 +370,14 @@ try {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ mode: "topic", input: "topik tes" }),
+    });
+    assert.equal(r.status, 503);
+  });
+  await check("waitlist without a webhook answers 503 instead of dropping signups", async () => {
+    const r = await fetch("http://localhost:3103/api/waitlist", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email: "a@contoh.id" }),
     });
     assert.equal(r.status, 503);
   });
