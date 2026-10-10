@@ -13,13 +13,13 @@ function fail(status: number, error: string, field?: string) {
 
 export async function POST(request: Request) {
   const length = Number(request.headers.get("content-length") ?? NaN);
-  if (!(length <= MAX_BODY_BYTES)) return fail(413, "Request-nya kegedean.");
+  if (!(length <= MAX_BODY_BYTES)) return fail(413, "That request is too large.");
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return fail(400, "Request-nya bukan JSON yang valid.");
+    return fail(400, "That request wasn't valid. Please refresh and try again.");
   }
 
   const parsed = WaitlistSchema.safeParse(body);
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     const issue = parsed.error.issues.find((i) => ["name", "whatsapp", "handle"].includes(String(i.path[0])));
     return issue
       ? fail(400, issue.message, String(issue.path[0]))
-      : fail(400, "Isian form-nya ada yang aneh. Coba refresh.");
+      : fail(400, "Something in the form looks off. Please refresh and try again.");
   }
   const input = parsed.data;
 
@@ -38,14 +38,14 @@ export async function POST(request: Request) {
   // Generous: many Indonesian mobile users share one carrier IP (CGNAT).
   const key = `wl:${clientKey(request.headers)}`;
   if (!rateLimit(key, 30).ok) {
-    return fail(429, "Kebanyakan percobaan. Coba lagi sejam lagi.");
+    return fail(429, "Too many attempts. Please try again in an hour.");
   }
 
   const url = process.env.WAITLIST_WEBHOOK_URL;
   if (!url) {
     if (process.env.DEMO_MODE === "1") return NextResponse.json({ ok: true, demo: true });
     console.error("WAITLIST_WEBHOOK_URL is not set; signup dropped");
-    return fail(503, "Waitlist-nya belum nyambung. Coba lagi nanti ya.");
+    return fail(503, "The waitlist isn't open yet. Please try again later.");
   }
 
   try {
@@ -62,12 +62,12 @@ export async function POST(request: Request) {
     if (!webhookSaved(res.status, res.headers.get("content-type") ?? "", text)) {
       console.error(`Waitlist webhook did not confirm the save (status ${res.status})`);
       unhit(key);
-      return fail(502, "Gagal nyimpen. Coba sekali lagi.");
+      return fail(502, "We couldn't save that. Please try again.");
     }
   } catch (error) {
     console.error("Waitlist webhook failed:", error instanceof Error ? error.name : "unknown");
     unhit(key);
-    return fail(502, "Gagal nyimpen. Coba sekali lagi.");
+    return fail(502, "We couldn't save that. Please try again.");
   }
   return NextResponse.json({ ok: true });
 }

@@ -98,8 +98,8 @@ try {
     const hero = page.locator(".lp-hero form");
     await hero.getByLabel("Nama").fill("Ani Wijaya");
     await hero.getByLabel("WhatsApp").fill("0812 3456 7890");
-    await hero.getByText("Pemilik bisnis").click();
-    await hero.getByText("Bulan ini").click();
+    await hero.getByText("Business owner").click();
+    await hero.getByText("This month").click();
     await hero.getByRole("button", { name: "Daftar waitlist" }).click();
     await page.waitForSelector(".lp-hero .wl-done", { timeout: 10000 });
     const receipt = await page.locator(".lp-hero .wl-done").innerText();

@@ -1,17 +1,18 @@
 import { z } from "zod";
 
+// Values stay stable (they land in the waitlist sheet); labels are what people see.
 export const ROLES = [
-  { value: "bisnis", label: "Pemilik bisnis" },
-  { value: "profesional", label: "Profesional" },
-  { value: "coach", label: "Coach & edukator" },
-  { value: "kreator", label: "Kreator" },
-  { value: "lainnya", label: "Lainnya" },
+  { value: "bisnis", label: "Business owner" },
+  { value: "profesional", label: "Professional" },
+  { value: "coach", label: "Coach or educator" },
+  { value: "kreator", label: "Creator" },
+  { value: "lainnya", label: "Other" },
 ] as const;
 
 export const STARTS = [
-  { value: "bulan-ini", label: "Bulan ini" },
-  { value: "1-3-bulan", label: "1–3 bulan lagi" },
-  { value: "liat-liat", label: "Masih liat-liat" },
+  { value: "bulan-ini", label: "This month" },
+  { value: "1-3-bulan", label: "In 1–3 months" },
+  { value: "liat-liat", label: "Just looking" },
 ] as const;
 
 type RoleValue = (typeof ROLES)[number]["value"];
@@ -36,17 +37,17 @@ export function handleFromInput(raw: string): string {
 }
 
 export const WaitlistSchema = z.object({
-  name: z.string().trim().min(2, "Namanya diisi dulu ya.").max(80, "Namanya kepanjangan."),
+  name: z.string().trim().min(2, "Please enter your name.").max(80, "That name is too long."),
   whatsapp: z
     .string()
     .trim()
-    .max(24, "Nomornya kepanjangan.")
-    .refine((v) => normalizeWhatsapp(v) !== null, "Nomor WhatsApp-nya kayaknya salah. Contoh: 0812 3456 7890."),
+    .max(24, "That number is too long.")
+    .refine((v) => normalizeWhatsapp(v) !== null, "That doesn't look like an Indonesian WhatsApp number. Try 0812 3456 7890."),
   handle: z
     .string()
-    .max(120, "Handle-nya kepanjangan.")
+    .max(120, "That handle is too long.")
     .transform(handleFromInput)
-    .pipe(z.string().regex(/^(@?[A-Za-z0-9._]{1,30})?$/, "Handle cuma boleh huruf, angka, titik dan underscore."))
+    .pipe(z.string().regex(/^(@?[A-Za-z0-9._]{1,30})?$/, "Handles can only use letters, numbers, dots and underscores."))
     .default(""),
   role: z.enum(["", ...ROLES.map((r) => r.value)] as ["", ...RoleValue[]]).default(""),
   start: z.enum(["", ...STARTS.map((s) => s.value)] as ["", ...StartValue[]]).default(""),
