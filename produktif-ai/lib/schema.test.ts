@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkDeck, DeckSchema, GenerateRequestSchema, normalizeHandle, splitAnchor } from "./schema.ts";
+import { checkDeck, DeckSchema, GenerateRequestSchema, normalizeHandle, splitAnchor, verdictFor, withComputedVerdict } from "./schema.ts";
 import { SAMPLE_DECK } from "./sample.ts";
 
 test("splitAnchor finds the anchor case-insensitively and keeps original casing", () => {
@@ -40,4 +40,17 @@ test("checkDeck reports count, hook and anchor problems", () => {
   bad.slides[1].anchor = "kata yang nggak ada";
   const issues = checkDeck(bad, 10);
   assert.equal(issues.length, 3);
+});
+
+test("verdict follows the pass count", () => {
+  assert.deepEqual([4, 3, 2, 1, 0].map(verdictFor), ["gas", "gas", "perlu diasah", "ganti topik", "ganti topik"]);
+  const deck = structuredClone(SAMPLE_DECK);
+  deck.topic_check.wallet.pass = false;
+  deck.topic_check.villain.pass = false;
+  deck.topic_check.verdict = "gas";
+  assert.equal(withComputedVerdict(deck).topic_check.verdict, "perlu diasah");
+});
+
+test("sample deck anchors are one word, or two for a fixed name", () => {
+  for (const s of SAMPLE_DECK.slides) assert.ok(s.anchor.trim().split(/\s+/).length <= 2, s.anchor);
 });

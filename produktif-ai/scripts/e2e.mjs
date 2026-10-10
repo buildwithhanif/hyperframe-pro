@@ -16,26 +16,39 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const CHROME = process.env.CHROME_PATH || "/opt/pw-browsers/chromium";
 
-function startNext(port, env) {
-  const proc = spawn("npx", ["next", "start", "-p", String(port)], {
+async function portInUse(port) {
+  try {
+    await fetch(`http://localhost:${port}/`);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Spawn the Next binary directly (not through npx) so the child pid is the
+// server itself and kill() really stops it.
+async function startNext(port, env) {
+  if (await portInUse(port)) throw new Error(`port ${port} is already in use; stop the old server first`);
+  const proc = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "-p", String(port)], {
     env: { ...process.env, NEXT_TELEMETRY_DISABLED: "1", ...env },
     stdio: ["ignore", "pipe", "pipe"],
   });
   let log = "";
+  let exited = false;
   proc.stdout.on("data", (d) => (log += d));
   proc.stderr.on("data", (d) => (log += d));
-  return { proc, log: () => log };
-}
-
-async function waitFor(url, tries = 60) {
-  for (let i = 0; i < tries; i++) {
+  proc.on("exit", () => (exited = true));
+  const server = { proc, log: () => log };
+  servers.push(server);
+  for (let i = 0; i < 60; i++) {
+    if (exited) throw new Error(`next start on ${port} exited:\n${log}`);
     try {
-      const r = await fetch(url);
-      if (r.status < 500) return;
+      const r = await fetch(`http://localhost:${port}/`);
+      if (r.status < 500) return server;
     } catch {}
     await new Promise((r) => setTimeout(r, 500));
   }
-  throw new Error(`server at ${url} never came up`);
+  throw new Error(`server on ${port} never came up:\n${log}`);
 }
 
 function pngSize(buf) {
@@ -44,6 +57,7 @@ function pngSize(buf) {
 }
 
 const results = [];
+const servers = [];
 const check = (name, fn) =>
   fn().then(
     () => results.push(["PASS", name]),
@@ -52,12 +66,9 @@ const check = (name, fn) =>
     },
   );
 
-const servers = [];
 try {
   // ---------- 1. UI in demo mode ----------
-  const demo = startNext(3101, { DEMO_MODE: "1", ANTHROPIC_API_KEY: "" });
-  servers.push(demo);
-  await waitFor("http://localhost:3101/");
+  await startNext(3101, { DEMO_MODE: "1", ANTHROPIC_API_KEY: "" });
   const browser = await chromium.launch({ executablePath: CHROME });
 
   for (const vp of [
@@ -113,7 +124,26 @@ try {
     const title = page.locator(".slide-card").first().locator("textarea").first();
     await title.fill("Ada Rp 2 juta nyasar? Jangan transfer balik.");
     await page.waitForFunction(() => document.querySelector(".slide__title")?.textContent?.includes("Rp 2 juta"));
-    assert.equal(await page.locator(".slide").first().locator(".slide__gold").innerText(), "Jangan transfer balik");
+    assert.equal(await page.locator(".slide").first().locator(".slide__gold").innerText(), "nyasar");
+  });
+
+  await check("breaking an anchor in the editor shows a live warning", async () => {
+    const card = page.locator(".slide-card").first();
+    await card.locator("input").nth(1).fill("kata hilang");
+    await page.waitForSelector(".warn li:has-text('kata hilang')");
+    await card.locator("input").nth(1).fill("nyasar");
+    await page.waitForFunction(() => ![...document.querySelectorAll(".warn li")].some((li) => li.textContent.includes("kata hilang")));
+  });
+
+  await check("over-long input is shown and blocks submit instead of being cut silently", async () => {
+    const p2 = await ctx.newPage();
+    await p2.goto("http://localhost:3101/");
+    await p2.getByRole("button", { name: "Dari thread viral" }).click();
+    await p2.fill('textarea[name="input"]', "x".repeat(6100));
+    assert.equal((await p2.inputValue('textarea[name="input"]')).length, 6100);
+    assert.match(await p2.locator("#input-count").innerText(), /Kepanjangan/);
+    assert.equal(await p2.locator('button[type="submit"]').isDisabled(), true);
+    await p2.close();
   });
 
   await check("ZIP export has 8 PNGs at 1080x1350 plus caption.txt", async () => {
@@ -140,11 +170,23 @@ try {
   // ---------- 2. real SDK path against a fake Anthropic API ----------
   const sample = SAMPLE_DECK;
   let captured = null;
+  let reply = "ok"; // ok | truncated | refusal | busy-refusal | mismatch
   const fake = http.createServer((req, res) => {
     let body = "";
     req.on("data", (c) => (body += c));
     req.on("end", () => {
       captured = { url: req.url, headers: req.headers, body: JSON.parse(body) };
+      const deck = structuredClone(sample);
+      if (reply === "mismatch") {
+        deck.topic_check.villain.pass = false;
+        deck.topic_check.tag.pass = false;
+        deck.topic_check.verdict = "gas";
+      }
+      const text = reply === "truncated" ? JSON.stringify(deck).slice(0, 300) : reply.includes("refusal") ? "Maaf" : JSON.stringify(deck);
+      const stop_reason = reply === "truncated" ? "max_tokens" : reply.includes("refusal") ? "refusal" : "end_turn";
+      const stop_details = reply.includes("refusal")
+        ? { type: "refusal", category: "cyber", explanation: "x", recommended_model: reply === "busy-refusal" ? "claude-opus-4-8" : null }
+        : null;
       res.setHeader("content-type", "application/json");
       res.end(
         JSON.stringify({
@@ -152,8 +194,9 @@ try {
           type: "message",
           role: "assistant",
           model: "claude-opus-5-5",
-          content: [{ type: "text", text: JSON.stringify(sample) }],
-          stop_reason: "end_turn",
+          content: [{ type: "text", text }],
+          stop_reason,
+          stop_details,
           stop_sequence: null,
           usage: { input_tokens: 10, output_tokens: 10 },
         }),
@@ -161,9 +204,13 @@ try {
     });
   });
   await new Promise((r) => fake.listen(3199, r));
-  const api = startNext(3102, { ANTHROPIC_API_KEY: "test-key", ANTHROPIC_BASE_URL: "http://localhost:3199", DEMO_MODE: "" });
-  servers.push(api);
-  await waitFor("http://localhost:3102/");
+  await startNext(3102, { ANTHROPIC_API_KEY: "test-key", ANTHROPIC_BASE_URL: "http://localhost:3199", DEMO_MODE: "" });
+  const post = (body, headers = {}) =>
+    fetch("http://localhost:3102/api/generate", {
+      method: "POST",
+      headers: { "content-type": "application/json", ...headers },
+      body: typeof body === "string" ? body : JSON.stringify(body),
+    });
 
   await check("API route calls Claude with the intended request and returns the parsed deck", async () => {
     const r = await fetch("http://localhost:3102/api/generate", {
@@ -178,6 +225,7 @@ try {
     assert.ok(captured, "fake API was never called");
     assert.equal(captured.url, "/v1/messages?beta=true");
     assert.match(captured.headers["anthropic-beta"], /server-side-fallback-2026-07-01/);
+    assert.match(captured.headers["anthropic-beta"], /structured-outputs-2025-12-15/);
     assert.equal(captured.body.model, "claude-opus-5-5");
     assert.equal(captured.body.fallbacks, "default");
     assert.equal(captured.body.output_config.effort, "medium");
@@ -186,35 +234,63 @@ try {
   });
 
   await check("bad input gets a 400 with an Indonesian message", async () => {
-    const r = await fetch("http://localhost:3102/api/generate", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ mode: "topic", input: "a" }),
-    });
+    const r = await post({ mode: "topic", input: "a" });
     assert.equal(r.status, 400);
     assert.match((await r.json()).error, /kependekan/);
+  });
+
+  await check("oversized body is refused before parsing", async () => {
+    const r = await post(JSON.stringify({ mode: "topic", input: "y".repeat(70_000) }));
+    assert.equal(r.status, 413);
+  });
+
+  await check("verdict is recomputed from the four pass flags", async () => {
+    reply = "mismatch";
+    const r = await post({ mode: "topic", input: "topik tes" });
+    const data = await r.json();
+    assert.equal(r.status, 200, JSON.stringify(data));
+    assert.equal(data.deck.topic_check.verdict, "perlu diasah");
+  });
+
+  await check("cut-off output returns the 'kepotong' 502, not a 500", async () => {
+    reply = "truncated";
+    const r = await post({ mode: "topic", input: "topik tes" });
+    assert.equal(r.status, 502);
+    assert.match((await r.json()).error, /kepotong/);
+  });
+
+  await check("refusal returns 422; refusal with a busy fallback returns 503", async () => {
+    reply = "refusal";
+    assert.equal((await post({ mode: "topic", input: "topik tes" })).status, 422);
+    reply = "busy-refusal";
+    assert.equal((await post({ mode: "topic", input: "topik tes" })).status, 503);
+    reply = "ok";
   });
 
   await check("rate limit returns 429 after the hourly quota", async () => {
     let last = 0;
     for (let i = 0; i < 9; i++) {
-      const r = await fetch("http://localhost:3102/api/generate", {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-forwarded-for": "9.9.9.9" },
-        body: JSON.stringify({ mode: "topic", input: "topik tes" }),
-      });
-      last = r.status;
+      last = (await post({ mode: "topic", input: "topik tes" }, { "x-real-ip": "2001:db8:1:2::" + (i + 1) })).status;
     }
-    assert.equal(last, 429);
+    assert.equal(last, 429, "addresses inside one IPv6 /64 must share a bucket");
   });
   fake.close();
 
   // ---------- 3. no key configured ----------
-  const nokey = startNext(3103, { ANTHROPIC_API_KEY: "", DEMO_MODE: "" });
-  servers.push(nokey);
-  await waitFor("http://localhost:3103/");
+  await startNext(3103, { ANTHROPIC_API_KEY: "", DEMO_MODE: "" });
   await check("missing API key answers 503 instead of crashing", async () => {
     const r = await fetch("http://localhost:3103/api/generate", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ mode: "topic", input: "topik tes" }),
+    });
+    assert.equal(r.status, 503);
+  });
+
+  // ---------- 4. kill switch ----------
+  await startNext(3104, { ANTHROPIC_API_KEY: "test-key", RATE_LIMIT_PER_HOUR: "0", DEMO_MODE: "" });
+  await check("RATE_LIMIT_PER_HOUR=0 stops generation with a 503", async () => {
+    const r = await fetch("http://localhost:3104/api/generate", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ mode: "topic", input: "topik tes" }),

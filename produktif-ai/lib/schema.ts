@@ -56,7 +56,22 @@ export function normalizeHandle(handle: string): string {
   return h ? `@${h}` : "";
 }
 
-// Problems worth showing the user, without throwing the deck away.
+export function verdictFor(passed: number): Deck["topic_check"]["verdict"] {
+  return passed >= 3 ? "gas" : passed === 2 ? "perlu diasah" : "ganti topik";
+}
+
+export function passedTests(check: TopicCheck): number {
+  return [check.wallet, check.villain, check.tomorrow, check.tag].filter((t) => t.pass).length;
+}
+
+// The verdict must agree with the four pass flags the UI counts, so derive it
+// instead of trusting the model to keep the two in sync.
+export function withComputedVerdict(deck: Deck): Deck {
+  return { ...deck, topic_check: { ...deck.topic_check, verdict: verdictFor(passedTests(deck.topic_check)) } };
+}
+
+// Problems worth showing the user, without throwing the deck away. Runs in the
+// browser on the current (possibly edited) deck.
 export function checkDeck(deck: Deck, wantedSlides: number): string[] {
   const issues: string[] = [];
   if (deck.slides.length === 0) issues.push("Model tidak mengembalikan slide.");

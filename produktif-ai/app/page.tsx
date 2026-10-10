@@ -19,7 +19,7 @@ const STEPS = [
   },
   {
     title: "Tinggal download",
-    text: "PNG 1080×1350 siap upload ke Instagram, plus caption. Klaim yang perlu dicek ditandain, jadi lo nggak posting info ngawur.",
+    text: "PNG 1080×1350 siap upload ke Instagram, plus caption. Klaim yang perlu dicek didaftar, biar lo cek dulu sebelum posting.",
   },
 ];
 

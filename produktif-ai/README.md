@@ -20,7 +20,10 @@ To work on the UI without a key, set `DEMO_MODE=1` and the API returns a built-i
 |---|---|---|
 | `ANTHROPIC_API_KEY` | yes, in production | Calls `claude-opus-5-5` with structured output and server-side refusal fallbacks (`fallbacks: "default"`). |
 | `DEMO_MODE` | no | `1` serves the sample deck and never calls the API. Never set it in production. |
-| `RATE_LIMIT_PER_HOUR` | no | Generations per IP per hour, default 8. |
+| `RATE_LIMIT_PER_HOUR` | no | Generations per IP (IPv6: per /64) per hour, default 8. `0` turns generation off. |
+| `GLOBAL_LIMIT_PER_HOUR` | no | Generations per server instance per hour, default 200. |
+
+**Set a monthly spend limit in the Anthropic Console before launch.** The in-app limits live in each server instance's memory, so they slow abuse but can't cap your bill.
 
 ## Deploy to produktif.ai
 
@@ -28,7 +31,9 @@ To work on the UI without a key, set `DEMO_MODE=1` and the API returns a built-i
 2. Import it in Vercel. Add `ANTHROPIC_API_KEY` under Settings → Environment Variables.
 3. Under Settings → Domains, add `produktif.ai` and `www.produktif.ai`, then copy the DNS records Vercel shows into your registrar.
 
-The generate route allows up to 120 seconds (`maxDuration`), because Opus can take a while on a 12-slide deck.
+The generate route allows up to 300 seconds (`maxDuration`). The Claude call times out at 270 seconds with no automatic retry, so a slow request ends in a clear error and never starts a second paid generation.
+
+If you self-host instead of using Vercel, put the app behind a proxy that overwrites `X-Real-IP` (nginx: `proxy_set_header X-Real-IP $remote_addr;`). The rate limiter trusts that header, so a bare `next start` exposed to the internet lets anyone get around it.
 
 ## Tests
 
@@ -38,7 +43,14 @@ npm run build
 npm run e2e       # needs a build; drives Chromium through the whole flow
 ```
 
-`npm run e2e` starts three servers. The first runs in demo mode: it checks layout at 375px and 1280px, slide text overflow, editing, and the ZIP export (8 PNGs at 1080×1350 plus `caption.txt`). The second points the real API route at a fake Anthropic server and asserts the exact request: model, fallbacks beta, JSON schema output, and how a pasted thread is wrapped. The third has no key configured and must return 503. Screenshots and sample PNGs land in `e2e-output/`. Set `CHROME_PATH` if Chromium isn't at `/opt/pw-browsers/chromium`.
+`npm run e2e` runs 19 checks across four servers:
+
+- **Demo mode:** layout at 375px and 1280px, slide text overflow, editing and live anchor warnings, the over-length input counter, and the ZIP export (8 PNGs at 1080×1350 plus `caption.txt`).
+- **Real API route, fake Anthropic server:** the exact request (model, betas, `fallbacks: "default"`, JSON schema output, how a pasted thread is wrapped) and every error path: cut-off output, refusal, refusal with a busy fallback, oversized body, IPv6 /64 rate limiting, and a verdict that disagrees with its pass flags.
+- **No key configured:** must return 503.
+- **`RATE_LIMIT_PER_HOUR=0`:** must stop generation.
+
+Screenshots and sample PNGs land in `e2e-output/`. Set `CHROME_PATH` if Chromium isn't at `/opt/pw-browsers/chromium`.
 
 ## Layout
 
@@ -56,5 +68,6 @@ lib/ratelimit.ts          in-memory per-IP limiter
 ## Not built yet
 
 - **Shared rate limiting.** The limiter lives in each server instance's memory. Move it to Upstash or Vercel KV before promoting the site widely.
+- **A real-API test run.** Every test so far used demo mode or a fake API. Generate a few decks with a real key before launch, to check output quality and how long a 12-slide deck takes.
 - **Accounts, payments and saved decks.** Anyone can generate; nothing is stored.
 - **Reels.** The next step in the method is turning a winning carousel into a Reel.

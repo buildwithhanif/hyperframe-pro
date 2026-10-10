@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Deck, Slide as SlideData } from "@/lib/schema";
+import { checkDeck, passedTests, type Deck, type Slide as SlideData } from "@/lib/schema";
 import { Slide, SLIDE_H, SLIDE_W } from "./Slide";
 
-type Result = { deck: Deck; handle: string; issues: string[]; demo: boolean };
+type Result = { deck: Deck; handle: string; slideCount: number; demo: boolean };
+
+const MAX_INPUT = 6000;
 
 const TESTS: { key: "wallet" | "villain" | "tomorrow" | "tag"; label: string }[] = [
   { key: "wallet", label: "Ngelindungin duit/data" },
@@ -88,6 +90,8 @@ export default function Generator() {
   const [handle, setHandle] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [toast, setToast] = useState("");
+  const [status, setStatus] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
   const [busy, setBusy] = useState("");
@@ -97,8 +101,11 @@ export default function Generator() {
 
   async function generate(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
     setError("");
+    setToast("");
+    setStatus("Tunggu sebentar, jangan tutup tab ini.");
     setEditing(null);
     try {
       const res = await fetch("/api/generate", {
@@ -108,10 +115,14 @@ export default function Generator() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Gagal generate. Coba lagi.");
-      setResult(data as Result);
+      const next = data as Result;
+      slideNodes.current = [];
+      setResult(next);
+      setStatus(`Carousel jadi: ${next.deck.slides.length} slide. Hasilnya ada di bawah.`);
       requestAnimationFrame(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Gagal generate. Coba lagi.");
+      setStatus("");
     } finally {
       setLoading(false);
     }
@@ -132,12 +143,13 @@ export default function Generator() {
   async function downloadOne(i: number) {
     const node = slideNodes.current[i];
     if (!node || !result) return;
+    setToast("");
     setBusy(`slide-${i}`);
     try {
       const blob = await renderPng(node);
       downloadBlob(blob, `${slug(result.deck.slides[0].title)}-${String(i + 1).padStart(2, "0")}.png`);
     } catch {
-      setError("Gagal bikin gambar. Coba lagi.");
+      setToast(`Gagal bikin gambar slide ${i + 1}. Coba lagi.`);
     } finally {
       setBusy("");
     }
@@ -145,6 +157,7 @@ export default function Generator() {
 
   async function downloadAll() {
     if (!result) return;
+    setToast("");
     setBusy("zip");
     try {
       const { default: JSZip } = await import("jszip");
@@ -157,7 +170,7 @@ export default function Generator() {
       zip.file("caption.txt", result.deck.caption);
       downloadBlob(await zip.generateAsync({ type: "blob" }), `${base}.zip`);
     } catch {
-      setError("Gagal bikin ZIP. Coba lagi.");
+      setToast("Gagal bikin ZIP. Coba lagi.");
     } finally {
       setBusy("");
     }
@@ -165,26 +178,29 @@ export default function Generator() {
 
   async function copyCaption() {
     if (!result) return;
+    setToast("");
     try {
       await navigator.clipboard.writeText(result.deck.caption);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      setError("Browser nolak akses clipboard. Copy manual dari kotak caption.");
+      setToast("Browser nolak akses clipboard. Copy manual dari kotak caption.");
     }
   }
 
   const deck = result?.deck;
-  const passed = deck ? TESTS.filter((t) => deck.topic_check[t.key].pass).length : 0;
+  const passed = deck ? passedTests(deck.topic_check) : 0;
+  const issues = result && deck ? checkDeck(deck, result.slideCount) : [];
+  const tooLong = input.length > MAX_INPUT;
 
   return (
     <div className="gen">
       <form className="card form" onSubmit={generate}>
-        <div className="tabs" role="tablist" aria-label="Sumber konten">
-          <button type="button" role="tab" aria-selected={mode === "topic"} className={mode === "topic" ? "tab tab--on" : "tab"} onClick={() => setMode("topic")}>
+        <div className="tabs" role="group" aria-label="Sumber konten">
+          <button type="button" aria-pressed={mode === "topic"} className={mode === "topic" ? "tab tab--on" : "tab"} onClick={() => setMode("topic")}>
             Dari topik
           </button>
-          <button type="button" role="tab" aria-selected={mode === "thread"} className={mode === "thread" ? "tab tab--on" : "tab"} onClick={() => setMode("thread")}>
+          <button type="button" aria-pressed={mode === "thread"} className={mode === "thread" ? "tab tab--on" : "tab"} onClick={() => setMode("thread")}>
             Dari thread viral
           </button>
         </div>
@@ -196,8 +212,8 @@ export default function Generator() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={mode === "topic" ? 3 : 8}
-            maxLength={6000}
             required
+            aria-describedby="input-count"
             placeholder={
               mode === "topic"
                 ? "Contoh: modus transfer nyasar yang ujungnya jadi utang pinjol"
@@ -205,6 +221,11 @@ export default function Generator() {
             }
           />
         </label>
+
+        <p id="input-count" className={tooLong ? "count count--over" : "count"}>
+          {input.length.toLocaleString("id-ID")}/{MAX_INPUT.toLocaleString("id-ID")} karakter
+          {tooLong ? ". Kepanjangan, potong dulu bagian yang nggak penting." : ""}
+        </p>
 
         <label className="field">
           <span>
@@ -238,11 +259,11 @@ export default function Generator() {
           </label>
         </div>
 
-        <button className="btn btn--gold" type="submit" disabled={loading || input.trim().length < 3}>
+        <button className="btn btn--gold" type="submit" aria-disabled={loading} disabled={!loading && (input.trim().length < 3 || tooLong)}>
           {loading ? "Lagi nulis carousel lo..." : "Bikin carousel"}
         </button>
         <p className="status" role="status" aria-live="polite">
-          {loading ? "Tunggu sebentar, jangan tutup tab ini." : ""}
+          {status}
         </p>
         {error ? (
           <p className="error" role="alert">
@@ -278,14 +299,14 @@ export default function Generator() {
             </ul>
           </section>
 
-          {deck.fact_check.length || result.issues.length ? (
+          {deck.fact_check.length || issues.length ? (
             <section className="card warn" aria-label="Cek sebelum posting">
               <h3>Cek dulu sebelum posting</h3>
               <ul>
                 {deck.fact_check.map((f, i) => (
                   <li key={`f${i}`}>{f}</li>
                 ))}
-                {result.issues.map((f, i) => (
+                {issues.map((f, i) => (
                   <li key={`i${i}`}>{f}</li>
                 ))}
               </ul>
@@ -329,7 +350,7 @@ export default function Generator() {
                       <textarea rows={3} value={s.title} onChange={(e) => updateSlide(i, { title: e.target.value })} />
                     </label>
                     <label className="field">
-                      <span>Kata emas (harus ada di judul)</span>
+                      <span>Kata emas (satu kata, harus ada di judul)</span>
                       <input value={s.anchor} onChange={(e) => updateSlide(i, { anchor: e.target.value })} />
                     </label>
                     <label className="field">
@@ -351,6 +372,15 @@ export default function Generator() {
             </div>
             <textarea rows={11} value={deck.caption} onChange={(e) => updateCaption(e.target.value)} aria-label="Caption" />
           </section>
+        </div>
+      ) : null}
+
+      {toast ? (
+        <div className="toast" role="alert">
+          <span>{toast}</span>
+          <button type="button" className="btn btn--ghost" onClick={() => setToast("")}>
+            Tutup
+          </button>
         </div>
       ) : null}
     </div>

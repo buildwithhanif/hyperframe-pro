@@ -591,3 +591,34 @@ select:focus,
   border-radius: 999px;
   padding: 16px 30px;
 }
+
+.count {
+  margin: -8px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.count--over {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.toast {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10;
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #3b1d1d;
+  border: 1px solid var(--red);
+  color: var(--text);
+  font-weight: 700;
+}
