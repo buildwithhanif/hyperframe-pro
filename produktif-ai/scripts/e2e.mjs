@@ -72,7 +72,7 @@ try {
   await startNext(3101, { DEMO_MODE: "1", ANTHROPIC_API_KEY: "" });
   const browser = await chromium.launch({ executablePath: CHROME });
 
-  for (const route of ["/", "/v2", "/carousel"]) {
+  for (const route of ["/", "/v2", "/v3", "/carousel"]) {
     for (const vp of [
       { name: "small", width: 320, height: 640 },
       { name: "mobile", width: 375, height: 812 },
@@ -231,11 +231,16 @@ try {
     }
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     await page.goto("http://localhost:3101/v2");
-    const labels = await page.evaluate(() => [...document.querySelectorAll("video")].map((v) => v.closest(".clip")?.querySelector(".clip-label")?.textContent));
+    const labels = await page.evaluate(() =>
+      [...document.querySelectorAll("video")].map((v) => v.closest(".clip")?.querySelector(".clip-label")?.textContent),
+    );
     assert.ok(labels.length >= 5 && labels.every((l) => l?.startsWith("Made with AI")), `labels: ${labels}`);
     const hrefs = await page.$$eval("#hero-cat .cat-chip", (as) => as.map((a) => a.getAttribute("href")));
     assert.equal(hrefs.length, 6);
-    assert.ok(hrefs.every((h) => /^\/v2\/start\?cat=[a-z-]+$/.test(h)), `chip links: ${hrefs}`);
+    assert.ok(
+      hrefs.every((h) => /^\/v2\/start\?cat=[a-z-]+$/.test(h)),
+      `chip links: ${hrefs}`,
+    );
     assert.equal(await page.locator("details[open]").count(), 0, "no FAQ answer starts open");
     await page.close();
   });
@@ -285,6 +290,64 @@ try {
     await page.getByRole("heading", { name: "Application sent, Budi." }).waitFor({ timeout: 10000 });
     assert.equal(await page.evaluate(() => localStorage.getItem("pai-apply-biz2")), null, "finished applications clear saved progress");
     assert.deepEqual(errors, []);
+    await page.close();
+  });
+
+  await check(
+    "v3: in a 360x620 in-app browser the headline, button and price show before any scroll; every AI frame is labelled",
+    async () => {
+      const page = await browser.newPage({ viewport: { width: 360, height: 620 } });
+      await page.goto("http://localhost:3101/v3");
+      const r = await page.evaluate(() => {
+        const box = (sel) => document.querySelector(sel)?.getBoundingClientRect();
+        const h1 = document.querySelector(".v3-h1");
+        return {
+          lines: Math.round(h1.getBoundingClientRect().height / parseFloat(getComputedStyle(h1).lineHeight)),
+          btn: box("#v3-hero-cta")?.bottom,
+          micro: box(".v3-micro")?.bottom,
+          micro_text: document.querySelector(".v3-micro")?.textContent,
+          hero_label: document.querySelector(".v3-media .v3-ai")?.textContent,
+          tags: [...document.querySelectorAll(".v3-tile .v3-tag")].map((t) => t.textContent),
+          bar: document.querySelector(".v3-bar").classList.contains("is-on"),
+          ctas: [...document.querySelectorAll("a")].filter((a) => /Get started/.test(a.textContent)).map((a) => a.getAttribute("href")),
+        };
+      });
+      assert.equal(r.lines, 2, "the headline stays on 2 lines");
+      assert.ok(r.btn <= 620 && r.micro <= 620, `button bottom ${r.btn}, price line bottom ${r.micro}`);
+      assert.match(r.micro_text, /Rp\u00a04,000,000 a month\./);
+      assert.match(r.hero_label, /^Made with AI/);
+      assert.deepEqual(r.tags, ["Made with AI", "Made with AI"]);
+      assert.equal(r.bar, false, "no top bar on the first screen");
+      assert.ok(r.ctas.length >= 3 && r.ctas.every((h) => h === "/v3/start"), `Get started links: ${r.ctas}`);
+      await page.close();
+    },
+  );
+
+  await check("v3: the sound viewer opens on a labelled post, steps to the next and closes", async () => {
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    const errors = [];
+    page.on("pageerror", (e) => errors.push(String(e)));
+    await page.goto("http://localhost:3101/v3");
+    await page.getByRole("button", { name: "Hear the AI voice" }).click();
+    const dlg = page.getByRole("dialog");
+    await dlg.waitFor();
+    assert.equal(await page.locator(".v3-dialog video").getAttribute("src"), "/samples/ahliwaris.mp4");
+    assert.match(await page.locator(".v3-ai--dialog").innerText(), /Made with AI/);
+    await page.getByRole("button", { name: "Next clip" }).click();
+    assert.equal(await page.locator(".v3-dialog video").getAttribute("src"), "/samples/colokan.mp4");
+    await page.keyboard.press("Escape");
+    await dlg.waitFor({ state: "hidden" });
+    assert.deepEqual(errors, []);
+    await page.close();
+  });
+
+  await check("v3: Get started opens the six-question flow, which returns to /v3", async () => {
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await page.goto("http://localhost:3101/v3");
+    await page.locator("#v3-hero-cta a").click();
+    await page.waitForURL(/\/v3\/start$/);
+    await page.getByRole("heading", { name: "What do you sell?" }).waitFor();
+    assert.equal(await page.locator(".ob-brand").getAttribute("href"), "/v3");
     await page.close();
   });
 

@@ -7,6 +7,7 @@ The site for produktif.ai, a done-for-you short video service: 60 videos a month
 | `/` | The homepage, in English. It leads with Hanif's own videos, made with his AI persona and labeled on every frame. |
 | `/start` | Get started: a one-question-per-screen application that ends on the waitlist. |
 | `/v2`, `/v2/start` | The business-owner version of the page and its application (WhatsApp only). Kept out of search while v1 and v2 are compared. |
+| `/v3`, `/v3/start` | The minimal version: a full-screen loop of Hanif's AI version, one Get started button and four short blocks. Same six-question flow as v2, recorded as `page: v3`. The hero files in `public/samples/v3/` come from `scripts/cut-v3.sh`. |
 | `/dm`, `/ig` | Short links to `/v2` that keep the source (`utm_source=dm` or `ig_bio`). Send these in DMs and bios so taps can be counted per source. |
 | `/privacy`, `/terms`, `/consent` | Legal pages. Drafts: have a lawyer read them before you take money. |
 | `/carousel` | Hanif's carousel tool, in Indonesian. Hidden from search. Off unless `ANTHROPIC_API_KEY` is set. |
