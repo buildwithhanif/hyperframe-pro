@@ -4,7 +4,23 @@ import { z } from "zod";
 // The Get Started flow posts twice: a short signup (so a lead is never lost),
 // then the creator profile. Both land in the sheet as rows joined by lead_id.
 
-import { BUDGETS, CONSENT_TEXT, FOLLOWERS, GOALS, LANGUAGES, PLATFORMS, POSTING, STARTS } from "./waitlist-options.ts";
+import {
+  BIZ_PLATFORMS,
+  BUDGETS,
+  CATEGORIES,
+  CONSENT_TEXT,
+  CONSENT_TEXT_V2,
+  FACES,
+  FOLLOWERS,
+  GOALS,
+  LANGUAGES,
+  MAKERS,
+  PLATFORMS,
+  POSTERS,
+  POSTING,
+  STARTS,
+  WANTS,
+} from "./waitlist-options.ts";
 
 export * from "./waitlist-options.ts";
 
@@ -33,27 +49,44 @@ export function handleFromInput(raw: string): string {
 
 const utm = z.string().trim().max(100).default("");
 
-export const SignupSchema = z.object({
-  name: z.string().trim().min(2, "Please enter your name.").max(80, "That name is too long."),
-  email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .max(254, "That email is too long.")
-    .pipe(z.email("That email doesn’t look right. Check for typos.")),
-  whatsapp: z
-    .string()
-    .trim()
-    .max(24, "That number is too long.")
-    .refine((v) => v === "" || normalizePhone(v) !== null, "Add your country code, like +62 812 3456 7890.")
-    .default(""),
-  consent: z.literal(true, { message: "Please tick the box so we can contact you." }),
-  utm_source: utm,
-  utm_medium: utm,
-  utm_campaign: utm,
-  // Honeypot: hidden from people, filled in by naive bots.
-  company: z.string().max(200).default(""),
-});
+const EMAIL_MESSAGE = "That email doesn’t look right. Check for typos.";
+
+// v1 (creators) needs an email and takes WhatsApp optionally. v2 (business
+// owners) needs WhatsApp and takes email optionally.
+export const SignupSchema = z
+  .object({
+    variant: z.enum(["v1", "v2"]).default("v1"),
+    name: z.string().trim().min(2, "Please enter your name.").max(80, "That name is too long."),
+    email: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .max(254, "That email is too long.")
+      .refine((v) => v === "" || z.email().safeParse(v).success, EMAIL_MESSAGE)
+      .default(""),
+    whatsapp: z
+      .string()
+      .trim()
+      .max(24, "That number is too long.")
+      .refine((v) => v === "" || normalizePhone(v) !== null, "Add your country code, like +62 812 3456 7890.")
+      .default(""),
+    consent: z.literal(true, { message: "Please tick the box so we can contact you." }),
+    // v2 only: what the business sells, from the first tap.
+    cat: z
+      .string()
+      .default("")
+      .refine((v) => v === "" || CATEGORIES.some((c) => c.value === v), "Pick what you sell."),
+    utm_source: utm,
+    utm_medium: utm,
+    utm_campaign: utm,
+    // Honeypot: hidden from people, filled in by naive bots.
+    company: z.string().max(200).default(""),
+  })
+  .superRefine((v, ctx) => {
+    if (v.variant === "v1" && v.email === "") ctx.addIssue({ code: "custom", path: ["email"], message: EMAIL_MESSAGE });
+    if (v.variant === "v2" && v.whatsapp === "")
+      ctx.addIssue({ code: "custom", path: ["whatsapp"], message: "Add your WhatsApp number so we can reply." });
+  });
 
 export const ProfileSchema = z.object({
   lead_id: z.string().uuid("Your session expired. Please start again."),
@@ -75,8 +108,32 @@ export const ProfileSchema = z.object({
   company: z.string().max(200).default(""),
 });
 
+// v2: the business profile. It reuses the profile tab, so the sheet keeps one
+// row per lead: niche holds the category, goal holds what they want more of.
+export const BusinessProfileSchema = z.object({
+  variant: z.literal("v2"),
+  lead_id: z.string().uuid("Your session expired. Please start again."),
+  token: z.string().regex(/^[a-f0-9]{64}$/, "Your session expired. Please start again."),
+  cat: oneOf(CATEGORIES, "Pick what you sell."),
+  want: oneOf(WANTS, "Pick what you want more of."),
+  platform: oneOf(BIZ_PLATFORMS, "Pick your main account."),
+  handle: z
+    .string()
+    .max(120, "That handle is too long.")
+    .transform(handleFromInput)
+    .pipe(z.string().regex(/^(@?[A-Za-z0-9._-]{1,30})?$/, "Handles can only use letters, numbers, dots, dashes and underscores."))
+    .default(""),
+  maker: oneOf(MAKERS, "Pick who makes your content now."),
+  face: oneOf(FACES, "Pick who would be the face."),
+  poster: oneOf(POSTERS, "Pick who would post."),
+  start: oneOf(STARTS, "Pick when you’d like to start."),
+  budget: oneOf(BUDGETS, "Let us know if the price works."),
+  company: z.string().max(200).default(""),
+});
+
 export type SignupInput = z.infer<typeof SignupSchema>;
 export type ProfileInput = z.infer<typeof ProfileSchema>;
+export type BusinessProfileInput = z.infer<typeof BusinessProfileSchema>;
 
 export function isBot(input: { company: string }): boolean {
   return input.company.trim() !== "";
@@ -127,10 +184,12 @@ export function signupPayload(input: SignupInput, leadId: string, now: Date, sec
     stage: "signup" as const,
     lead_id: leadId,
     created_at: now.toISOString(),
+    variant: input.variant,
     name: input.name,
     email: input.email,
     whatsapp: input.whatsapp ? (normalizePhone(input.whatsapp) ?? "") : "",
-    consent: CONSENT_TEXT,
+    consent: input.variant === "v2" ? CONSENT_TEXT_V2 : CONSENT_TEXT,
+    cat: input.cat,
     utm_source: input.utm_source,
     utm_medium: input.utm_medium,
     utm_campaign: input.utm_campaign,
@@ -154,6 +213,44 @@ export function profilePayload(input: ProfileInput, now: Date, secret?: string) 
     start: input.start,
     budget: input.budget,
     fit_score: fitScore(input),
+    ...(secret ? { secret } : {}),
+  };
+}
+
+// A rough first sort for v2 leads, 0 to 10.
+export function businessFitScore(p: Pick<BusinessProfileInput, "budget" | "start" | "maker" | "face">): number {
+  let score = 0;
+  if (p.budget === "yes") score += 4;
+  if (p.start === "this-month") score += 3;
+  else if (p.start === "1-3-months") score += 1;
+  // Accounts nobody keeps fed, or that the owner feeds alone, need this most.
+  if (p.maker === "nobody" || p.maker === "me" || p.maker === "ai-tools") score += 2;
+  if (p.face === "me") score += 1;
+  return score;
+}
+
+const label = (list: readonly { value: string; label: string }[], value: string) => list.find((o) => o.value === value)?.label ?? value;
+
+export function businessProfilePayload(input: BusinessProfileInput, now: Date, secret?: string) {
+  const handle = input.handle.replace(/^@/, "");
+  return {
+    stage: "profile" as const,
+    lead_id: input.lead_id,
+    created_at: now.toISOString(),
+    variant: "v2" as const,
+    niche: label(CATEGORIES, input.cat),
+    platform: input.platform,
+    handle: handle ? `@${handle}` : "",
+    followers: "",
+    posting: "",
+    goal: input.want,
+    language: "",
+    start: input.start,
+    budget: input.budget,
+    maker: input.maker,
+    face: input.face,
+    poster: input.poster,
+    fit_score: businessFitScore(input),
     ...(secret ? { secret } : {}),
   };
 }

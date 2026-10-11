@@ -23,7 +23,7 @@ type Answers = {
   budget: string;
 };
 type Session = { lead_id: string; token: string; emailed?: boolean };
-type Option = { value: string; label: string; hint?: string };
+export type Option = { value: string; label: string; hint?: string };
 
 const EMPTY: Answers = {
   name: "",
@@ -59,7 +59,7 @@ const DOMAIN_FIXES: Record<string, string> = {
   "outlok.com": "outlook.com",
   "icloud.co": "icloud.com",
 };
-function emailSuggestion(email: string): string | null {
+export function emailSuggestion(email: string): string | null {
   const m = email
     .trim()
     .toLowerCase()
@@ -90,7 +90,7 @@ const FIELD_STEP: Record<string, StepId> = {
   budget: "budget",
 };
 
-const EASE = [0.22, 1, 0.36, 1] as const;
+export const EASE = [0.22, 1, 0.36, 1] as const;
 
 function readStore(): { answers: Answers; session: Session | null } {
   try {
@@ -117,7 +117,7 @@ function clearStore() {
   } catch {}
 }
 
-function readUtm() {
+export function readUtm() {
   const out = { utm_source: "", utm_medium: "", utm_campaign: "" };
   try {
     const params = new URLSearchParams(window.location.search);
@@ -129,7 +129,7 @@ function readUtm() {
 
 type ApiReply = { error?: string; field?: string; lead_id?: string; token?: string; emailed?: boolean };
 
-async function post(url: string, body: unknown): Promise<{ ok: boolean; status: number; data: ApiReply }> {
+export async function post(url: string, body: unknown): Promise<{ ok: boolean; status: number; data: ApiReply }> {
   const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, data };
@@ -516,7 +516,7 @@ type BodyProps = {
   error: { field?: string; message: string } | null;
 };
 
-function FieldError({ show, id, message }: { show: boolean; id: string; message?: string }) {
+export function FieldError({ show, id, message }: { show: boolean; id: string; message?: string }) {
   if (!show || !message) return null;
   return (
     <p id={id} className="ob-error" role="alert">
@@ -801,11 +801,11 @@ function StepBody({ id, uid, answers, set, pick, error, welcomeBack, invite }: B
   }
 }
 
-function Kicker({ children }: { children: React.ReactNode }) {
+export function Kicker({ children }: { children: React.ReactNode }) {
   return <p className="ob-kicker">{children}</p>;
 }
 
-function ChoiceStep(props: {
+export function ChoiceStep(props: {
   uid: string;
   kicker: string;
   q: string;
@@ -845,7 +845,7 @@ function ChoiceStep(props: {
   );
 }
 
-function Choices(props: {
+export function Choices(props: {
   name: string;
   labelledBy: string;
   options: Option[];

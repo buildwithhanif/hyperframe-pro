@@ -54,3 +54,53 @@ export const BUDGETS = [
 // the sheet records exactly what the person agreed to.
 export const CONSENT_TEXT =
   "I agree to the privacy policy, and to produktif.ai contacting me about my application and future cohorts by email, or by WhatsApp if I added a number. I can opt out anytime.";
+
+// ---- v2: the business-owner flow (/v2/start). v1's lists above stay as they are.
+
+export const CATEGORIES = [
+  { value: "food-drink", label: "Food and drinks" },
+  { value: "beauty-fashion", label: "Beauty, skincare or fashion" },
+  { value: "salon-wellness", label: "Salon, spa or wellness" },
+  { value: "local-service", label: "A local service" },
+  { value: "online-store", label: "An online store" },
+  { value: "other", label: "Something else" },
+] as const;
+
+export const WANTS = [
+  { value: "followers", label: "More followers" },
+  { value: "reach", label: "More people seeing my business" },
+  { value: "sales", label: "More sales from my posts" },
+  { value: "consistency", label: "Posting every day without the hassle" },
+] as const;
+
+export const BIZ_PLATFORMS = [
+  { value: "instagram", label: "Instagram" },
+  { value: "tiktok", label: "TikTok" },
+  { value: "both", label: "Instagram and TikTok" },
+  { value: "other", label: "Other" },
+] as const;
+
+export const MAKERS = [
+  { value: "nobody", label: "Nobody. The account is quiet" },
+  { value: "me", label: "Me, when I find the time" },
+  { value: "team", label: "Someone on my team" },
+  { value: "agency", label: "An agency or a freelancer" },
+  { value: "ai-tools", label: "I tried AI tools myself" },
+] as const;
+
+export const FACES = [
+  { value: "me", label: "Me" },
+  { value: "team", label: "Someone on my team" },
+  { value: "unsure", label: "Not sure yet" },
+] as const;
+
+export const POSTERS = [
+  { value: "me", label: "Me" },
+  { value: "team", label: "Someone on my team" },
+  { value: "you", label: "I'd want you to post them" },
+] as const;
+
+// v2 asks for WhatsApp first and email only optionally, so its consent line
+// says so. Stored with each v2 signup.
+export const CONSENT_TEXT_V2 =
+  "I agree to the privacy policy, and to produktif.ai contacting me about my application and future cohorts on WhatsApp, or by email if I added one. I can opt out anytime.";

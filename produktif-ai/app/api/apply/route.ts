@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 export const maxDuration = 30;
 
 const MAX_BODY_BYTES = 8_192;
-const FIELDS = ["name", "email", "whatsapp", "consent"];
+const FIELDS = ["name", "email", "whatsapp", "consent", "cat"];
 
 function fail(status: number, error: string, field?: string) {
   return NextResponse.json(field ? { error, field } : { error }, { status });
@@ -58,10 +58,12 @@ export async function POST(request: Request) {
     return fail(502, "We couldn’t save that. Please try again.");
   }
 
-  const resumeUrl = `${siteUrl()}/start?lead=${leadId}&t=${token}`;
-  // The done screen only promises an email when one actually went out.
+  const resumeUrl = `${siteUrl()}${input.variant === "v2" ? "/v2/start" : "/start"}?lead=${leadId}&t=${token}`;
+  // The done screen only promises an email when one actually went out. v2
+  // applicants may leave email out; they hear back on WhatsApp.
   const emailed =
     result === "saved" &&
+    input.email !== "" &&
     (await sendConfirmation(input.email, input.name, resumeUrl, formatReplyBy(replyBy(new Date())), input.whatsapp !== ""));
   return NextResponse.json({ ok: true, lead_id: leadId, token, emailed, ...(result === "demo" ? { demo: true } : {}) });
 }

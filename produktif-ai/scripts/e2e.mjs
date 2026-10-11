@@ -72,7 +72,7 @@ try {
   await startNext(3101, { DEMO_MODE: "1", ANTHROPIC_API_KEY: "" });
   const browser = await chromium.launch({ executablePath: CHROME });
 
-  for (const route of ["/", "/carousel"]) {
+  for (const route of ["/", "/v2", "/carousel"]) {
     for (const vp of [
       { name: "small", width: 320, height: 640 },
       { name: "mobile", width: 375, height: 812 },
@@ -81,11 +81,11 @@ try {
       await check(`[${route} ${vp.name}] page loads with no horizontal scroll`, async () => {
         const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
         await page.goto(`http://localhost:3101${route}`);
-        const slug = route === "/" ? "home" : "carousel";
+        const slug = route === "/" ? "home" : route.slice(1);
         await page.screenshot({ path: `${OUT}/${slug}-${vp.name}.png`, fullPage: true });
         const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
         assert.ok(over <= 0, `page is ${over}px wider than the viewport`);
-        if (route === "/" && vp.width > 640) {
+        if (route === "/" && vp.width > 640 && vp.width > 0) {
           // On desktop "Post every day." holds on one line.
           const oneLine = await page.evaluate(() => {
             const el = document.querySelector(".hero-h span");
@@ -209,6 +209,51 @@ try {
     assert.ok(await page.getByRole("heading", { name: "How many followers do you have there?" }).isVisible(), "arrow keys must not answer");
     await page.keyboard.press("Enter");
     await page.getByRole("heading", { name: "How often do you post right now?" }).waitFor();
+    await page.close();
+  });
+
+  await check("v2: on a 360x740 phone the headline, the month engine and the first answers show before any scroll", async () => {
+    const page = await browser.newPage({ viewport: { width: 360, height: 740 } });
+    await page.goto("http://localhost:3101/v2");
+    const r = await page.evaluate(() => {
+      const box = (sel) => document.querySelector(sel)?.getBoundingClientRect();
+      return { h: box(".hero-h")?.bottom, eng: box(".eng")?.top, chip: box("#hero-cat .cat-chip")?.bottom };
+    });
+    assert.ok(r.h < 740 && r.eng < 740 && r.chip <= 740, `headline ${r.h}, engine top ${r.eng}, first chip bottom ${r.chip}`);
+    const labels = await page.evaluate(() => [...document.querySelectorAll("video")].map((v) => v.closest(".clip")?.querySelector(".clip-label")?.textContent));
+    assert.ok(labels.length >= 7 && labels.every((l) => l === "AI persona"), `labels: ${labels}`);
+    const hrefs = await page.$$eval("#hero-cat .cat-chip", (as) => as.map((a) => a.getAttribute("href")));
+    assert.equal(hrefs.length, 6);
+    assert.ok(hrefs.every((h) => /^\/v2\/start\?cat=[a-z-]+$/.test(h)), `chip links: ${hrefs}`);
+    await page.close();
+  });
+
+  await check("v2: a business owner goes from a hero tap to the confirmation; WhatsApp required, email optional", async () => {
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    const errors = [];
+    page.on("pageerror", (e) => errors.push(String(e)));
+    await page.goto("http://localhost:3101/v2");
+    await page.locator("#hero-cat .cat-chip", { hasText: "Food and drinks" }).click();
+    await page.waitForURL(/\/v2\/start\?cat=food-drink/);
+    await page.getByRole("heading", { name: "What do you want more of?" }).waitFor();
+    await page.getByRole("radio", { name: "More sales from my posts" }).click();
+    await page.getByRole("heading", { name: "Where should we send your reply?" }).waitFor();
+    await page.getByLabel("Your name").fill("Budi Santoso");
+    await page.getByRole("checkbox").check();
+    await page.getByRole("button", { name: "Join the waitlist" }).click();
+    await page.getByText("Add your WhatsApp number so we can reply.").waitFor();
+    await page.getByLabel("WhatsApp number").fill("0812 3456 7890");
+    await page.getByRole("button", { name: "Join the waitlist" }).click();
+    await page.getByRole("heading", { name: "Your business’s main account?" }).waitFor({ timeout: 10000 });
+    await page.getByRole("radio", { name: "Instagram and TikTok" }).check();
+    await page.getByLabel(/Its @handle/).fill("@kopibudi");
+    await page.getByRole("button", { name: "Continue" }).click();
+    for (const answer of ["Me, when I find the time", "Me", "I'd want you to post them", "This month", "Yes, that works"]) {
+      await page.getByRole("radio", { name: answer, exact: true }).click();
+    }
+    await page.getByRole("heading", { name: "You’re on the list, Budi." }).waitFor({ timeout: 10000 });
+    assert.equal(await page.evaluate(() => localStorage.getItem("pai-apply-biz1")), null, "finished applications clear saved progress");
+    assert.deepEqual(errors, []);
     await page.close();
   });
 

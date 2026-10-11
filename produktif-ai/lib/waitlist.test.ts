@@ -1,6 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  BusinessProfileSchema,
+  businessFitScore,
+  businessProfilePayload,
   CONSENT_TEXT,
   fitScore,
   handleFromInput,
@@ -15,6 +18,7 @@ import {
   webhookSaved,
 } from "./waitlist.ts";
 import { confirmationEmail } from "./email.ts";
+import { CONSENT_TEXT_V2 } from "./waitlist-options.ts";
 
 const LEAD = "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b";
 
@@ -104,10 +108,12 @@ test("payloads are flat rows joined by lead_id, secret only when set", () => {
     stage: "signup",
     lead_id: LEAD,
     created_at: "2026-10-10T00:00:00.000Z",
+    variant: "v1",
     name: "Ani",
     email: "ani@example.com",
     whatsapp: "6281234567890",
     consent: CONSENT_TEXT,
+    cat: "",
     utm_source: "x",
     utm_medium: "",
     utm_campaign: "",
@@ -138,4 +144,53 @@ test("confirmation email greets by first name, escapes HTML and links to the pro
   assert.doesNotMatch(m.html, /<b>Ani/);
   assert.match(m.html, /&lt;b&gt;Ani/);
   assert.match(m.html, /lead=x&amp;t=y/);
+});
+
+test("v2 signup needs WhatsApp, takes email optionally, and keeps the category", () => {
+  const v = SignupSchema.parse({ variant: "v2", name: "Budi", whatsapp: "0812 3456 7890", consent: true, cat: "food-drink" });
+  assert.equal(v.email, "");
+  assert.equal(v.cat, "food-drink");
+  const noWa = SignupSchema.safeParse({ variant: "v2", name: "Budi", email: "budi@example.com", consent: true });
+  assert.equal(noWa.success, false);
+  assert.equal(noWa.error?.issues[0].path[0], "whatsapp");
+  assert.equal(SignupSchema.safeParse({ variant: "v2", name: "Budi", whatsapp: "0812 3456 7890", email: "budi@", consent: true }).success, false);
+  assert.equal(SignupSchema.safeParse({ variant: "v2", name: "Budi", whatsapp: "0812 3456 7890", consent: true, cat: "casino" }).success, false);
+  // v1 still needs an email.
+  const v1 = SignupSchema.safeParse({ name: "Ani", whatsapp: "0812 3456 7890", consent: true });
+  assert.equal(v1.success, false);
+  assert.equal(v1.error?.issues[0].path[0], "email");
+  const row = signupPayload(v, LEAD, new Date("2026-10-11T00:00:00Z"));
+  assert.equal(row.variant, "v2");
+  assert.equal(row.consent, CONSENT_TEXT_V2);
+  assert.equal(row.whatsapp, "6281234567890");
+  assert.equal(row.cat, "food-drink");
+});
+
+test("v2 business profile lands in the profile tab with readable columns", () => {
+  const token = leadToken(LEAD, "s");
+  const p = BusinessProfileSchema.parse({
+    variant: "v2",
+    lead_id: LEAD,
+    token,
+    cat: "beauty-fashion",
+    want: "sales",
+    platform: "both",
+    handle: "https://www.instagram.com/kopi.ani/",
+    maker: "me",
+    face: "me",
+    poster: "you",
+    start: "this-month",
+    budget: "yes",
+  });
+  assert.equal(p.handle, "@kopi.ani");
+  const row = businessProfilePayload(p, new Date("2026-10-11T00:00:00Z"), "sec");
+  assert.equal(row.stage, "profile");
+  assert.equal(row.niche, "Beauty, skincare or fashion");
+  assert.equal(row.goal, "sales");
+  assert.equal(row.handle, "@kopi.ani");
+  assert.equal(row.poster, "you");
+  assert.equal(row.fit_score, 10);
+  assert.equal(row.secret, "sec");
+  assert.equal(businessFitScore({ budget: "not-yet", start: "looking", maker: "agency", face: "unsure" }), 0);
+  assert.equal(BusinessProfileSchema.safeParse({ ...p, maker: "robot" }).success, false);
 });

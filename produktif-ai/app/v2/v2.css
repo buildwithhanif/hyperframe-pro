@@ -1,0 +1,600 @@
+/* produktif.ai v2 (business owners). Builds on home.css: same paper, ink,
+   caption yellow and Archivo; adds the month engine, the category question,
+   the sticky phone CTA and the v2 sections. */
+
+.pai.v2 .v2-nav-btn {
+  margin-left: auto;
+}
+.pai.v2 .src-line {
+  margin-bottom: 14px;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+/* ---------- hero ---------- */
+.pai.v2 .hero {
+  padding-top: clamp(16px, 3vh, 40px);
+}
+.pai.v2 .v2-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: start;
+}
+.pai.v2 .hero-h {
+  font-size: clamp(44px, 4.6vw + 6px, 92px);
+  line-height: 0.88;
+}
+.pai.v2 .hero-sub {
+  margin-top: 20px;
+  max-width: 33rem;
+}
+
+/* the category question */
+.pai.v2 .cat {
+  margin-top: 26px;
+}
+.pai.v2 .cat-q {
+  font-weight: 800;
+  font-stretch: 74%;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.pai.v2 .cat-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.pai.v2 .cat-chip {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  height: 100%;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-weight: 700;
+  font-stretch: 92%;
+  font-size: 15.5px;
+  line-height: 1.2;
+  text-decoration: none;
+  transition:
+    background-color var(--d-hover),
+    transform var(--d-press);
+}
+.pai.v2 .cat-chip:active {
+  transform: scale(0.98);
+}
+@media (hover: hover) and (pointer: fine) {
+  .pai.v2 .cat-chip:hover {
+    background: var(--yellow-2);
+  }
+}
+.pai.v2 .hero-price {
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.pai.v2 .hero-price b {
+  color: var(--ink);
+}
+.pai.v2 .hero-price a {
+  color: var(--ink);
+  font-weight: 700;
+}
+.pai.v2 .hero-proof {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.pai.v2 .proof-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pai.v2 .proof-tiles li {
+  padding: 12px 12px 10px;
+  border-radius: 10px;
+  background: var(--paper-lo);
+}
+.pai.v2 .proof-tiles b {
+  display: block;
+  font-family: var(--display);
+  font-weight: 900;
+  font-stretch: 62%;
+  font-size: clamp(30px, 2.2vw + 10px, 42px);
+  line-height: 0.95;
+  color: var(--ink);
+}
+.pai.v2 .proof-tiles span {
+  display: block;
+  margin-top: 4px;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--ink-2);
+}
+.pai.v2 .hero-proof p {
+  margin-top: 8px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* the month engine */
+.pai.v2 .eng {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr);
+  gap: clamp(14px, 1.6vw, 24px);
+  align-items: stretch;
+  padding: clamp(12px, 1.4vw, 20px);
+  border-radius: 18px;
+  background: #0b0b0c;
+  color: #fff;
+}
+.pai.v2 .eng-clip {
+  align-self: start;
+  width: 100%;
+  min-width: 0;
+  border-radius: 12px;
+  box-shadow: none;
+}
+.pai.v2 .eng-month {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.pai.v2 .eng-count {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: #fff;
+}
+.pai.v2 .eng-count b {
+  min-width: 2ch;
+  font-family: var(--display);
+  font-weight: 900;
+  font-stretch: 62%;
+  font-size: clamp(40px, 3.4vw, 60px);
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+  color: var(--yellow);
+}
+.pai.v2 .eng-count span {
+  font-weight: 650;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.72);
+}
+.pai.v2 .eng-grid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.pai.v2 .eng-slot {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+  transition:
+    background-color 220ms var(--ease-settle),
+    box-shadow 220ms var(--ease-settle);
+}
+.pai.v2 .eng-slot span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.28);
+  font-variant-numeric: tabular-nums;
+}
+.pai.v2 .eng-slot.is-on:not(.is-sample) {
+  background: rgba(255, 214, 10, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 214, 10, 0.7);
+}
+.pai.v2 .eng-slot.is-on:not(.is-sample) span {
+  color: var(--yellow);
+}
+.pai.v2 .eng-slot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.15);
+  transition:
+    opacity 320ms var(--ease-arrive),
+    transform 420ms var(--ease-arrive);
+}
+.pai.v2 .eng-slot.is-on img {
+  opacity: 1;
+  transform: none;
+}
+.pai.v2 .eng-note {
+  margin-top: auto;
+  padding-top: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* ---------- who does what ---------- */
+.pai.v2 .split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px clamp(24px, 4vw, 64px);
+  margin-top: clamp(32px, 4vw, 56px);
+}
+.pai.v2 .split h3 {
+  padding-bottom: 12px;
+  border-bottom: 3px solid var(--ink);
+  font-weight: 800;
+  font-stretch: 74%;
+  font-size: 26px;
+  color: var(--ink);
+}
+.pai.v2 .split .you h3 {
+  border-color: var(--yellow);
+}
+.pai.v2 .split ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pai.v2 .split li {
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 16.5px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.pai.v2 .split li b {
+  font-weight: 700;
+}
+.pai.v2 .post-answer {
+  margin-top: 22px;
+  max-width: 44rem;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.pai.v2 .post-answer b {
+  color: var(--ink);
+}
+.pai.v2 .sec-cta {
+  margin-top: 28px;
+}
+
+/* ---------- samples ---------- */
+.pai.v2 .samples-cap {
+  margin-top: 14px;
+  max-width: 46rem;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* ---------- the founder's account ---------- */
+.pai.v2 .own {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 32px clamp(32px, 6vw, 96px);
+  align-items: start;
+}
+.pai.v2 .own-stats {
+  margin: 0;
+  border-top: 3px solid var(--ink);
+}
+.pai.v2 .own-stats > div {
+  display: grid;
+  grid-template-columns: clamp(150px, 13vw, 210px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: baseline;
+  padding: 18px 0 16px;
+  border-bottom: 1px solid var(--line);
+}
+.pai.v2 .own-stats dt {
+  font-family: var(--display);
+  font-weight: 900;
+  font-stretch: 62%;
+  font-size: clamp(46px, 3.6vw + 8px, 76px);
+  line-height: 0.9;
+  color: var(--ink);
+}
+.pai.v2 .own-stats dd {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+.pai.v2 .own-label {
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* ---------- how it works ---------- */
+.pai.v2 .how-steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 24px clamp(16px, 2vw, 28px);
+  margin: clamp(32px, 4vw, 56px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.pai.v2 .how-steps li {
+  padding-top: 16px;
+  border-top: 3px solid var(--ink);
+}
+.pai.v2 .how-steps .steps-n {
+  display: block;
+  font-size: 52px;
+  line-height: 0.85;
+}
+.pai.v2 .how-steps h3 {
+  margin-top: 14px;
+  font-weight: 800;
+  font-stretch: 80%;
+  font-size: 20px;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.pai.v2 .how-steps p {
+  margin-top: 8px;
+  font-size: 15.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.pai.v2 .plan {
+  margin-top: clamp(40px, 5vw, 72px);
+}
+.pai.v2 .plan h3 {
+  font-weight: 800;
+  font-stretch: 74%;
+  font-size: 26px;
+  color: var(--ink);
+}
+.pai.v2 .plan-note {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.pai.v2 .plan-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.pai.v2 .plan-week li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.pai.v2 .plan-week em {
+  font-style: normal;
+  font-weight: 750;
+  font-size: 13px;
+  color: var(--ink);
+}
+.pai.v2 .plan-week span {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--paper-lo);
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: var(--ink-2);
+}
+
+/* ---------- price ---------- */
+.pai.v2 .price-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px clamp(32px, 6vw, 96px);
+}
+.pai.v2 .price-fine {
+  margin-top: 18px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.pai.v2 .price-fine a {
+  color: var(--ink);
+}
+
+/* ---------- final ---------- */
+.pai.v2 .final .cat-q {
+  color: var(--ink);
+}
+.pai.v2 .final .cat-chip {
+  background: var(--ink);
+  color: #fff;
+}
+@media (hover: hover) and (pointer: fine) {
+  .pai.v2 .final .cat-chip:hover {
+    background: var(--ink-2);
+  }
+}
+.pai.v2 .final-trust {
+  margin-top: 18px;
+  max-width: 40rem;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* ---------- sticky phone CTA ---------- */
+.pai.v2 .sticky-cta {
+  display: none;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1080px) {
+  .pai.v2 .how-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pai.v2 .plan-week {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 960px) {
+  .pai.v2 .v2-hero,
+  .pai.v2 .own,
+  .pai.v2 .price-box,
+  .pai.v2 .split {
+    grid-template-columns: 1fr;
+  }
+  /* on phones the engine sits between the headline and the question */
+  .pai.v2 .v2-hero-copy {
+    display: contents;
+  }
+  .pai.v2 .v2-hero .src-line {
+    order: -3;
+  }
+  .pai.v2 .v2-hero .hero-h {
+    order: -2;
+  }
+  .pai.v2 .v2-hero .hero-sub {
+    order: -1;
+  }
+  .pai.v2 .v2-hero .cat,
+  .pai.v2 .v2-hero .hero-price,
+  .pai.v2 .v2-hero .hero-proof {
+    order: 1;
+  }
+  .pai.v2 .v2-hero {
+    gap: 0;
+  }
+  .pai.v2 .eng {
+    margin-top: 18px;
+  }
+}
+@media (max-width: 640px) {
+  .pai.v2 .hero-h {
+    font-size: min(11.6vw, 52px);
+  }
+  .pai.v2 .hero-sub {
+    margin-top: 12px;
+    font-size: 16px;
+  }
+  .pai.v2 .src-line {
+    margin-bottom: 10px;
+    font-size: 13.5px;
+  }
+  .pai.v2 .eng {
+    grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px;
+    border-radius: 14px;
+  }
+  .pai.v2 .eng-count b {
+    font-size: 34px;
+  }
+  .pai.v2 .eng-count span {
+    font-size: 12px;
+  }
+  .pai.v2 .eng-grid {
+    gap: 3px;
+    margin-top: 8px;
+  }
+  .pai.v2 .eng-slot span {
+    font-size: 0;
+  }
+  .pai.v2 .eng-note {
+    padding-top: 8px;
+    font-size: 11.5px;
+  }
+  .pai.v2 .eng-clip .clip-label {
+    top: 6px;
+    left: 6px;
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+  .pai.v2 .eng-clip .clip-sound {
+    left: 6px;
+    bottom: 6px;
+    height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .pai.v2 .cat {
+    margin-top: 18px;
+  }
+  .pai.v2 .cat-q {
+    font-size: 20px;
+  }
+  .pai.v2 .cat-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .pai.v2 .cat-chip {
+    min-height: 48px;
+    padding: 6px 12px;
+    font-size: 15px;
+  }
+  .pai.v2 .how-steps {
+    grid-template-columns: 1fr;
+  }
+  .pai.v2 .plan-week {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pai.v2 .own-stats > div {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  }
+  .pai.v2 .sticky-cta {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--line);
+    background: #fff;
+    transform: translateY(110%);
+    transition: transform var(--d-base) var(--ease-settle);
+  }
+  .pai.v2 .sticky-cta.is-on {
+    transform: none;
+  }
+  .pai.v2 .sticky-cta p {
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--ink-2);
+  }
+  .pai.v2 .sticky-cta b {
+    color: var(--ink);
+  }
+  .pai.v2 .sticky-cta .btn {
+    flex: none;
+    height: 48px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pai.v2 .eng-slot img {
+    transition: none;
+  }
+  .pai.v2 .sticky-cta {
+    transition: none;
+  }
+}

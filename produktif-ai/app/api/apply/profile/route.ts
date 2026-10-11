@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { forwardRow, signingSecret } from "@/lib/forward";
 import { clientKey, rateLimit, unhit } from "@/lib/ratelimit";
-import { isBot, ProfileSchema, profilePayload, tokenValid } from "@/lib/waitlist";
+import { BusinessProfileSchema, businessProfilePayload, isBot, ProfileSchema, profilePayload, tokenValid } from "@/lib/waitlist";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
 const MAX_BODY_BYTES = 8_192;
 const FIELDS = ["niche", "platform", "handle", "followers", "posting", "goal", "language", "start", "budget"];
+const FIELDS_V2 = ["cat", "want", "platform", "handle", "maker", "face", "poster", "start", "budget"];
 
 function fail(status: number, error: string, field?: string) {
   return NextResponse.json(field ? { error, field } : { error }, { status });
@@ -25,9 +26,12 @@ export async function POST(request: Request) {
     return fail(400, "That request wasn’t valid. Please refresh and try again.");
   }
 
-  const parsed = ProfileSchema.safeParse(body);
+  // v2 sends the business profile; everything else is v1's creator profile.
+  const v2 = typeof body === "object" && body !== null && (body as { variant?: unknown }).variant === "v2";
+  const parsed = v2 ? BusinessProfileSchema.safeParse(body) : ProfileSchema.safeParse(body);
   if (!parsed.success) {
-    const issue = parsed.error.issues.find((i) => FIELDS.includes(String(i.path[0])));
+    const fields = v2 ? FIELDS_V2 : FIELDS;
+    const issue = parsed.error.issues.find((i) => fields.includes(String(i.path[0])));
     if (issue) return fail(400, issue.message, String(issue.path[0]));
     const session = parsed.error.issues.some((i) => ["lead_id", "token"].includes(String(i.path[0])));
     return fail(400, session ? "Your session expired. Please start again." : "Something in the form looks off. Please refresh and try again.");
@@ -41,7 +45,10 @@ export async function POST(request: Request) {
   const key = `profile:${clientKey(request.headers)}`;
   if (!rateLimit(key, 30).ok) return fail(429, "Too many attempts. Please try again in an hour.");
 
-  const result = await forwardRow(profilePayload(input, new Date(), process.env.WAITLIST_WEBHOOK_SECRET));
+  const secret = process.env.WAITLIST_WEBHOOK_SECRET;
+  const row =
+    "variant" in input ? businessProfilePayload(input, new Date(), secret) : profilePayload(input, new Date(), secret);
+  const result = await forwardRow(row);
   if (result === "not-configured") {
     console.error("WAITLIST_WEBHOOK_URL is not set; profile dropped");
     unhit(key);
