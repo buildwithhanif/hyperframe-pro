@@ -82,7 +82,7 @@ Paste this into the sheet's Apps Script editor. It writes signups and profiles t
 const SECRET = ""; // exactly the value of WAITLIST_WEBHOOK_SECRET
 
 const TABS = {
-  signup: ["created_at", "lead_id", "variant", "name", "email", "whatsapp", "consent", "optin", "cat", "utm_source", "utm_medium", "utm_campaign"],
+  signup: ["created_at", "lead_id", "variant", "name", "email", "whatsapp", "consent", "optin", "cat", "page", "utm_source", "utm_medium", "utm_campaign"],
   profile: ["created_at", "lead_id", "variant", "fit_score", "niche", "platform", "handle", "followers", "posting", "goal", "language", "start", "budget", "maker", "face", "poster"],
 };
 const NAMES = { signup: "Signups", profile: "Profiles" };

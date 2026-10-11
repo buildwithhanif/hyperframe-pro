@@ -115,6 +115,7 @@ test("payloads are flat rows joined by lead_id, secret only when set", () => {
     consent: CONSENT_TEXT,
     optin: "",
     cat: "",
+    page: "",
     utm_source: "x",
     utm_medium: "",
     utm_campaign: "",
@@ -175,6 +176,13 @@ test("v2 signup needs WhatsApp, takes email optionally, and keeps the category",
   // The later-groups opt-in is optional and recorded word for word when ticked.
   const opted = SignupSchema.parse({ variant: "v2", name: "Budi", whatsapp: "0812 3456 7890", consent: true, optin: true });
   assert.equal(signupPayload(opted, LEAD, new Date()).optin, OPTIN_TEXT_V2);
+  // The landing page that sent the visitor rides along; anything else is refused.
+  const fromV3 = SignupSchema.parse({ variant: "v2", page: "v3", name: "Budi", whatsapp: "0812 3456 7890", consent: true });
+  assert.equal(signupPayload(fromV3, LEAD, new Date()).page, "v3");
+  assert.equal(
+    SignupSchema.safeParse({ variant: "v2", page: "v9", name: "Budi", whatsapp: "0812 3456 7890", consent: true }).success,
+    false,
+  );
   // v1 never records it, even if sent.
   const v1opt = SignupSchema.parse({ name: "Ani", email: "ani@example.com", consent: true, optin: true });
   assert.equal(signupPayload(v1opt, LEAD, new Date()).optin, "");

@@ -81,6 +81,8 @@ export const SignupSchema = z
     utm_source: utm,
     utm_medium: utm,
     utm_campaign: utm,
+    // v2 flow only: which landing page sent the visitor (v2 or v3).
+    page: z.enum(["", "v2", "v3"]).default(""),
     // Honeypot: hidden from people, filled in by naive bots.
     company: z.string().max(200).default(""),
   })
@@ -191,6 +193,7 @@ export function signupPayload(input: SignupInput, leadId: string, now: Date, sec
     consent: input.variant === "v2" ? CONSENT_TEXT_V2 : CONSENT_TEXT,
     optin: input.variant === "v2" && input.optin ? OPTIN_TEXT_V2 : "",
     cat: input.cat,
+    page: input.page,
     utm_source: input.utm_source,
     utm_medium: input.utm_medium,
     utm_campaign: input.utm_campaign,

@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     return fail(502, "We couldn’t save that. Please try again.");
   }
 
-  const resumeUrl = `${siteUrl()}${input.variant === "v2" ? "/v2/start" : "/start"}?lead=${leadId}&t=${token}`;
+  const resumeUrl = `${siteUrl()}${input.variant === "v1" ? "/start" : input.page === "v3" ? "/v3/start" : "/v2/start"}?lead=${leadId}&t=${token}`;
   // The done screen only promises an email when one actually went out. v2
   // applicants may leave email out; they hear back on WhatsApp.
   const emailed =

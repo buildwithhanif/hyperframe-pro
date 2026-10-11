@@ -83,7 +83,9 @@ function clearStore() {
   } catch {}
 }
 
-export default function BusinessOnboarding() {
+// `home` is the landing page the visitor came from (/v2 or /v3): the logo and
+// "finish later" go back there, and the sheet records it as `page`.
+export default function BusinessOnboarding({ home = "/v2" }: { home?: "/v2" | "/v3" }) {
   const uid = useId();
   const reduce = useReducedMotion();
   const [ready, setReady] = useState(false);
@@ -175,6 +177,7 @@ export default function BusinessOnboarding() {
   async function submitSignup(a: Answers): Promise<boolean> {
     const res = await post("/api/apply", {
       variant: "v2",
+      page: home.slice(1),
       cat: a.cat,
       name: a.name,
       whatsapp: a.whatsapp,
@@ -479,7 +482,7 @@ export default function BusinessOnboarding() {
   return (
     <div className="ob">
       <header className="ob-top">
-        <Link href="/v2" className="ob-brand" aria-label="produktif.ai home">
+        <Link href={home} className="ob-brand" aria-label="produktif.ai home">
           <Wordmark title={null} className="ob-wm" />
         </Link>
         {!done && (
@@ -490,7 +493,7 @@ export default function BusinessOnboarding() {
         {/* Nothing is saved on our side before the contact step, so "finish
             later" only appears once it would be true. */}
         {(done || index > CONTACT) && (
-          <Link href="/v2" className="ob-close">
+          <Link href={home} className="ob-close">
             {done ? (
               "Back to site"
             ) : (
