@@ -61,7 +61,7 @@ export const CATEGORIES = [
   { value: "food-drink", label: "Food and drinks" },
   { value: "beauty-fashion", label: "Beauty, skincare or fashion" },
   { value: "salon-wellness", label: "Salon, spa or wellness" },
-  { value: "local-service", label: "A local service" },
+  { value: "local-service", label: "A local shop or service", hint: "Laundry, repair, clinic" },
   { value: "online-store", label: "An online store" },
   { value: "other", label: "Something else" },
 ] as const;
@@ -100,7 +100,15 @@ export const POSTERS = [
   { value: "you", label: "I'd want you to post them" },
 ] as const;
 
-// v2 asks for WhatsApp first and email only optionally, so its consent line
-// says so. Stored with each v2 signup.
-export const CONSENT_TEXT_V2 =
-  "I agree to the privacy policy, and to produktif.ai contacting me about my application and future cohorts on WhatsApp, or by email if I added one. I can opt out anytime.";
+// v2's price question: a third answer for people who want to judge the test
+// clip first, so "not sure" doesn't have to mean "no".
+export const BIZ_BUDGETS = [
+  { value: "yes", label: "Yes, that works" },
+  { value: "test-first", label: "Only if I like my test clip" },
+  { value: "not-yet", label: "Not right now" },
+] as const;
+
+// v2 asks for WhatsApp only, and only about this application. Later groups
+// are a separate, unticked opt-in. Both are stored with each v2 signup.
+export const CONSENT_TEXT_V2 = "I agree to the privacy policy and to produktif.ai messaging me on WhatsApp about this application.";
+export const OPTIN_TEXT_V2 = "Also message me when a new group of businesses opens. I can stop anytime.";

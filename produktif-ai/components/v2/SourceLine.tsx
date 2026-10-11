@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 // One line above the headline that matches where the visitor came from
 // (utm_source on the link). Plain text, same height either way.
 const LINES: Record<string, string> = {
-  dm: "You asked about organic content for your business. Here’s what we do.",
-  ig_bio: "From the founder of the account you just came from.",
-  tt_bio: "From the founder of the account you just came from.",
-  x_bio: "From the founder of the account you just came from.",
-  post: "From the founder of the account you just came from.",
+  dm: "From Hanif’s DMs: here’s how it works and what it costs.",
+  ig_bio: "From Hanif, whose account you just came from.",
+  tt_bio: "From Hanif, whose account you just came from.",
+  x_bio: "From Hanif, whose account you just came from.",
+  post: "From Hanif, whose account you just came from.",
 };
 const DEFAULT = "For business owners on Instagram and TikTok.";
 

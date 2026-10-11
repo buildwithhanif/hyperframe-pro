@@ -24,7 +24,13 @@ export default function CatChips({ id, pos }: { id?: string; pos: "hero" | "fina
                 } catch {}
               }}
             >
-              {c.label}
+              <span className="cat-t">
+                {c.label}
+                {"hint" in c && <small>{c.hint}</small>}
+              </span>
+              <span className="cat-go" aria-hidden="true">
+                →
+              </span>
             </Link>
           </li>
         ))}

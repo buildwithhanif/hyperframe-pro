@@ -25,7 +25,7 @@ export default function StickyCta() {
   return (
     <div className={`sticky-cta${show ? " is-on" : ""}`} aria-hidden={!show}>
       <p>
-        <b>Rp 4,000,000</b> a month for 60 videos
+        <b>Rp 4,000,000</b> a month. Test clip before your first bill.
       </p>
       <Link
         href="/v2/start"

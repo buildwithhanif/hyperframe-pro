@@ -3,14 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import Clip, { type ClipSource } from "@/components/home/Clip";
 
-// The v2 hero visual: one persona on the phone, and the month it turns into.
-// 60 slots, 2 a day. The first ones are real samples (each used once); the
-// rest are numbered slots, because a month that hasn't been made yet is empty.
-const SLOTS = 60;
+// The v2 hero visual: one AI-made clip, and the month it turns into.
+// Desktop: 30 days, 2 videos each. The real samples are shown from the start;
+// the rest of the month fills in once, quickly. Phones: the clip, one line on
+// how it's made, and a row of the real samples.
+const DAYS = 30;
+const SLOTS = DAYS * 2;
 
-export default function Engine({ hero, samples }: { hero: ClipSource; samples: ClipSource[] }) {
+export default function Engine({ hero, samples, label }: { hero: ClipSource; samples: ClipSource[]; label: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [filled, setFilled] = useState(0);
+  const [filled, setFilled] = useState(samples.length);
 
   useEffect(() => {
     const el = ref.current;
@@ -21,14 +23,13 @@ export default function Engine({ hero, samples }: { hero: ClipSource; samples: C
       ([e]) => {
         if (!e.isIntersecting) return;
         io.disconnect();
-        let n = 0;
-        // Samples land slowly enough to see; the empty slots count up faster.
+        let n = samples.length;
         const tick = () => {
           n += 1;
           setFilled(n);
-          if (n < SLOTS) timer = window.setTimeout(tick, n < samples.length ? 260 : 32);
+          if (n < SLOTS) timer = window.setTimeout(tick, 16);
         };
-        timer = window.setTimeout(tick, 500);
+        timer = window.setTimeout(tick, 300);
       },
       { threshold: 0.35 },
     );
@@ -41,30 +42,47 @@ export default function Engine({ hero, samples }: { hero: ClipSource; samples: C
 
   return (
     <div className="eng" ref={ref}>
-      <Clip clip={hero} eager className="eng-clip" />
-      <div className="eng-month">
-        <p className="eng-count" aria-live="off">
-          <b>{filled}</b>
-          <span>/ 60 this month</span>
-        </p>
-        <ol className="eng-grid" aria-label="One month of videos: 60 slots, 2 a day">
-          {Array.from({ length: SLOTS }, (_, i) => {
-            const s = samples[i];
-            const on = i < filled;
-            return (
-              <li key={i} className={`eng-slot${on ? " is-on" : ""}${s ? " is-sample" : ""}`}>
-                {s ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={s.poster} alt="" width={54} height={96} loading="lazy" decoding="async" />
-                ) : (
-                  <span aria-hidden="true">{i + 1}</span>
-                )}
-              </li>
-            );
-          })}
-        </ol>
-        <p className="eng-note">2 a day, planned a month ahead. The first {samples.length} are real samples.</p>
+      <Clip clip={hero} eager className="eng-clip" label={label} />
+      <div className="eng-side">
+        <p className="eng-made">Made with AI. Not filmed.</p>
+        <p>Hanif&rsquo;s AI version, in a post from his own account. Captions in the original language.</p>
+        <p>Yours starts from 3 photos and a 2-minute voice recording.</p>
       </div>
+      <div className="eng-month">
+        <p className="eng-count">
+          <b>60</b>
+          <span>videos a month, from one setup</span>
+        </p>
+        <ol className="eng-days" aria-label="One month: 30 days, 2 videos a day">
+          {Array.from({ length: DAYS }, (_, d) => (
+            <li key={d} className="eng-day">
+              {[0, 1].map((k) => {
+                const i = d * 2 + k;
+                const s = samples[i];
+                return (
+                  <span key={k} className={`eng-slot${i < filled ? " is-on" : ""}${s ? " is-sample" : ""}`}>
+                    {s && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={s.poster} alt="" width={54} height={96} loading="lazy" decoding="async" />
+                    )}
+                  </span>
+                );
+              })}
+            </li>
+          ))}
+        </ol>
+        <p className="eng-note">Samples made with AI. The empty slots are yours, filled after setup.</p>
+      </div>
+      <div className="eng-row" aria-hidden="true">
+        {samples.map((s) => (
+          <span key={s.id} className="eng-thumb">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={s.poster} alt="" width={54} height={96} loading="lazy" decoding="async" />
+            <i>AI</i>
+          </span>
+        ))}
+      </div>
+      <p className="eng-row-note">Samples made with AI. Your plan: 60 a month.</p>
     </div>
   );
 }

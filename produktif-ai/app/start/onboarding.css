@@ -220,6 +220,14 @@
 .pai .ob-consent:has(input[aria-invalid="true"]) {
   box-shadow: inset 0 0 0 2px var(--rec);
 }
+.pai .ob-consent--opt {
+  margin-top: 10px;
+  padding: 12px 16px;
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-size: 14px;
+  color: var(--muted);
+}
 .pai .ob-consent input {
   width: 20px;
   height: 20px;
@@ -268,6 +276,24 @@
 .pai .ob-choice:has(input:focus-visible) {
   outline: 2px solid var(--fg);
   outline-offset: 2px;
+}
+/* The first answer is focused for keyboard users when a question opens. On a
+   touch screen that ring reads as "already picked", so it stays hidden there. */
+@media (pointer: coarse) {
+  .pai .ob-choice:has(input:focus-visible):not(.is-on) {
+    outline: none;
+  }
+}
+.pai .ob-hint {
+  display: block;
+  margin-top: 2px;
+  font-weight: 450;
+  font-size: 14px;
+  color: var(--muted);
+}
+.pai .ob-choice.is-on .ob-hint {
+  color: inherit;
+  opacity: 0.8;
 }
 .pai .ob-key {
   display: grid;
@@ -486,6 +512,15 @@
   margin-top: 16px;
   font-size: 19px;
   color: var(--fg-2);
+}
+.pai .ob-done-wa {
+  margin-top: 28px;
+}
+.pai .ob-done-wa .ob-next {
+  text-decoration: none;
+}
+.pai .ob-done-wa .ob-help {
+  margin-top: 10px;
 }
 .pai .ob-next-steps {
   margin-top: 32px;

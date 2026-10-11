@@ -6,7 +6,8 @@ The site for produktif.ai, a done-for-you short video service: 60 videos a month
 |---|---|
 | `/` | The homepage, in English. It leads with Hanif's own videos, made with his AI persona and labeled on every frame. |
 | `/start` | Get started: a one-question-per-screen application that ends on the waitlist. |
-| `/v2`, `/v2/start` | The business-owner version of the page and its application (WhatsApp first, email optional). Kept out of search while v1 and v2 are compared. |
+| `/v2`, `/v2/start` | The business-owner version of the page and its application (WhatsApp only). Kept out of search while v1 and v2 are compared. |
+| `/dm`, `/ig` | Short links to `/v2` that keep the source (`utm_source=dm` or `ig_bio`). Send these in DMs and bios so taps can be counted per source. |
 | `/privacy`, `/terms`, `/consent` | Legal pages. Drafts: have a lawyer read them before you take money. |
 | `/carousel` | Hanif's carousel tool, in Indonesian. Hidden from search. Off unless `ANTHROPIC_API_KEY` is set. |
 
@@ -81,7 +82,7 @@ Paste this into the sheet's Apps Script editor. It writes signups and profiles t
 const SECRET = ""; // exactly the value of WAITLIST_WEBHOOK_SECRET
 
 const TABS = {
-  signup: ["created_at", "lead_id", "variant", "name", "email", "whatsapp", "consent", "cat", "utm_source", "utm_medium", "utm_campaign"],
+  signup: ["created_at", "lead_id", "variant", "name", "email", "whatsapp", "consent", "optin", "cat", "utm_source", "utm_medium", "utm_campaign"],
   profile: ["created_at", "lead_id", "variant", "fit_score", "niche", "platform", "handle", "followers", "posting", "goal", "language", "start", "budget", "maker", "face", "poster"],
 };
 const NAMES = { signup: "Signups", profile: "Profiles" };
@@ -118,7 +119,7 @@ function doPost(e) {
 }
 ```
 
-`variant` says which page the lead came from: `v1` (creators, `/`) or `v2` (business owners, `/v2`). v2 rows put the business category in `niche` and what they want more of in `goal`, and add `maker` (who makes their content now), `face` (who would be the face) and `poster` (who would post). An older copy of the script still works with v2: it just leaves out the columns it doesn't list. On an existing sheet, add the new column headers by hand in the same order.
+`variant` says which page the lead came from: `v1` (creators, `/`) or `v2` (business owners, `/v2`). v2 asks for WhatsApp only (no email). Its signup rows add `optin`: the exact sentence the person ticked to hear about later groups, or empty. Its profile rows put the business category in `niche`, what they want more of in `goal`, who would be the face in `face`, and the price answer in `budget` (`yes`, `test-first` or `not-yet`). `maker`, `start` and `poster` stay as empty columns from the first v2 draft; those questions moved to the setup call. An older copy of the script still works with v2: it just leaves out the columns it doesn't list. On an existing sheet, add the new column headers by hand in the same order.
 
 After you edit the script, deploy a **new version** (Deploy → Manage deployments → edit → Version: New). Saving alone doesn't change the live web app.
 

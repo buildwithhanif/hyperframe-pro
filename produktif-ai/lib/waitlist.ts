@@ -5,6 +5,7 @@ import { z } from "zod";
 // then the creator profile. Both land in the sheet as rows joined by lead_id.
 
 import {
+  BIZ_BUDGETS,
   BIZ_PLATFORMS,
   BUDGETS,
   CATEGORIES,
@@ -14,9 +15,8 @@ import {
   FOLLOWERS,
   GOALS,
   LANGUAGES,
-  MAKERS,
+  OPTIN_TEXT_V2,
   PLATFORMS,
-  POSTERS,
   POSTING,
   STARTS,
   WANTS,
@@ -71,6 +71,8 @@ export const SignupSchema = z
       .refine((v) => v === "" || normalizePhone(v) !== null, "Add your country code, like +62 812 3456 7890.")
       .default(""),
     consent: z.literal(true, { message: "Please tick the box so we can contact you." }),
+    // v2 only, unticked by default: message me when a new group opens.
+    optin: z.boolean().default(false),
     // v2 only: what the business sells, from the first tap.
     cat: z
       .string()
@@ -110,6 +112,7 @@ export const ProfileSchema = z.object({
 
 // v2: the business profile. It reuses the profile tab, so the sheet keeps one
 // row per lead: niche holds the category, goal holds what they want more of.
+// Who makes the content now and when to start are asked on the setup call.
 export const BusinessProfileSchema = z.object({
   variant: z.literal("v2"),
   lead_id: z.string().uuid("Your session expired. Please start again."),
@@ -123,11 +126,8 @@ export const BusinessProfileSchema = z.object({
     .transform(handleFromInput)
     .pipe(z.string().regex(/^(@?[A-Za-z0-9._-]{1,30})?$/, "Handles can only use letters, numbers, dots, dashes and underscores."))
     .default(""),
-  maker: oneOf(MAKERS, "Pick who makes your content now."),
   face: oneOf(FACES, "Pick who would be the face."),
-  poster: oneOf(POSTERS, "Pick who would post."),
-  start: oneOf(STARTS, "Pick when you’d like to start."),
-  budget: oneOf(BUDGETS, "Let us know if the price works."),
+  budget: oneOf(BIZ_BUDGETS, "Let us know if the price works."),
   company: z.string().max(200).default(""),
 });
 
@@ -189,6 +189,7 @@ export function signupPayload(input: SignupInput, leadId: string, now: Date, sec
     email: input.email,
     whatsapp: input.whatsapp ? (normalizePhone(input.whatsapp) ?? "") : "",
     consent: input.variant === "v2" ? CONSENT_TEXT_V2 : CONSENT_TEXT,
+    optin: input.variant === "v2" && input.optin ? OPTIN_TEXT_V2 : "",
     cat: input.cat,
     utm_source: input.utm_source,
     utm_medium: input.utm_medium,
@@ -217,15 +218,15 @@ export function profilePayload(input: ProfileInput, now: Date, secret?: string) 
   };
 }
 
-// A rough first sort for v2 leads, 0 to 10.
-export function businessFitScore(p: Pick<BusinessProfileInput, "budget" | "start" | "maker" | "face">): number {
+// A rough first sort for v2 leads, 0 to 7.
+export function businessFitScore(p: Pick<BusinessProfileInput, "budget" | "face" | "handle">): number {
   let score = 0;
   if (p.budget === "yes") score += 4;
-  if (p.start === "this-month") score += 3;
-  else if (p.start === "1-3-months") score += 1;
-  // Accounts nobody keeps fed, or that the owner feeds alone, need this most.
-  if (p.maker === "nobody" || p.maker === "me" || p.maker === "ai-tools") score += 2;
-  if (p.face === "me") score += 1;
+  else if (p.budget === "test-first") score += 3;
+  if (p.face === "me") score += 2;
+  else if (p.face === "team") score += 1;
+  // An account we can look at before replying.
+  if (p.handle.replace(/^@/, "")) score += 1;
   return score;
 }
 
@@ -245,11 +246,12 @@ export function businessProfilePayload(input: BusinessProfileInput, now: Date, s
     posting: "",
     goal: input.want,
     language: "",
-    start: input.start,
+    start: "",
     budget: input.budget,
-    maker: input.maker,
+    // Kept as empty columns so rows from the first v2 draft still line up.
+    maker: "",
     face: input.face,
-    poster: input.poster,
+    poster: "",
     fit_score: businessFitScore(input),
     ...(secret ? { secret } : {}),
   };

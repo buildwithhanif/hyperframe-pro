@@ -8,7 +8,7 @@ export const maxDuration = 30;
 
 const MAX_BODY_BYTES = 8_192;
 const FIELDS = ["niche", "platform", "handle", "followers", "posting", "goal", "language", "start", "budget"];
-const FIELDS_V2 = ["cat", "want", "platform", "handle", "maker", "face", "poster", "start", "budget"];
+const FIELDS_V2 = ["cat", "want", "platform", "handle", "face", "budget"];
 
 function fail(status: number, error: string, field?: string) {
   return NextResponse.json(field ? { error, field } : { error }, { status });
@@ -34,7 +34,10 @@ export async function POST(request: Request) {
     const issue = parsed.error.issues.find((i) => fields.includes(String(i.path[0])));
     if (issue) return fail(400, issue.message, String(issue.path[0]));
     const session = parsed.error.issues.some((i) => ["lead_id", "token"].includes(String(i.path[0])));
-    return fail(400, session ? "Your session expired. Please start again." : "Something in the form looks off. Please refresh and try again.");
+    return fail(
+      400,
+      session ? "Your session expired. Please start again." : "Something in the form looks off. Please refresh and try again.",
+    );
   }
   const input = parsed.data;
   if (!tokenValid(input.lead_id, input.token, signingSecret())) {
@@ -46,8 +49,7 @@ export async function POST(request: Request) {
   if (!rateLimit(key, 30).ok) return fail(429, "Too many attempts. Please try again in an hour.");
 
   const secret = process.env.WAITLIST_WEBHOOK_SECRET;
-  const row =
-    "variant" in input ? businessProfilePayload(input, new Date(), secret) : profilePayload(input, new Date(), secret);
+  const row = "variant" in input ? businessProfilePayload(input, new Date(), secret) : profilePayload(input, new Date(), secret);
   const result = await forwardRow(row);
   if (result === "not-configured") {
     console.error("WAITLIST_WEBHOOK_URL is not set; profile dropped");

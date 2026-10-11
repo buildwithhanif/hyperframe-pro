@@ -18,7 +18,7 @@ import {
   webhookSaved,
 } from "./waitlist.ts";
 import { confirmationEmail } from "./email.ts";
-import { CONSENT_TEXT_V2 } from "./waitlist-options.ts";
+import { CONSENT_TEXT_V2, OPTIN_TEXT_V2 } from "./waitlist-options.ts";
 
 const LEAD = "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b";
 
@@ -113,6 +113,7 @@ test("payloads are flat rows joined by lead_id, secret only when set", () => {
     email: "ani@example.com",
     whatsapp: "6281234567890",
     consent: CONSENT_TEXT,
+    optin: "",
     cat: "",
     utm_source: "x",
     utm_medium: "",
@@ -153,8 +154,14 @@ test("v2 signup needs WhatsApp, takes email optionally, and keeps the category",
   const noWa = SignupSchema.safeParse({ variant: "v2", name: "Budi", email: "budi@example.com", consent: true });
   assert.equal(noWa.success, false);
   assert.equal(noWa.error?.issues[0].path[0], "whatsapp");
-  assert.equal(SignupSchema.safeParse({ variant: "v2", name: "Budi", whatsapp: "0812 3456 7890", email: "budi@", consent: true }).success, false);
-  assert.equal(SignupSchema.safeParse({ variant: "v2", name: "Budi", whatsapp: "0812 3456 7890", consent: true, cat: "casino" }).success, false);
+  assert.equal(
+    SignupSchema.safeParse({ variant: "v2", name: "Budi", whatsapp: "0812 3456 7890", email: "budi@", consent: true }).success,
+    false,
+  );
+  assert.equal(
+    SignupSchema.safeParse({ variant: "v2", name: "Budi", whatsapp: "0812 3456 7890", consent: true, cat: "casino" }).success,
+    false,
+  );
   // v1 still needs an email.
   const v1 = SignupSchema.safeParse({ name: "Ani", whatsapp: "0812 3456 7890", consent: true });
   assert.equal(v1.success, false);
@@ -162,8 +169,15 @@ test("v2 signup needs WhatsApp, takes email optionally, and keeps the category",
   const row = signupPayload(v, LEAD, new Date("2026-10-11T00:00:00Z"));
   assert.equal(row.variant, "v2");
   assert.equal(row.consent, CONSENT_TEXT_V2);
+  assert.equal(row.optin, "");
   assert.equal(row.whatsapp, "6281234567890");
   assert.equal(row.cat, "food-drink");
+  // The later-groups opt-in is optional and recorded word for word when ticked.
+  const opted = SignupSchema.parse({ variant: "v2", name: "Budi", whatsapp: "0812 3456 7890", consent: true, optin: true });
+  assert.equal(signupPayload(opted, LEAD, new Date()).optin, OPTIN_TEXT_V2);
+  // v1 never records it, even if sent.
+  const v1opt = SignupSchema.parse({ name: "Ani", email: "ani@example.com", consent: true, optin: true });
+  assert.equal(signupPayload(v1opt, LEAD, new Date()).optin, "");
 });
 
 test("v2 business profile lands in the profile tab with readable columns", () => {
@@ -176,10 +190,7 @@ test("v2 business profile lands in the profile tab with readable columns", () =>
     want: "sales",
     platform: "both",
     handle: "https://www.instagram.com/kopi.ani/",
-    maker: "me",
     face: "me",
-    poster: "you",
-    start: "this-month",
     budget: "yes",
   });
   assert.equal(p.handle, "@kopi.ani");
@@ -188,9 +199,15 @@ test("v2 business profile lands in the profile tab with readable columns", () =>
   assert.equal(row.niche, "Beauty, skincare or fashion");
   assert.equal(row.goal, "sales");
   assert.equal(row.handle, "@kopi.ani");
-  assert.equal(row.poster, "you");
-  assert.equal(row.fit_score, 10);
+  assert.equal(row.face, "me");
+  // Columns from the first v2 draft stay, empty, so the sheet lines up.
+  assert.equal(row.maker, "");
+  assert.equal(row.poster, "");
+  assert.equal(row.start, "");
+  assert.equal(row.fit_score, 7);
   assert.equal(row.secret, "sec");
-  assert.equal(businessFitScore({ budget: "not-yet", start: "looking", maker: "agency", face: "unsure" }), 0);
-  assert.equal(BusinessProfileSchema.safeParse({ ...p, maker: "robot" }).success, false);
+  assert.equal(businessFitScore({ budget: "test-first", face: "team", handle: "" }), 4);
+  assert.equal(businessFitScore({ budget: "not-yet", face: "unsure", handle: "" }), 0);
+  assert.equal(BusinessProfileSchema.safeParse({ ...p, budget: "maybe" }).success, false);
+  assert.equal(BusinessProfileSchema.safeParse({ ...p, budget: "test-first" }).success, true);
 });

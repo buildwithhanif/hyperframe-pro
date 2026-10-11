@@ -5,65 +5,60 @@ import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Wordmark } from "@/components/site/Brand";
 import { formatReplyBy, replyBy } from "@/lib/dates";
-import { BIZ_PLATFORMS, BUDGETS, CATEGORIES, FACES, MAKERS, POSTERS, STARTS, WANTS } from "@/lib/waitlist-options";
-import { ChoiceStep, Choices, EASE, emailSuggestion, FieldError, Kicker, post, readUtm } from "./Onboarding";
+import { BIZ_BUDGETS, BIZ_PLATFORMS, CATEGORIES, FACES, WANTS } from "@/lib/waitlist-options";
+import { ChoiceStep, Choices, EASE, FieldError, Kicker, post, readUtm } from "./Onboarding";
 
 // v2 Get Started, for owners of an existing business. Same building blocks as
-// v1's creator flow, different questions: WhatsApp first, email optional, and
-// the first answer (what they sell) usually arrives from the landing page.
+// v1's creator flow, different questions: WhatsApp only, and the first answer
+// (what they sell) usually arrives from the landing page. Six steps; who makes
+// their content now and when to start are left for the setup call.
 
 type Answers = {
   cat: string;
   want: string;
   name: string;
   whatsapp: string;
-  email: string;
   consent: boolean;
+  optin: boolean;
   platform: string;
   handle: string;
-  maker: string;
   face: string;
-  poster: string;
-  start: string;
   budget: string;
 };
-type Session = { lead_id: string; token: string; emailed?: boolean };
-type StepId = "cat" | "want" | "contact" | "account" | "maker" | "face" | "poster" | "start" | "budget";
+type Session = { lead_id: string; token: string };
+type StepId = "cat" | "want" | "contact" | "account" | "face" | "budget";
 
 const EMPTY: Answers = {
   cat: "",
   want: "",
   name: "",
   whatsapp: "",
-  email: "",
   consent: false,
+  optin: false,
   platform: "",
   handle: "",
-  maker: "",
   face: "",
-  poster: "",
-  start: "",
   budget: "",
 };
-const STORE = "pai-apply-biz1";
-const STEPS: StepId[] = ["cat", "want", "contact", "account", "maker", "face", "poster", "start", "budget"];
+// New key: answers saved by the nine-step draft don't fit this shape.
+const STORE = "pai-apply-biz2";
+const STEPS: StepId[] = ["cat", "want", "contact", "account", "face", "budget"];
 const CONTACT = STEPS.indexOf("contact");
-const CHOICE: StepId[] = ["cat", "want", "account", "maker", "face", "poster", "start", "budget"];
+const CHOICE: StepId[] = ["cat", "want", "account", "face", "budget"];
 const FIELD_STEP: Record<string, StepId> = {
   cat: "cat",
   want: "want",
   name: "contact",
   whatsapp: "contact",
-  email: "contact",
   consent: "contact",
   platform: "account",
   handle: "account",
-  maker: "maker",
   face: "face",
-  poster: "poster",
-  start: "start",
   budget: "budget",
 };
+// The official business number, if set. Digits only for wa.me links.
+const WA = process.env.NEXT_PUBLIC_WA_NUMBER || "";
+const WA_DIGITS = WA.replace(/\D/g, "");
 
 function readStore(): { answers: Answers; session: Session | null } {
   try {
@@ -99,7 +94,6 @@ export default function BusinessOnboarding() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ field?: string; message: string } | null>(null);
   const [done, setDone] = useState(false);
-  const typoWarned = useRef("");
   const honeypot = useRef<HTMLInputElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const kbKeep = useRef<HTMLInputElement>(null);
@@ -117,7 +111,7 @@ export default function BusinessOnboarding() {
       if (cat && CATEGORIES.some((c) => c.value === cat)) a.cat = cat;
       const lead = params.get("lead");
       const t = params.get("t");
-      if (lead && t && /^[0-9a-f-]{36}$/i.test(lead) && /^[a-f0-9]{64}$/.test(t)) s = { lead_id: lead, token: t, emailed: true };
+      if (lead && t && /^[0-9a-f-]{36}$/i.test(lead) && /^[a-f0-9]{64}$/.test(t)) s = { lead_id: lead, token: t };
     } catch {}
     if (s) start = STEPS.indexOf("account");
     else if (a.cat) start = a.want ? CONTACT : 1;
@@ -169,9 +163,7 @@ export default function BusinessOnboarding() {
       case "contact":
         if (a.name.trim().length < 2) return { field: "name", message: "Please enter your name." };
         if (a.whatsapp.replace(/\D/g, "").length < 8) return { field: "whatsapp", message: "Add your WhatsApp number so we can reply." };
-        if (a.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(a.email.trim()))
-          return { field: "email", message: "That email doesn’t look right. Leave it empty if you like." };
-        if (!a.consent) return { field: "consent", message: "Please tick the box so we can contact you." };
+        if (!a.consent) return { field: "consent", message: "Please tick the box so we can message you." };
         return null;
       case "account":
         return a.platform ? null : { field: "platform", message: "Pick your main account." };
@@ -186,8 +178,8 @@ export default function BusinessOnboarding() {
       cat: a.cat,
       name: a.name,
       whatsapp: a.whatsapp,
-      email: a.email,
       consent: a.consent,
+      optin: a.optin,
       company: honeypot.current?.value ?? "",
       ...readUtm(),
     }).catch(() => null);
@@ -201,7 +193,7 @@ export default function BusinessOnboarding() {
       setError({ field, message: res.data.error || "We couldn’t save that. Please try again." });
       return false;
     }
-    setSession({ lead_id: res.data.lead_id ?? "", token: res.data.token ?? "", emailed: res.data.emailed === true });
+    setSession({ lead_id: res.data.lead_id ?? "", token: res.data.token ?? "" });
     return true;
   }
 
@@ -218,10 +210,7 @@ export default function BusinessOnboarding() {
       want: a.want,
       platform: a.platform,
       handle: a.handle,
-      maker: a.maker,
       face: a.face,
-      poster: a.poster,
-      start: a.start,
       budget: a.budget,
       company: honeypot.current?.value ?? "",
     }).catch(() => null);
@@ -258,13 +247,6 @@ export default function BusinessOnboarding() {
         );
       } else refocus();
       return;
-    }
-    // A likely typo in the optional email gets one warning; Enter again keeps it.
-    const sug = step === "contact" && merged.email ? emailSuggestion(merged.email) : null;
-    if (sug && typoWarned.current !== merged.email) {
-      typoWarned.current = merged.email;
-      setError({ field: "email", message: `Did you mean ${sug}? Tap “Yes, fix it”, or press Enter again to keep what you typed.` });
-      return refocus();
     }
     if (step === "contact" && !session) {
       setBusy(true);
@@ -331,7 +313,11 @@ export default function BusinessOnboarding() {
         return (
           <ChoiceStep
             uid={uid}
-            kicker={catLabel ? `${catLabel}. Pick the one that matters most.` : "Pick the one that matters most."}
+            kicker={
+              catLabel
+                ? `${catLabel}. We can’t promise any of these; it tells us what to plan for.`
+                : "We can’t promise any of these; it tells us what to plan for."
+            }
             q="What do you want more of?"
             options={[...WANTS]}
             value={answers.want}
@@ -342,7 +328,7 @@ export default function BusinessOnboarding() {
       case "contact":
         return (
           <>
-            <Kicker>We reply on WhatsApp within 2 working days.</Kicker>
+            <Kicker>Expect a WhatsApp message within 2 working days.</Kicker>
             <h1 tabIndex={-1}>Where should we send your reply?</h1>
             <label className="ob-sub" htmlFor={`${uid}-name`}>
               Your name
@@ -367,7 +353,7 @@ export default function BusinessOnboarding() {
               type="tel"
               inputMode="tel"
               autoComplete="tel"
-              enterKeyHint="next"
+              enterKeyHint="done"
               maxLength={24}
               placeholder="0812 3456 7890"
               value={answers.whatsapp}
@@ -376,35 +362,16 @@ export default function BusinessOnboarding() {
               aria-describedby={`${uid}-wa-help`}
             />
             <p id={`${uid}-wa-help`} className="ob-help">
-              Only for your application. No broadcasts. Outside Indonesia? Start with your country code.
+              We only use it for this application. Outside Indonesia? Start with your country code.
+              {WA && (
+                <>
+                  {" "}
+                  We only message from <span className="ob-nowrap">{WA}</span>, and we never ask for OTP codes or passwords.
+                </>
+              )}
             </p>
-            <label className="ob-sub" htmlFor={`${uid}-email`}>
-              Email <span>(optional, for invoices later)</span>
-            </label>
-            <input
-              id={`${uid}-email`}
-              className="ob-input ob-input--sm"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              autoCapitalize="none"
-              spellCheck={false}
-              enterKeyHint="done"
-              maxLength={254}
-              value={answers.email}
-              onChange={(e) => set("email", e.target.value)}
-              aria-invalid={error?.field === "email" ? true : undefined}
-            />
-            {answers.email && emailSuggestion(answers.email) && (
-              <p className="ob-suggest" role="status">
-                Did you mean <b>{emailSuggestion(answers.email)}</b>?{" "}
-                <button type="button" onClick={() => set("email", emailSuggestion(answers.email)!)}>
-                  Yes, fix it
-                </button>
-              </p>
-            )}
             <FieldError
-              show={!!error && ["name", "whatsapp", "email"].includes(error.field ?? "")}
+              show={!!error && ["name", "whatsapp"].includes(error.field ?? "")}
               id={`${uid}-contact-err`}
               message={error?.message}
             />
@@ -421,18 +388,22 @@ export default function BusinessOnboarding() {
                 I agree to the{" "}
                 <Link href="/privacy" target="_blank">
                   privacy policy
-                </Link>
-                , and to produktif.ai contacting me about my application and future cohorts on WhatsApp, or by email if I added one. I can
-                opt out anytime.
+                </Link>{" "}
+                and to produktif.ai messaging me on WhatsApp about this application.
               </span>
             </label>
             <FieldError show={error?.field === "consent"} id={`${uid}-consent-err`} message={error?.message} />
+            <label className="ob-consent ob-consent--opt">
+              <input type="checkbox" checked={answers.optin} onChange={(e) => set("optin", e.target.checked)} />
+              {/* Mirrors OPTIN_TEXT_V2. Optional. */}
+              <span>Also message me when a new group of businesses opens. I can stop anytime. (Optional)</span>
+            </label>
           </>
         );
       case "account":
         return (
           <>
-            <Kicker>{`You’re on the list${first ? `, ${first}` : ""}. A few taps so we can see if it’s a fit.`}</Kicker>
+            <Kicker>{`Got it${first ? `, ${first}` : ""}. A few quick taps so we can check the fit.`}</Kicker>
             <h1 tabIndex={-1} id={`${uid}-account-q`}>
               Your business&rsquo;s main account?
             </h1>
@@ -467,53 +438,17 @@ export default function BusinessOnboarding() {
             <FieldError show={!!err("platform")} id={`${uid}-account-err`} message={err("platform")} />
           </>
         );
-      case "maker":
-        return (
-          <ChoiceStep
-            uid={uid}
-            kicker="No wrong answer."
-            q="Who makes your content now?"
-            options={[...MAKERS]}
-            value={answers.maker}
-            onPick={(v, a) => pick("maker", v, a)}
-            error={err("maker")}
-          />
-        );
       case "face":
         return (
           <ChoiceStep
             uid={uid}
-            kicker="Your videos star an AI version of one real person."
+            kicker="Each video opens and closes with an AI version of one real person."
             q="Who will be the face of your videos?"
-            lead="It has to be the person who signs the agreement and records a short consent line. We check their ID."
+            lead="It has to be you, or someone on your team who agrees in writing and passes an ID check. Nothing to upload today."
             options={[...FACES]}
             value={answers.face}
             onPick={(v, a) => pick("face", v, a)}
             error={err("face")}
-          />
-        );
-      case "poster":
-        return (
-          <ChoiceStep
-            uid={uid}
-            kicker="Right now you post the videos yourself. We’re asking because we may add posting."
-            q="Who would post the videos?"
-            options={[...POSTERS]}
-            value={answers.poster}
-            onPick={(v, a) => pick("poster", v, a)}
-            error={err("poster")}
-          />
-        );
-      case "start":
-        return (
-          <ChoiceStep
-            uid={uid}
-            kicker="The founding cohort is small. After it, a new cohort opens every month."
-            q="When would you like to start?"
-            options={[...STARTS]}
-            value={answers.start}
-            onPick={(v, a) => pick("start", v, a)}
-            error={err("start")}
           />
         );
       case "budget":
@@ -522,9 +457,15 @@ export default function BusinessOnboarding() {
             uid={uid}
             kicker="Last one."
             q="Does Rp 4,000,000 a month work for you?"
-            lead="That’s the founding rate: 60 finished videos a month. Month to month, no tool subscriptions."
-            note={answers.budget === "not-yet" ? "That’s fine. We’ll message you when later cohorts open." : undefined}
-            options={[...BUDGETS]}
+            lead="That’s the founding rate for 60 finished videos a month. Month to month, no tool subscriptions."
+            note={
+              answers.budget === "test-first"
+                ? "Fair. If we pick you, your test clip comes before any monthly bill, and the deposit comes back if it isn’t right."
+                : answers.budget === "not-yet"
+                  ? "That’s fine. We’ll still reply to your application."
+                  : undefined
+            }
+            options={[...BIZ_BUDGETS]}
             value={answers.budget}
             onPick={(v, a) => pick("budget", v, a)}
             error={err("budget")}
@@ -543,24 +484,29 @@ export default function BusinessOnboarding() {
         </Link>
         {!done && (
           <p className="ob-count" aria-live="polite">
-            {index <= CONTACT ? "About your business" : "Almost done"}
-            <span className="sr">
-              , question {index + 1} of {total}
-            </span>
+            Step {index + 1} of {total}
           </p>
         )}
-        <Link href="/v2" className="ob-close">
-          {done ? (
-            "Back to site"
-          ) : (
-            <>
-              <span className="ob-close-more">Save and finish later</span>
-              <span className="ob-close-less">Finish later</span>
-            </>
-          )}
-        </Link>
+        {/* Nothing is saved on our side before the contact step, so "finish
+            later" only appears once it would be true. */}
+        {(done || index > CONTACT) && (
+          <Link href="/v2" className="ob-close">
+            {done ? (
+              "Back to site"
+            ) : (
+              <>
+                <span className="ob-close-more">Save and finish later</span>
+                <span className="ob-close-less">Finish later</span>
+              </>
+            )}
+          </Link>
+        )}
         <div className="ob-progress" aria-hidden="true">
-          <m.i initial={false} animate={{ scaleX: done ? 1 : (index + 1) / total }} transition={{ duration: reduce ? 0 : 0.5, ease: EASE }} />
+          <m.i
+            initial={false}
+            animate={{ scaleX: done ? 1 : (index + 1) / total }}
+            transition={{ duration: reduce ? 0 : 0.5, ease: EASE }}
+          />
         </div>
       </header>
 
@@ -581,9 +527,9 @@ export default function BusinessOnboarding() {
               >
                 <Done
                   name={answers.name}
-                  email={answers.email}
-                  emailed={!!answers.email && session?.emailed !== false}
-                  warm={answers.budget === "yes" && answers.start !== "looking"}
+                  cat={catLabel ?? ""}
+                  warm={answers.budget === "yes" || answers.budget === "test-first"}
+                  optin={answers.optin}
                 />
               </m.section>
             ) : (
@@ -631,7 +577,7 @@ export default function BusinessOnboarding() {
                   )}
                   {showSubmit ? (
                     <button type="submit" className="ob-next" aria-disabled={busy}>
-                      {busy ? "Saving…" : index === total - 1 ? "Send" : step === "contact" ? "Join the waitlist" : "Continue"}
+                      {busy ? "Saving…" : index === total - 1 ? "Send" : step === "contact" ? "Send my application" : "Continue"}
                     </button>
                   ) : (
                     <span className="ob-keyhint" aria-hidden="true">
@@ -655,14 +601,14 @@ export default function BusinessOnboarding() {
   );
 }
 
-function Done({ name, email, emailed, warm }: { name: string; email: string; emailed: boolean; warm: boolean }) {
+function Done({ name, cat, warm, optin }: { name: string; cat: string; warm: boolean; optin: boolean }) {
   const first = name.trim().split(/\s+/)[0];
   const by = <span className="ob-nowrap">{formatReplyBy(replyBy(new Date()))}</span>;
-  const wa = process.env.NEXT_PUBLIC_WA_NUMBER;
+  const hello = `Hi, I just applied. Name: ${name.trim()}.${cat ? ` I sell: ${cat}.` : ""}`;
   return (
     <div className="ob-done-inner" role="status">
-      <h1 tabIndex={-1} className="ob-pop" aria-label={first ? `You’re on the list, ${first}.` : "You’re on the list."}>
-        {(first ? ["You’re", "on", "the", "list,", `${first}.`] : ["You’re", "on", "the", "list."]).map((w, i, all) => (
+      <h1 tabIndex={-1} className="ob-pop" aria-label={first ? `Application sent, ${first}.` : "Application sent."}>
+        {(first ? ["Application", "sent,", `${first}.`] : ["Application", "sent."]).map((w, i, all) => (
           <span
             key={i}
             aria-hidden="true"
@@ -677,40 +623,41 @@ function Done({ name, email, emailed, warm }: { name: string; email: string; ema
         {warm ? (
           <>We read every application ourselves. You&rsquo;ll hear from us on WhatsApp by {by}.</>
         ) : (
-          <>Thanks for the honest answer. You&rsquo;ll still hear from us by {by}, and again when later cohorts open. No pressure.</>
+          <>
+            Thanks for the honest answer. You&rsquo;ll still hear from us by {by}
+            {optin ? ", and again when a new group opens" : ""}. No pressure.
+          </>
         )}
       </p>
+      {WA_DIGITS && (
+        <div className="ob-done-wa">
+          <a className="ob-next" href={`https://wa.me/${WA_DIGITS}?text=${encodeURIComponent(hello)}`} target="_blank" rel="noopener">
+            Say hi on WhatsApp now
+          </a>
+          <p className="ob-help">
+            Save this number, <span className="ob-nowrap">{WA}</span>. It&rsquo;s the only one we message from.
+          </p>
+        </div>
+      )}
       <ol className="ob-next-steps">
-        <li>
-          <span>
-            {wa ? (
-              <>
-                <b>Save our number.</b> We&rsquo;ll message you on WhatsApp from {wa}. It&rsquo;s the only number we use.
-              </>
-            ) : (
-              <>
-                <b>Watch your WhatsApp.</b> That&rsquo;s where we&rsquo;ll reply.
-              </>
-            )}
-          </span>
-        </li>
-        {emailed && (
+        {!WA_DIGITS && (
           <li>
             <span>
-              <b>Check your inbox.</b> A confirmation went to {email}. Not there in 5 minutes? Look in Promotions or Spam.
+              <b>Watch your WhatsApp.</b> That&rsquo;s where we&rsquo;ll reply.
             </span>
           </li>
         )}
         <li>
           <span>
-            <b>Money only after you&rsquo;re picked.</b> We never ask for payment before that, and always with a PDF invoice.
+            <b>Money only after we pick you.</b> We never ask for payment before that, and always with a PDF invoice.
           </span>
         </li>
         {warm && (
           <li>
             <span>
-              <b>If you&rsquo;re picked:</b> a short setup call, then a Rp 1,000,000 deposit that comes off your first month. Within 7 days you
-              get a test clip of you. Not right? Ask for 1 redo, or say no and the deposit comes back.
+              <b>If we pick you:</b> a short setup call. Then you sign the agreement and pay a Rp 1,000,000 refundable deposit. About 7 days
+              after you send your photos and voice recording, you get a test clip of you. Not right? We redo it once, or say no and the
+              deposit comes back.
             </span>
           </li>
         )}

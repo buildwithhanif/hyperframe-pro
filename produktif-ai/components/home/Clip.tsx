@@ -11,7 +11,17 @@ const SOUND_EVENT = "pai:sound";
 // screen, pauses when it leaves, and offers sound on tap. If the browser
 // refuses autoplay (Low Power Mode, data saver), the poster stays up with a
 // play button instead.
-export default function Clip({ clip, eager = false, className = "" }: { clip: ClipSource; eager?: boolean; className?: string }) {
+export default function Clip({
+  clip,
+  eager = false,
+  className = "",
+  label = "AI persona",
+}: {
+  clip: ClipSource;
+  eager?: boolean;
+  className?: string;
+  label?: string;
+}) {
   const id = useId();
   const ref = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
@@ -109,7 +119,7 @@ export default function Clip({ clip, eager = false, className = "" }: { clip: Cl
         onError={() => setBlocked(true)}
         aria-label={`${clip.title}. A video made with Hanif's AI persona.`}
       />
-      <span className="clip-label">AI persona</span>
+      <span className="clip-label">{label}</span>
       {blocked ? (
         <button type="button" className="clip-play" onClick={playNow} aria-label={`Play ${clip.title}`}>
           Play

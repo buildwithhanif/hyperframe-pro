@@ -10,7 +10,7 @@ import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
 import JSZip from "jszip";
 import { SAMPLE_DECK } from "../lib/sample.ts";
-import { CONSENT_TEXT } from "../lib/waitlist-options.ts";
+import { CONSENT_TEXT, CONSENT_TEXT_V2, OPTIN_TEXT_V2 } from "../lib/waitlist-options.ts";
 
 const OUT = path.resolve("e2e-output");
 fs.rmSync(OUT, { recursive: true, force: true });
@@ -212,23 +212,45 @@ try {
     await page.close();
   });
 
-  await check("v2: on a 360x740 phone the headline, the month engine and the first answers show before any scroll", async () => {
-    const page = await browser.newPage({ viewport: { width: 360, height: 740 } });
+  await check("v2: in an in-app browser's visible area the price and all six answers show before any scroll", async () => {
+    for (const [width, height] of [
+      [390, 700],
+      [360, 640],
+    ]) {
+      const page = await browser.newPage({ viewport: { width, height } });
+      await page.goto("http://localhost:3101/v2");
+      const r = await page.evaluate(() => {
+        const box = (sel) => document.querySelector(sel)?.getBoundingClientRect();
+        const chips = [...document.querySelectorAll("#hero-cat .cat-chip")].map((c) => c.getBoundingClientRect().bottom);
+        return { price: box(".hero-price")?.bottom, lastChip: Math.max(...chips), eng: box(".eng")?.top };
+      });
+      assert.ok(r.price < height && r.lastChip <= height, `${width}x${height}: price bottom ${r.price}, last chip bottom ${r.lastChip}`);
+      // On phones the video card comes after the question, not before it.
+      assert.ok(r.eng > r.lastChip, `${width}x${height}: video card top ${r.eng} should be below the chips (${r.lastChip})`);
+      await page.close();
+    }
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     await page.goto("http://localhost:3101/v2");
-    const r = await page.evaluate(() => {
-      const box = (sel) => document.querySelector(sel)?.getBoundingClientRect();
-      return { h: box(".hero-h")?.bottom, eng: box(".eng")?.top, chip: box("#hero-cat .cat-chip")?.bottom };
-    });
-    assert.ok(r.h < 740 && r.eng < 740 && r.chip <= 740, `headline ${r.h}, engine top ${r.eng}, first chip bottom ${r.chip}`);
     const labels = await page.evaluate(() => [...document.querySelectorAll("video")].map((v) => v.closest(".clip")?.querySelector(".clip-label")?.textContent));
-    assert.ok(labels.length >= 7 && labels.every((l) => l === "AI persona"), `labels: ${labels}`);
+    assert.ok(labels.length >= 5 && labels.every((l) => l?.startsWith("Made with AI")), `labels: ${labels}`);
     const hrefs = await page.$$eval("#hero-cat .cat-chip", (as) => as.map((a) => a.getAttribute("href")));
     assert.equal(hrefs.length, 6);
     assert.ok(hrefs.every((h) => /^\/v2\/start\?cat=[a-z-]+$/.test(h)), `chip links: ${hrefs}`);
+    assert.equal(await page.locator("details[open]").count(), 0, "no FAQ answer starts open");
     await page.close();
   });
 
-  await check("v2: a business owner goes from a hero tap to the confirmation; WhatsApp required, email optional", async () => {
+  await check("v2: /dm and /ig keep their source on the way to /v2", async () => {
+    const page = await browser.newPage();
+    await page.goto("http://localhost:3101/dm");
+    assert.match(page.url(), /\/v2\?utm_source=dm$/);
+    await page.getByText("From Hanif’s DMs").waitFor();
+    await page.goto("http://localhost:3101/ig");
+    assert.match(page.url(), /\/v2\?utm_source=ig_bio$/);
+    await page.close();
+  });
+
+  await check("v2: a business owner goes from a hero tap to the confirmation in 6 steps; WhatsApp only", async () => {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     const errors = [];
     page.on("pageerror", (e) => errors.push(String(e)));
@@ -236,23 +258,32 @@ try {
     await page.locator("#hero-cat .cat-chip", { hasText: "Food and drinks" }).click();
     await page.waitForURL(/\/v2\/start\?cat=food-drink/);
     await page.getByRole("heading", { name: "What do you want more of?" }).waitFor();
+    assert.equal(await page.locator(".ob-count").innerText(), "Step 2 of 6");
+    assert.equal(await page.locator(".ob-close").count(), 0, "nothing is saved yet, so no 'finish later'");
     await page.getByRole("radio", { name: "More sales from my posts" }).click();
     await page.getByRole("heading", { name: "Where should we send your reply?" }).waitFor();
+    assert.equal(await page.locator('input[type="email"]').count(), 0, "v2 doesn't ask for email");
+    // What people tick must match what the sheet records.
+    assert.equal(await page.$eval(".ob-consent:not(.ob-consent--opt) span", (el) => el.innerText.trim()), CONSENT_TEXT_V2);
+    assert.ok((await page.$eval(".ob-consent--opt span", (el) => el.innerText.trim())).startsWith(OPTIN_TEXT_V2));
     await page.getByLabel("Your name").fill("Budi Santoso");
-    await page.getByRole("checkbox").check();
-    await page.getByRole("button", { name: "Join the waitlist" }).click();
+    await page.getByRole("checkbox", { name: /I agree to the/ }).check();
+    assert.equal(await page.getByRole("checkbox", { name: /new group/ }).isChecked(), false, "the later-groups opt-in starts unticked");
+    await page.getByRole("button", { name: "Send my application" }).click();
     await page.getByText("Add your WhatsApp number so we can reply.").waitFor();
     await page.getByLabel("WhatsApp number").fill("0812 3456 7890");
-    await page.getByRole("button", { name: "Join the waitlist" }).click();
+    await page.getByRole("button", { name: "Send my application" }).click();
     await page.getByRole("heading", { name: "Your business’s main account?" }).waitFor({ timeout: 10000 });
+    await page.getByText("Got it, Budi.").waitFor();
+    assert.equal(await page.locator(".ob-close").count(), 1, "'finish later' appears once the application is saved");
     await page.getByRole("radio", { name: "Instagram and TikTok" }).check();
     await page.getByLabel(/Its @handle/).fill("@kopibudi");
     await page.getByRole("button", { name: "Continue" }).click();
-    for (const answer of ["Me, when I find the time", "Me", "I'd want you to post them", "This month", "Yes, that works"]) {
-      await page.getByRole("radio", { name: answer, exact: true }).click();
-    }
-    await page.getByRole("heading", { name: "You’re on the list, Budi." }).waitFor({ timeout: 10000 });
-    assert.equal(await page.evaluate(() => localStorage.getItem("pai-apply-biz1")), null, "finished applications clear saved progress");
+    await page.getByRole("radio", { name: "Me", exact: true }).click();
+    await page.getByRole("heading", { name: "Does Rp 4,000,000 a month work for you?" }).waitFor();
+    await page.getByRole("radio", { name: "Only if I like my test clip" }).click();
+    await page.getByRole("heading", { name: "Application sent, Budi." }).waitFor({ timeout: 10000 });
+    assert.equal(await page.evaluate(() => localStorage.getItem("pai-apply-biz2")), null, "finished applications clear saved progress");
     assert.deepEqual(errors, []);
     await page.close();
   });

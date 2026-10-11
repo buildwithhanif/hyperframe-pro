@@ -888,7 +888,10 @@ export function Choices(props: {
             <span className="ob-key" aria-hidden="true">
               {String.fromCharCode(65 + i)}
             </span>
-            <span className="ob-label">{o.label}</span>
+            <span className="ob-label">
+              {o.label}
+              {o.hint && <span className="ob-hint">{o.hint}</span>}
+            </span>
             <svg className="ob-tick" viewBox="0 0 16 16" aria-hidden="true">
               <path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
