@@ -94,9 +94,10 @@ export default function ConsentPage() {
                 Rp 1,000,000 deposit and delete your files.
               </p>
               <p>
-                Once you approve the test clip, your persona opens and closes each video. The middle of each video is motion graphics and
-                screen demos made in-house. Each week we send you the scripts before we make the videos. You can change or cut any of them.
-                No reply within 24 hours means we go ahead.
+                Once you approve the test clip, your persona opens and closes each video. For creators, the middle of each video is motion
+                graphics and screen demos made in-house. For a business, it shows your shop and products, made from the photos and clips you
+                send. Each week we send you the scripts before we make the videos. You can change or cut any of them. No reply within 24
+                hours means we go ahead.
               </p>
               <p>Your persona only tells personal stories you gave us yourself at onboarding. We never invent experiences for you.</p>
             </>
@@ -139,7 +140,10 @@ export default function ConsentPage() {
           heading: "The identity and age check",
           body: (
             <>
-              <p>We only build a persona from the face and voice of the person who signs the agreement. That person must be 18 or older.</p>
+              <p>
+                We only build a persona from the face and voice of the person who signs the agreement or, for a business, a team member who
+                signs their own consent form. That person must be 18 or older.
+              </p>
               <p>
                 To check this, you show your KTP or passport and take a live selfie. We match the two. Right after the match, we delete the
                 ID image. From the check itself, we keep only a record that it passed. The selfie is used for this match and nothing else.

@@ -3,7 +3,7 @@
 #   ./scripts/cut-v3.sh /tmp/claude-0/samples-raw     (preferred: higher bitrate)
 #   ./scripts/cut-v3.sh                               (falls back to public/samples)
 # cut-samples.sh starts every sample at 0, so the timecodes match either way.
-# Output: public/samples/v3/{hero.mp4, hero.jpg, open.jpg, close.jpg}
+# Output: public/samples/v3/{hero.mp4, hero.jpg, open.jpg, close.jpg, ahliwaris-ai.mp4, colokan-ai.mp4}
 set -euo pipefail
 APP=${APP:-"$(cd "$(dirname "$0")/.." && pwd)"}
 SRC=${1:-$APP/public/samples}
@@ -44,8 +44,16 @@ ffmpeg -nostdin -loglevel error -y -i "$OUT/hero.mp4" -frames:v 1 -q:v 3 "$OUT/h
 # Anatomy stills: 9:16 crops from the caption-free top of the frame.
 ffmpeg -nostdin -loglevel error -y -ss 3.50 -i "$SRC/ahliwaris.mp4" -frames:v 1 -vf "crop=460:818:130:0,scale=360:640:flags=lanczos" -q:v 4 "$OUT/open.jpg"
 ffmpeg -nostdin -loglevel error -y -ss 7.40 -i "$SRC/qris.mp4" -frames:v 1 -vf "crop=460:818:130:0,scale=360:640:flags=lanczos" -q:v 4 "$OUT/close.jpg"
+# The two posts the "Hear the AI voice" dialog plays, with sound, carrying a
+# burned "Made with AI" tag top-left. The page shows its own label too, but
+# native fullscreen, picture-in-picture and saved copies only show the file.
+for name in ahliwaris colokan; do
+  ffmpeg -nostdin -loglevel error -y -i "$APP/public/samples/$name.mp4" \
+    -vf "drawbox=x=24:y=24:w=170:h=40:color=black@0.8:t=fill,drawtext=fontfile=$FONT:text='Made with AI':fontsize=23:fontcolor=white:x=24+(170-tw)/2:y=24+(40-th)/2" \
+    -c:v libx264 -preset slow -crf 27 -maxrate 1300k -bufsize 2600k -pix_fmt yuv420p -profile:v high -c:a copy -movflags +faststart "$OUT/$name-ai.mp4"
+done
 rm -f "$FONT"
 
-for f in hero.mp4 hero.jpg open.jpg close.jpg; do printf '%-10s %5s KB\n' "$f" "$(( $(stat -c%s "$OUT/$f") / 1024 ))"; done
+for f in hero.mp4 hero.jpg open.jpg close.jpg ahliwaris-ai.mp4 colokan-ai.mp4; do printf '%-10s %5s KB\n' "$f" "$(( $(stat -c%s "$OUT/$f") / 1024 ))"; done
 ffprobe -v error -select_streams v:0 -show_entries stream=width,height,nb_frames,r_frame_rate -of csv=p=0 "$OUT/hero.mp4"
 [ -z "$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$OUT/hero.mp4")" ] && echo "no audio track: ok"

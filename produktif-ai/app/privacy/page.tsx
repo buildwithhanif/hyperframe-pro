@@ -70,16 +70,23 @@ export default function PrivacyPage() {
                     </th>
                   </tr>
                   <tr>
-                    <td>Name and email</td>
+                    <td>Creator application: name and email</td>
                     <td>To reply to your application and send your confirmation email</td>
                   </tr>
                   <tr>
-                    <td>WhatsApp number (optional)</td>
+                    <td>Creator application: WhatsApp number (optional)</td>
                     <td>To message you about your application, if you&rsquo;d rather use WhatsApp</td>
                   </tr>
                   <tr>
-                    <td>The consent sentence you agreed to, and the time you sent the form</td>
-                    <td>To keep a record that you agreed</td>
+                    <td>Business application: name and WhatsApp number</td>
+                    <td>To reply to your application on WhatsApp</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      The consent sentence you agreed to, the time you sent the form, and, if you ticked it, the optional sentence asking us
+                      to message you when a new group opens
+                    </td>
+                    <td>To keep a record of what you agreed to</td>
                   </tr>
                   <tr>
                     <td>
@@ -89,7 +96,14 @@ export default function PrivacyPage() {
                     <td>To pick the right people for each cohort</td>
                   </tr>
                   <tr>
-                    <td>Campaign tags in the link you clicked (UTM tags)</td>
+                    <td>
+                      Your business answers: what you sell, what you want more of, your main account and handle, who would be the face of
+                      your videos, and whether the price works for you
+                    </td>
+                    <td>To pick the businesses we can serve well</td>
+                  </tr>
+                  <tr>
+                    <td>Campaign tags in the link you clicked (UTM tags), and which version of the page you applied from</td>
                     <td>To see which posts bring people to the site</td>
                   </tr>
                   <tr>
@@ -359,8 +373,8 @@ export default function PrivacyPage() {
             <>
               <p>
                 produktif.ai is for people aged 18 and over. Please don&rsquo;t apply if you&rsquo;re under 18. Every client passes an ID
-                and selfie check that confirms their age. We only build a persona of the creator who signs the agreement, from their own
-                face and voice.
+                and selfie check that confirms their age. We only build a persona from the face and voice of the person who signs the
+                agreement or, for a business, a team member who signs their own consent form.
               </p>
               <p>If we learn that we&rsquo;ve collected data from someone under 18, we delete it.</p>
             </>

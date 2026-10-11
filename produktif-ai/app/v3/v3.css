@@ -129,7 +129,7 @@
   position: absolute;
   inset: 0 auto auto 0;
   z-index: 3;
-  padding: 14px 0 0 20px;
+  padding: 16px 0 0 20px;
 }
 .pai.v3 .v3-top a {
   display: inline-flex;
@@ -143,45 +143,36 @@
 }
 
 /* the AI label and the sound pill */
+/* one flat AI tag, the same shape as the tile tags */
 .pai.v3 .v3-ai {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 28px;
-  padding: 0 11px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.62);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.72);
   color: #fff;
   font-size: 12.5px;
-  font-weight: 700;
+  font-weight: 650;
   line-height: 1;
   white-space: nowrap;
 }
 .pai.v3 .v3-ai span {
+  margin-left: 0.35em;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.8);
-}
-.pai.v3 .v3-ai i {
-  flex: none;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--yellow);
 }
 .pai.v3 .v3-media .v3-ai {
   position: absolute;
   z-index: 2;
   left: 20px;
-  bottom: 44px;
+  bottom: 54px;
 }
 .pai.v3 .v3-pill {
   position: absolute;
   z-index: 3;
-  top: 12px;
-  right: 16px;
+  top: 10px;
+  right: 20px;
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -247,6 +238,10 @@
   color: rgba(255, 255, 255, 0.84);
   text-wrap: pretty;
 }
+.pai.v3 .v3-sub b {
+  font-weight: 600;
+  color: #fff;
+}
 .pai.v3 .v3-copy .v3-cta-wrap {
   margin-top: 16px;
 }
@@ -311,6 +306,15 @@
   font-size: 10px;
   font-weight: 650;
   line-height: 1.2;
+  white-space: nowrap;
+}
+@media (max-width: 359px) {
+  .pai.v3 .v3-tag {
+    top: 4px;
+    left: 4px;
+    padding: 2px 4px;
+    font-size: 9px;
+  }
 }
 .pai.v3 .v3-slot {
   display: flex;
@@ -319,7 +323,8 @@
   justify-content: center;
   padding: 12px;
   border-radius: 10px;
-  background: var(--paper-lo);
+  background: #000;
+  color: #fff;
   text-align: center;
 }
 .pai.v3 .v3-slot b {
@@ -329,12 +334,6 @@
   text-transform: uppercase;
   font-size: 22px;
   line-height: 0.95;
-}
-.pai.v3 .v3-slot small {
-  margin-top: 8px;
-  font-size: 13px;
-  line-height: 1.35;
-  color: var(--muted);
 }
 .pai.v3 .v3-cap {
   margin-top: 8px;
@@ -427,7 +426,7 @@
   font-weight: 900;
   font-stretch: 62%;
   text-transform: uppercase;
-  font-size: min(12.4vw, 56px);
+  font-size: min(calc((100vw - 40px) / 8.5), 56px);
   line-height: 0.9;
   color: #fff;
 }
@@ -500,7 +499,7 @@
   align-items: center;
   justify-content: space-between;
   height: calc(52px + env(safe-area-inset-top, 0px));
-  padding: env(safe-area-inset-top, 0px) 16px 0 20px;
+  padding: env(safe-area-inset-top, 0px) 20px 0;
   border-bottom: 1px solid var(--line);
   background: #fff;
   transform: translateY(-101%);
@@ -557,10 +556,18 @@
   padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(16px, env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
 }
+.pai.v3 .v3-dialog-in {
+  --w: min(100%, calc((100svh - 176px) * 9 / 16));
+}
+.pai.v3 .v3-dialog-media,
+.pai.v3 .v3-dialog-cap,
+.pai.v3 .v3-dialog-actions {
+  width: var(--w);
+  margin-inline: auto;
+}
 .pai.v3 .v3-dialog-media {
   position: relative;
-  margin: 44px auto 0;
-  width: min(100%, calc((100svh - 220px) * 9 / 16));
+  margin-top: 0;
   aspect-ratio: 9 / 16;
   overflow: hidden;
   border-radius: 12px;
@@ -580,15 +587,16 @@
 }
 .pai.v3 .v3-x {
   position: absolute;
-  top: max(8px, env(safe-area-inset-top, 0px));
+  top: 8px;
   right: 8px;
+  z-index: 2;
   display: grid;
   place-items: center;
   width: 44px;
   height: 44px;
   border: 0;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.55);
   color: #fff;
   font-size: 26px;
   line-height: 1;

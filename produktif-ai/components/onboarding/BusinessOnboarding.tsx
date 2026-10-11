@@ -447,7 +447,7 @@ export default function BusinessOnboarding({ home = "/v2" }: { home?: "/v2" | "/
             uid={uid}
             kicker="Each video opens and closes with an AI version of one real person."
             q="Who will be the face of your videos?"
-            lead="It has to be you, or someone on your team who agrees in writing and passes an ID check. Nothing to upload today."
+            lead="It has to be you, or someone on your team who agrees in writing. Whoever it is passes an ID check. Nothing to upload today."
             options={[...FACES]}
             value={answers.face}
             onPick={(v, a) => pick("face", v, a)}

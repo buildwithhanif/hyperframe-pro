@@ -331,10 +331,10 @@ try {
     await page.getByRole("button", { name: "Hear the AI voice" }).click();
     const dlg = page.getByRole("dialog");
     await dlg.waitFor();
-    assert.equal(await page.locator(".v3-dialog video").getAttribute("src"), "/samples/ahliwaris.mp4");
+    assert.equal(await page.locator(".v3-dialog video").getAttribute("src"), "/samples/v3/ahliwaris-ai.mp4");
     assert.match(await page.locator(".v3-ai--dialog").innerText(), /Made with AI/);
     await page.getByRole("button", { name: "Next clip" }).click();
-    assert.equal(await page.locator(".v3-dialog video").getAttribute("src"), "/samples/colokan.mp4");
+    assert.equal(await page.locator(".v3-dialog video").getAttribute("src"), "/samples/v3/colokan-ai.mp4");
     await page.keyboard.press("Escape");
     await dlg.waitFor({ state: "hidden" });
     assert.deepEqual(errors, []);

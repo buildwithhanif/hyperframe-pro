@@ -13,8 +13,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const LOOPS = 4;
 const CLIPS = [
-  { src: "/samples/ahliwaris.mp4", poster: "/samples/ahliwaris.jpg" },
-  { src: "/samples/colokan.mp4", poster: "/samples/colokan.jpg" },
+  { src: "/samples/v3/ahliwaris-ai.mp4", poster: "/samples/ahliwaris.jpg" },
+  { src: "/samples/v3/colokan-ai.mp4", poster: "/samples/colokan.jpg" },
 ];
 export const DIALOG_EVENT = "pai:v3-dialog";
 
@@ -138,7 +138,6 @@ export default function HeroMedia() {
             onClick={() => open("face")}
           />
           <p className="v3-ai">
-            <i aria-hidden="true" />
             Made with AI <span>· AI version of Hanif, founder</span>
           </p>
           <button type="button" className="v3-pill" aria-haspopup="dialog" onClick={() => open("pill")}>
@@ -227,24 +226,27 @@ function SoundDialog({ children }: { children: (open: (from: "pill" | "face") =>
           <h2 id="v3-dialog-h" className="sr">
             Hanif’s AI version, with sound
           </h2>
-          <button type="button" className="v3-x" aria-label="Close" onClick={close}>
-            ×
-          </button>
           <div className="v3-dialog-media">
+            <button type="button" className="v3-x" aria-label="Close" onClick={close}>
+              ×
+            </button>
             <video
               ref={vid}
               controls
+              controlsList="nodownload nofullscreen noremoteplayback"
+              disablePictureInPicture
+              disableRemotePlayback
               playsInline
               preload="none"
-              aria-label="A post from Hanif’s personal account, made with his AI version."
+              aria-label="The opening seconds of a post from Hanif’s personal account, made with AI."
             />
             <p className="v3-ai v3-ai--dialog">
-              <i aria-hidden="true" />
               Made with AI <span>· Hanif’s own post</span>
             </p>
           </div>
           <p className="v3-dialog-cap">
-            A post from Hanif’s personal account, made with his AI version. Personal topic, captions in the original language.
+            The opening seconds of a post from Hanif’s personal account, made with AI. Your AI version would open and close videos about
+            your shop.
           </p>
           <div className="v3-dialog-actions">
             <button type="button" className="v3-ghost" onClick={next}>

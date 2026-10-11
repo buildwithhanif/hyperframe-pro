@@ -76,12 +76,16 @@ export default function TermsPage() {
               </p>
               <ul>
                 <li>
-                  When you apply, we ask for your name, email, an optional WhatsApp number and a short creator profile. Please give accurate
-                  answers so we can judge fit fairly.
+                  When you apply as a creator, we ask for your name, email, an optional WhatsApp number and a short creator profile. When
+                  you apply as a business, we ask for your name, your WhatsApp number and a few quick questions about your business. Please
+                  give accurate answers so we can judge fit fairly.
                 </li>
                 <li>Clients must be 18 or older. Please apply only if you are.</li>
                 <li>Slots are limited, and we pick clients by fit with the service. We reply within 2 working days of your application.</li>
-                <li>While you wait for a slot, we send a short monthly email update. Reply to any of them to stop them.</li>
+                <li>
+                  While you wait for a slot, creators get a short monthly email update; reply to any of them to stop them. Businesses who
+                  tick the optional box get a WhatsApp message when a new group opens; tell us to stop any time.
+                </li>
                 <li>
                   You can leave the waitlist at any time. Email <a href="mailto:privacy@produktif.ai">privacy@produktif.ai</a> and we will
                   remove your details.
@@ -134,8 +138,9 @@ export default function TermsPage() {
               <ul>
                 <li>60 short videos a month, about 2 a day, 30 to 45 seconds long.</li>
                 <li>
-                  Your own AI persona, made from your recording, with your face and voice. It opens and closes your videos. The middle is
-                  motion graphics and screen demos made in-house.
+                  Your own AI persona, made from your recording, with your face and voice. It opens and closes your videos. For creators,
+                  the middle is motion graphics and screen demos made in-house. For a business, the middle shows your shop and products,
+                  made from the photos and clips you send.
                 </li>
                 <li>Videos in Indonesian, English or a mix. You pick the split month by month.</li>
                 <li>Vertical files ready to post, with captions on screen and a written caption, hashtags and call to action per video.</li>
@@ -311,7 +316,8 @@ export default function TermsPage() {
           body: (
             <>
               <p>
-                We only make videos with the face and voice of the creator who signed the agreement, and that creator must be 18 or older.
+                We only make videos with the face and voice of the person who signed the agreement or, for a business, a team member who
+                signs their own consent form. Either way, that person passes the ID check and must be 18 or older.
               </p>
               <p>We don&rsquo;t make videos about:</p>
               <ul>
