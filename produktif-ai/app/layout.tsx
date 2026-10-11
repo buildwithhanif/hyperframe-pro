@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./base.css";
+import { Analytics } from "@vercel/analytics/next";
 import UtmKeeper from "@/components/site/UtmKeeper";
 
 export const metadata: Metadata = {
@@ -29,6 +30,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <UtmKeeper />
         {children}
+        {/* Cookieless page views. Only Vercel serves the script, so skip it elsewhere. */}
+        {process.env.VERCEL ? <Analytics /> : null}
       </body>
     </html>
   );
